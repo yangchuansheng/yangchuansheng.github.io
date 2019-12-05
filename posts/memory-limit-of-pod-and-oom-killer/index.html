@@ -747,7 +747,7 @@ stress: FAIL: [271] (451) failed run completed in 7s
 </div>
 
 
-<p>对于刚刚创建的 Pod 而言，有好几个进程作为 OOM killer 的候选人，其中最重要的进程是 <code>pause</code>，用来为业务容器创建共享的 network namespace，其 <code>oom_score_adj</code> 值为 <code>-998</code>，可以确保不被杀死。<code>oom_score_adj</code> 值越低就越不容易被杀死。关于 Pod 的 QoS 与 OOM 值的对应关系，可以参考：<a href="https://www.yangcs.net/posts/kubernetes-resource-management/#qos-%E6%9C%8D%E5%8A%A1%E8%B4%A8%E9%87%8F" target="_blank">Kubernetes 资源管理概述</a>。</p>
+<p>对于刚刚创建的 Pod 而言，有好几个进程作为 OOM killer 的候选人，其中最重要的进程是 <code>pause</code>，用来为业务容器创建共享的 network namespace，其 <code>oom_score_adj</code> 值为 <code>-998</code>，可以确保不被杀死。<code>oom_score_adj</code> 值越低就越不容易被杀死。关于 Pod 的 QoS 与 OOM 值的对应关系，可以参考：<a href="https://fuckcloudnative.io/posts/kubernetes-resource-management/#qos-%E6%9C%8D%E5%8A%A1%E8%B4%A8%E9%87%8F" target="_blank">Kubernetes 资源管理概述</a>。</p>
 
 <p>除了 <code>pause</code> 进程外，剩下的进程 <code>oom_score_adj</code> 值均为 <code>939</code>，我们可以根据 <a href="https://kubernetes.io/docs/tasks/administer-cluster/out-of-resource/#node-oom-behavior" target="_blank">Kubernetes 官方文档</a>中公式来验证一下：</p>
 

@@ -549,7 +549,7 @@ autocomplete('#aa-search-input',
            
            
 
-<p>在之前的文章 <a href="https://www.yangcs.net/posts/istio-ingress/" target="_blank">Istio 服务网格中的网关</a> 中，我已经介绍了简单的暴露 <code>Ingress Gateway</code> 的方案。当时的方案只是用于临时测试，不适合在大规模场景下使用，本文将探讨更加优化的暴露 Ingress Gateway 的方案。</p>
+<p>在之前的文章 <a href="https://fuckcloudnative.io/posts/istio-ingress/" target="_blank">Istio 服务网格中的网关</a> 中，我已经介绍了简单的暴露 <code>Ingress Gateway</code> 的方案。当时的方案只是用于临时测试，不适合在大规模场景下使用，本文将探讨更加优化的暴露 Ingress Gateway 的方案。</p>
 
 <h2 id="hostnetwork">HostNetwork</h2>
 
@@ -557,7 +557,7 @@ autocomplete('#aa-search-input',
 
 <p>第一种方法比较简单，可以直接使用 <code>HostNetwork</code> 模式运行 Ingress Gateway。但你会发现无法启动 ingressgateway 的 Pod，因为如果 Pod 设置了 <code>HostNetwork=true</code>，则 dnsPolicy 就会从 <code>ClusterFirst</code> 被强制转换成 <code>Default</code>。而 Ingress Gateway 启动过程中需要通过 DNS 域名连接 <code>pilot</code> 等其他组件，所以无法启动。</p>
 
-<p>我们可以通过强制将 <code>dnsPolicy</code> 的值设置为 <code>ClusterFirstWithHostNet</code> 来解决这个问题，详情参考：<a href="https://www.yangcs.net/posts/kubernetes-dns/" target="_blank">Kubernetes DNS 高阶指南</a>。</p>
+<p>我们可以通过强制将 <code>dnsPolicy</code> 的值设置为 <code>ClusterFirstWithHostNet</code> 来解决这个问题，详情参考：<a href="https://fuckcloudnative.io/posts/kubernetes-dns/" target="_blank">Kubernetes DNS 高阶指南</a>。</p>
 
 <p>修改后的 ingressgateway deployment 配置文件如下：</p>
 

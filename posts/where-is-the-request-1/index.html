@@ -751,7 +751,7 @@ autocomplete('#aa-search-input',
 
 <hr />
 
-<p>还是拿之前 <a href="https://www.yangcs.net/posts/istio-traffic-management/" target="_blank">Istio 流量管理</a> 这篇文章中的例子来解析吧，首先创建了一个 <code>Gateway</code>，配置文件如下：</p>
+<p>还是拿之前 <a href="https://fuckcloudnative.io/posts/istio-traffic-management/" target="_blank">Istio 流量管理</a> 这篇文章中的例子来解析吧，首先创建了一个 <code>Gateway</code>，配置文件如下：</p>
 
 <pre><code class="language-yaml">apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
@@ -898,7 +898,7 @@ spec:
 <li>VirtualService 中的 <code>route.destination</code> 配置项对应 Http Route Table 中 <code>routes.route</code> 配置项的 <code>cluster</code> 字段。</li>
 </ul>
 
-<p>关于 Envoy 中的 HTTP 路由解析可以参考我之前的文章：<a href="https://www.yangcs.net/posts/routing-basics/" target="_blank">HTTP 路由解析</a>。</p>
+<p>关于 Envoy 中的 HTTP 路由解析可以参考我之前的文章：<a href="https://fuckcloudnative.io/posts/routing-basics/" target="_blank">HTTP 路由解析</a>。</p>
 
 <p>查看 <code>Cluster</code> 配置项：</p>
 

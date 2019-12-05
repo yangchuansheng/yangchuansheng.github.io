@@ -552,10 +552,10 @@ autocomplete('#aa-search-input',
            
            
 
-<p><a href="https://www.yangcs.net/posts/egress-gateway-1/" target="_blank">上一节</a>我演示了如何通过 <code>Egress Gateway</code> 引导 Istio 的出口 <code>HTTP</code> 流量，但到 443 端口的 <code>HTTPS</code> 流量没有通过 Egress Gateway，而是直接转到 <code>edition.cnn.com</code> 。<a href="https://www.yangcs.net/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 演示了如何在网格内部直接通过 HTTP 协议访问外部加密服务。本文尝试将这两者结合起来，先将 HTTP 流量路由到 Egress Gateway，然后直接使用 Egress Gateway 发起 <code>TLS</code> 连接。</p>
+<p><a href="https://fuckcloudnative.io/posts/egress-gateway-1/" target="_blank">上一节</a>我演示了如何通过 <code>Egress Gateway</code> 引导 Istio 的出口 <code>HTTP</code> 流量，但到 443 端口的 <code>HTTPS</code> 流量没有通过 Egress Gateway，而是直接转到 <code>edition.cnn.com</code> 。<a href="https://fuckcloudnative.io/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 演示了如何在网格内部直接通过 HTTP 协议访问外部加密服务。本文尝试将这两者结合起来，先将 HTTP 流量路由到 Egress Gateway，然后直接使用 Egress Gateway 发起 <code>TLS</code> 连接。</p>
 
 <blockquote>
-<p>前提条件与<a href="https://www.yangcs.net/posts/egress-gateway-1/#before-you-begin" target="_blank">上一篇文章</a>相同。</p>
+<p>前提条件与<a href="https://fuckcloudnative.io/posts/egress-gateway-1/#before-you-begin" target="_blank">上一篇文章</a>相同。</p>
 </blockquote>
 
 <h2 id="serviceentry"><span id="inline-toc">1.</span> ServiceEntry</h2>
@@ -583,7 +583,7 @@ spec:
 EOF
 </code></pre>
 
-<p>该 ServiceEntry 会在服务网格内的所有应用的所有 Pod上创建相应的路由规则和与之对应的 Cluster。具体可以参考：<a href="https://www.yangcs.net/posts/control-egress-traffic/" target="_blank">控制 Egress 流量</a>。</p>
+<p>该 ServiceEntry 会在服务网格内的所有应用的所有 Pod上创建相应的路由规则和与之对应的 Cluster。具体可以参考：<a href="https://fuckcloudnative.io/posts/control-egress-traffic/" target="_blank">控制 Egress 流量</a>。</p>
 
 <p>验证 <code>ServiceEntry</code> 是否生效。发送 HTTPS 请求到 <a href="http://edition.cnn.com/politics" target="_blank">http://edition.cnn.com/politics</a>。</p>
 
@@ -738,7 +738,7 @@ spec:
 EOF
 </code></pre>
 
-<p>这里 VirtualService 会分别为网格内的应用和 Egress Gateway 各创建一条路由，以实现通过 Egress Gateway 访问目的地址 <code>edition.cnn.com:443</code>。具体的 Envoy 配置解析与<a href="https://www.yangcs.net/posts/egress-gateway-1/" target="_blank">上一篇文章</a>类似。</p>
+<p>这里 VirtualService 会分别为网格内的应用和 Egress Gateway 各创建一条路由，以实现通过 Egress Gateway 访问目的地址 <code>edition.cnn.com:443</code>。具体的 Envoy 配置解析与<a href="https://fuckcloudnative.io/posts/egress-gateway-1/" target="_blank">上一篇文章</a>类似。</p>
 
 <p>但此时我们仍然不能访问外部服务，因为 Egress Gateway 通过 <code>443</code> 端口发起连接的时候，使用的仍然是 <code>HTTP</code> 协议。所以我们需要让 Egress Gateway 在出口流量上执行 TLS 发起，使用 <code>HTTPS</code> 协议来访问外部服务。</p>
 
@@ -782,7 +782,7 @@ content-length: 150793
 ...
 </code></pre>
 
-<p>输出应该与 <a href="https://www.yangcs.net/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 中的输出相同：没有 <code>301 Moved Permanently</code> 信息。</p>
+<p>输出应该与 <a href="https://fuckcloudnative.io/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 中的输出相同：没有 <code>301 Moved Permanently</code> 信息。</p>
 
 <style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:"Font Awesome 5 Free",FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:'\f071'}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:'\f05a'}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:'\f06a'}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:'\f058'}.notice.tip{background:#e6f9e6}</style><div class="notice note" >
 <p class="first notice-title">注意</p><p>注意，这里我们只将到 80 端口的 <code>HTTP</code> 流量重定向到 Egress Gateway，并通过 Egress Gateway 发起 TLS 连接；到 443 端口的 <code>HTTP</code> 流量仍然直接通过应用的 sidecar 代理发起 TLS 连接。</p></div>

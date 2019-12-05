@@ -881,7 +881,7 @@ autocomplete('#aa-search-input',
 <p>容器使用的内存占系统内存的百分比 + oom_score_adj = oom_score</p>
 </blockquote>
 
-<p>OOM killer 会杀掉 <code>oom_score_adj</code> 值最高的容器，如果有多个容器的 <code>oom_score_adj</code> 值相同，就会杀掉内存使用量最多的容器（其实是因为内存使用量最多的容器的 oom_score 值最高）。关于 OOM 的更多内容请参考：<a href="https://www.yangcs.net/posts/memory-limit-of-pod-and-oom-killer/" target="_blank">Kubernetes 内存资源限制实战</a>。</p>
+<p>OOM killer 会杀掉 <code>oom_score_adj</code> 值最高的容器，如果有多个容器的 <code>oom_score_adj</code> 值相同，就会杀掉内存使用量最多的容器（其实是因为内存使用量最多的容器的 oom_score 值最高）。关于 OOM 的更多内容请参考：<a href="https://fuckcloudnative.io/posts/memory-limit-of-pod-and-oom-killer/" target="_blank">Kubernetes 内存资源限制实战</a>。</p>
 
 <p>假设某节点运行着 4 个 Pod，且每个 Pod 中只有一个容器。每个 QoS 类型为 <code>Burstable</code> 的 Pod 配置的内存 requests 是 <code>4Gi</code>，节点的内存大小为 <code>30Gi</code>。每个 Pod 的 <code>oom_score_adj</code> 值如下所示：</p>
 

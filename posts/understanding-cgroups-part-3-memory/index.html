@@ -554,12 +554,12 @@ autocomplete('#aa-search-input',
 <p>该系列文章总共分为三篇：</p>
 
 <ul>
-<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-1-basics/" target="_blank">Linux Cgroup 入门教程：基本概念</a></li>
-<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-2-cpu/" target="_blank">Linux Cgroup 入门教程：CPU</a></li>
-<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-3-memory/" target="_blank">Linux Cgroup 入门教程：内存</a></li>
+<li><a href="https://fuckcloudnative.io/posts/understanding-cgroups-part-1-basics/" target="_blank">Linux Cgroup 入门教程：基本概念</a></li>
+<li><a href="https://fuckcloudnative.io/posts/understanding-cgroups-part-2-cpu/" target="_blank">Linux Cgroup 入门教程：CPU</a></li>
+<li><a href="https://fuckcloudnative.io/posts/understanding-cgroups-part-3-memory/" target="_blank">Linux Cgroup 入门教程：内存</a></li>
 </ul>
 
-<p>通过<a href="https://www.yangcs.net/posts/understanding-cgroups-part-2-cpu/" target="_blank">上篇文章</a>的学习，我们学会了如何查看当前 cgroup 的信息，如何通过操作 <code>/sys/fs/cgroup</code> 目录来动态设置 cgroup，也学会了如何设置 CPU shares 和 CPU quota 来控制 <code>slice</code> 内部以及不同 <code>slice</code> 之间的 CPU 使用时间。本文将把重心转移到内存上，通过具体的示例来演示如何通过 cgroup 来限制内存的使用。</p>
+<p>通过<a href="https://fuckcloudnative.io/posts/understanding-cgroups-part-2-cpu/" target="_blank">上篇文章</a>的学习，我们学会了如何查看当前 cgroup 的信息，如何通过操作 <code>/sys/fs/cgroup</code> 目录来动态设置 cgroup，也学会了如何设置 CPU shares 和 CPU quota 来控制 <code>slice</code> 内部以及不同 <code>slice</code> 之间的 CPU 使用时间。本文将把重心转移到内存上，通过具体的示例来演示如何通过 cgroup 来限制内存的使用。</p>
 
 <h2 id="span-id-inline-toc-1-span-寻找走失内存"><span id="inline-toc">1.</span> 寻找走失内存</h2>
 

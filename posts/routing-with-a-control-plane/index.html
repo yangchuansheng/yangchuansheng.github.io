@@ -554,7 +554,7 @@ autocomplete('#aa-search-input',
            
            
 
-<p>当微服务集群规模非常庞大时，控制平面包含了大量的 Envoy 配置项和基础设施状态，这时最好将数据平面与控制平面分离。控制平面最主要的功能包括自动重试和<a href="https://www.yangcs.net/posts/integrating-service-discovery-with-envoy/" target="_blank">集成服务发现</a>。</p>
+<p>当微服务集群规模非常庞大时，控制平面包含了大量的 Envoy 配置项和基础设施状态，这时最好将数据平面与控制平面分离。控制平面最主要的功能包括自动重试和<a href="https://fuckcloudnative.io/posts/integrating-service-discovery-with-envoy/" target="_blank">集成服务发现</a>。</p>
 
 <p>单独创建控制平面的最大优势之一是可以为路由配置提供统一的来源。传统架构的路由定义分散存储在 Web 服务器的配置文件、负载均衡器配置文件和特定应用程序的配置中（如 <code>routes.rb</code>），使用单独的控制平面可以集中所有的路由配置，使它们更易于更改和管理，同时也为应用的迁移和发布提供了更高的灵活性。</p>
 

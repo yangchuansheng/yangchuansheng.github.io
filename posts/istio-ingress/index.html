@@ -610,7 +610,7 @@ spec:
     - bookinfo.com
 </code></pre>
 
-<p>要为进入上面的 Gateway 的流量配置相应的路由，必须为同一个 host 定义一个 <a href="https://www.yangcs.net/posts/istio-traffic-management/" target="_blank">VirtualService</a>（参考上一篇博文），并使用配置中的 <code>gateways</code> 字段绑定到前面定义的 <code>Gateway</code> 上：</p>
+<p>要为进入上面的 Gateway 的流量配置相应的路由，必须为同一个 host 定义一个 <a href="https://fuckcloudnative.io/posts/istio-traffic-management/" target="_blank">VirtualService</a>（参考上一篇博文），并使用配置中的 <code>gateways</code> 字段绑定到前面定义的 <code>Gateway</code> 上：</p>
 
 <pre><code class="language-yaml">apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -694,7 +694,7 @@ spec:
 
 <li><p>使用 curl 访问 httpbin 服务。</p>
 
-<p>首先获取 Ingress Gateway 的 IP 和 端口，参考上一篇文章：<a href="https://www.yangcs.net/posts/istio-traffic-management/" target="_blank">Istio 流量管理</a></p>
+<p>首先获取 Ingress Gateway 的 IP 和 端口，参考上一篇文章：<a href="https://fuckcloudnative.io/posts/istio-traffic-management/" target="_blank">Istio 流量管理</a></p>
 
 <pre><code class="language-bash">$ curl -I -HHost:httpbin.example.com http://$INGRESS_HOST:$INGRESS_PORT/status/200
     

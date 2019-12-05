@@ -433,7 +433,7 @@
       <pubDate>Tue, 03 Apr 2018 08:11:38 +0000</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/cri-o/</guid>
-      <description>上一篇 https://www.yangcs.net/posts/container-runtime/ 介绍了什么是容器运行时，并列出了不同的容器运行时。本篇重点介绍其中的一种容器运行时 CRI-O。 1. CRI-O 的诞生 当容器运行时（Contain</description>
+      <description>上一篇 https://fuckcloudnative.io/posts/container-runtime/ 介绍了什么是容器运行时，并列出了不同的容器运行时。本篇重点介绍其中的一种容器运行时 CRI-O。 1. CRI-O 的诞生 当容器运行时（Contain</description>
     </item>
     
     <item>

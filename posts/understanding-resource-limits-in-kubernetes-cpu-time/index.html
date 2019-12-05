@@ -573,9 +573,9 @@ autocomplete('#aa-search-input',
 <p>建议先阅读下面的系列文章：</p>
 
 <ul>
-<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-1-basics/" target="_blank">Linux Cgroup 入门教程：基本概念</a></li>
-<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-2-cpu/" target="_blank">Linux Cgroup 入门教程：CPU</a></li>
-<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-3-memory/" target="_blank">Linux Cgroup 入门教程：内存</a></li>
+<li><a href="https://fuckcloudnative.io/posts/understanding-cgroups-part-1-basics/" target="_blank">Linux Cgroup 入门教程：基本概念</a></li>
+<li><a href="https://fuckcloudnative.io/posts/understanding-cgroups-part-2-cpu/" target="_blank">Linux Cgroup 入门教程：CPU</a></li>
+<li><a href="https://fuckcloudnative.io/posts/understanding-cgroups-part-3-memory/" target="_blank">Linux Cgroup 入门教程：内存</a></li>
 </ul>
 
 <p>在关于 Kubernetes 资源限制的系列文章的<a href="https://mp.weixin.qq.com/s/j2FfqUHSRTzczNcfPuwRQw" target="_blank">第一篇文章</a>中，我讨论了如何使用 <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.12/#resourcerequirements-v1-core" target="_blank">ResourceRequirements</a> 对象来设置 Pod 中容器的内存资源限制，以及如何通过容器运行时和 linux control group（<code>cgroup</code>）来实现这些限制。我还谈到了 Requests 和 Limits 之间的区别，其中 <code>Requests</code> 用于在调度时通知调度器 Pod 需要多少资源才能调度，而 <code>Limits</code> 用来告诉 Linux 内核什么时候你的进程可以为了清理空间而被杀死。在这篇文章中，我会继续仔细分析 CPU 资源限制。想要理解这篇文章所说的内容，不一定要先阅读上一篇文章，但我建议那些工程师和集群管理员最好还是先阅读完第一篇，以便全面掌控你的集群。</p>

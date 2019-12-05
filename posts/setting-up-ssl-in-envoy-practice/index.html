@@ -542,7 +542,7 @@ autocomplete('#aa-search-input',
 
 <p>而 <a href="https://www.envoyproxy.io/" target="_blank">Envoy</a> 是一款现代化的，高性能，小体积的边缘及服务代理，浑身散发出一股时尚潮流的气息。作为一名斜杠青年，在经过一定地了解后，我果断入了 Envoy 的坑。</p>
 
-<p>关于如何为 Envoy 开启证书验证可以参考我之间的文章：<a href="https://www.yangcs.net/posts/setting-up-ssl-in-envoy/" target="_blank">为 Envoy 启用证书验证</a>。本文将直接进入实战部分，通过 Envoy 来反向代理我的博客静态页面，并且加密客户端和 Envoy 代理之间的所有流量。</p>
+<p>关于如何为 Envoy 开启证书验证可以参考我之间的文章：<a href="https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy/" target="_blank">为 Envoy 启用证书验证</a>。本文将直接进入实战部分，通过 Envoy 来反向代理我的博客静态页面，并且加密客户端和 Envoy 代理之间的所有流量。</p>
 
 <h2 id="span-id-inline-toc-1-span-方案架构"><span id="inline-toc">1.</span> 方案架构</h2>
 
@@ -699,7 +699,7 @@ services:
             - name: backend
               domains: ②
               - &quot;yangcs.net&quot;
-              - &quot;www.yangcs.net&quot;
+              - &quot;fuckcloudnative.io&quot;
               routes:
               - match:
                   prefix: &quot;/&quot;
@@ -719,9 +719,9 @@ services:
           alpn_protocols: h2,http/1.1 ③
           tls_certificates: ④
             - certificate_chain:
-                filename: &quot;/etc/letsencrypt/live/www.yangcs.net/fullchain.pem&quot;
+                filename: &quot;/etc/letsencrypt/live/fuckcloudnative.io/fullchain.pem&quot;
               private_key:
-                filename: &quot;/etc/letsencrypt/live/www.yangcs.net/privkey.pem&quot;
+                filename: &quot;/etc/letsencrypt/live/fuckcloudnative.io/privkey.pem&quot;
       filters:
       - name: envoy.http_connection_manager
         config:
@@ -733,7 +733,7 @@ services:
             - name: backend
               domains:
               - &quot;yangcs.net&quot;
-              - &quot;www.yangcs.net&quot;
+              - &quot;fuckcloudnative.io&quot;
               routes:
               - match:
                   prefix: &quot;/&quot;
@@ -767,7 +767,7 @@ admin:
 <li>④ : 网站使用的证书。可以通过 <a href="https://letsencrypt.org/" target="_blank">Let&rsquo;s Encrypt</a> 申请免费的证书。</li>
 </ul>
 
-<p>其他配置详细说明请参考：<a href="https://www.yangcs.net/posts/setting-up-ssl-in-envoy/" target="_blank">为 Envoy 启用证书验证</a>。</p>
+<p>其他配置详细说明请参考：<a href="https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy/" target="_blank">为 Envoy 启用证书验证</a>。</p>
 
 <p>准备好所有配置以后，我们就可以通过以下命令来启动所有服务了：</p>
 
@@ -780,7 +780,7 @@ Creating front-proxy_service-envoy_1 ... done
 
 <p>接下来就可以通过公网域名访问博客网站啦！没错，你现在浏览的我的博客就是通过 Envoy 反向代理的。 不信请看：</p>
 
-<pre><code class="language-bash">$ curl -I https://www.yangcs.net
+<pre><code class="language-bash">$ curl -I https://fuckcloudnative.io
 
 HTTP/2 200
 server: envoy

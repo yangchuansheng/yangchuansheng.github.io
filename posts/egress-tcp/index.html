@@ -572,7 +572,7 @@ autocomplete('#aa-search-input',
 <p>本篇博客于 2018 年 7 月 23 日更新。新版本使用了 Istio 1.0，并使用了新的 <a href="https://preliminary.istio.io/zh/blog/2018/v1alpha3-routing/" target="_blank">v1alpha3 流量管理 API</a>。如果您使用的 Istio 是旧版本，请参考 <a href="https://archive.istio.io/v0.7/blog/2018/egress-tcp.html" target="_blank">这篇文档</a>。</p>
 </blockquote>
 
-<p>在上一篇文章<a href="https://www.yangcs.net/posts/egress-https/" target="_blank">在服务网格内部调用外部 Web 服务</a>中，我描述了如何让 Istio 服务网格中的微服务通过 HTTPS 协议和外部的 Web 服务进行通信。本文我将着重介绍如何让 Istio 服务网格中的微服务通过 <code>TCP</code> 协议和外部服务进行通信。讲解的过程中会用到 <a href="https://preliminary.istio.io/docs/examples/bookinfo/" target="_blank">Bookinfo 示例应用程序</a>中将书籍评级数据保存在 MySQL 数据库中的那个版本。数据库部署在集群外，<code>ratings</code> 服务调用该数据库，还要定义一个 <code>ServiceEntry</code> 以允许网格内的应用程序访问外部的数据库。</p>
+<p>在上一篇文章<a href="https://fuckcloudnative.io/posts/egress-https/" target="_blank">在服务网格内部调用外部 Web 服务</a>中，我描述了如何让 Istio 服务网格中的微服务通过 HTTPS 协议和外部的 Web 服务进行通信。本文我将着重介绍如何让 Istio 服务网格中的微服务通过 <code>TCP</code> 协议和外部服务进行通信。讲解的过程中会用到 <a href="https://preliminary.istio.io/docs/examples/bookinfo/" target="_blank">Bookinfo 示例应用程序</a>中将书籍评级数据保存在 MySQL 数据库中的那个版本。数据库部署在集群外，<code>ratings</code> 服务调用该数据库，还要定义一个 <code>ServiceEntry</code> 以允许网格内的应用程序访问外部的数据库。</p>
 
 <h2 id="bookinfo-sample-application-with-external-ratings-database"><span id="inline-toc">1.</span> Bookinfo 示例应用程序与外部评级数据库</h2>
 
@@ -774,7 +774,7 @@ deployment &quot;ratings-v2-mysql&quot; created
 
 <p><center><p id=small>Ratings 服务的错误信息</p></center></p>
 
-<p>与<a href="https://www.yangcs.net/posts/egress-https/" target="_blank">在服务网格内部调用外部 Web 服务</a>这篇文章中遇到的情况一样，你会体验到优雅的服务降级，非常好。虽然 ratings 服务中有错误，但是应用程序并没有因此而崩溃，Web 页面虽然不能显示评级星标，但可以正确显示书籍信息、details 信息和 reviews 信息。</p>
+<p>与<a href="https://fuckcloudnative.io/posts/egress-https/" target="_blank">在服务网格内部调用外部 Web 服务</a>这篇文章中遇到的情况一样，你会体验到优雅的服务降级，非常好。虽然 ratings 服务中有错误，但是应用程序并没有因此而崩溃，Web 页面虽然不能显示评级星标，但可以正确显示书籍信息、details 信息和 reviews 信息。</p>
 
 <p>默认情况下， Istio sidecar 代理（Envoy proxies） 会阻止到集群外服务的所有流量（TCP 和 HTTP），要为 TCP 启用此类流量，我们必须先定义 TCP 协议的 <code>mesh-external ServiceEntry</code>。</p>
 

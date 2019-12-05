@@ -552,13 +552,13 @@ autocomplete('#aa-search-input',
            
            
 
-<p>Prometheus 中提供了四种指标类型（参考：<a href="https://www.yangcs.net/prometheus/2-concepts/metric_types.html" target="_blank">Prometheus 的指标类型</a>），其中直方图（Histogram）和摘要（Summary）是最复杂和难以理解的，这篇文章就是为了帮助大家加深对这 <code>histogram</code> 类型指标的理解。</p>
+<p>Prometheus 中提供了四种指标类型（参考：<a href="https://fuckcloudnative.io/prometheus/2-concepts/metric_types.html" target="_blank">Prometheus 的指标类型</a>），其中直方图（Histogram）和摘要（Summary）是最复杂和难以理解的，这篇文章就是为了帮助大家加深对这 <code>histogram</code> 类型指标的理解。</p>
 
 <h2 id="1-什么是-histogram">1. 什么是 Histogram？</h2>
 
 <hr />
 
-<p>根据<a href="https://www.yangcs.net/prometheus/2-concepts/metric_types.html" target="_blank">上篇文档</a>，Histogram 会在一段时间范围内对数据进行采样（通常是请求持续时间或响应大小等），并将其计入可配置的存储桶（bucket）中。但这句话还是不太好理解，下面通过具体的示例来说明。</p>
+<p>根据<a href="https://fuckcloudnative.io/prometheus/2-concepts/metric_types.html" target="_blank">上篇文档</a>，Histogram 会在一段时间范围内对数据进行采样（通常是请求持续时间或响应大小等），并将其计入可配置的存储桶（bucket）中。但这句话还是不太好理解，下面通过具体的示例来说明。</p>
 
 <p>假设我们想监控某个应用在一段时间内的响应时间，最后监控到的样本的响应时间范围为 0s~10s。现在我们将样本的值域划分为不同的区间，即不同的 <code>bucket</code>，每个 bucket 的宽度是 0.2s。那么第一个 bucket 表示响应时间小于等于 0.2s 的请求数量，第二个 bucket 表示响应时间大于 0.2s 小于等于 0.4s 的请求数量，以此类推。</p>
 
@@ -682,7 +682,7 @@ example_latency_seconds_sum 6.54
 </div>
 
 
-<p>这个值已经很接近精确的分位数值了。关于 histogram_quantile 函数的详细使用方式，请参考：<a href="https://www.yangcs.net/prometheus/3-prometheus/functions.html#histogramquantile" target="_blank">PromQL 内置函数</a>。</p>
+<p>这个值已经很接近精确的分位数值了。关于 histogram_quantile 函数的详细使用方式，请参考：<a href="https://fuckcloudnative.io/prometheus/3-prometheus/functions.html#histogramquantile" target="_blank">PromQL 内置函数</a>。</p>
 
 <h2 id="4-总结">4. 总结</h2>
 

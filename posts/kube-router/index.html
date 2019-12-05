@@ -692,7 +692,7 @@ Cleanup() {
 <ul>
 <li><a href="https://link.jianshu.com/?t=https://cloudnativelabs.github.io/post/2017-05-10-kube-network-service-proxy/" target="_blank">Kubernetes network services prox with IPVS/LVS</a></li>
 <li><a href="https://link.jianshu.com/?t=https://blog.codeship.com/kernel-load-balancing-for-docker-containers-using-ipvs/" target="_blank">Kernel Load-Balancing for Docker Containers Using IPVS</a></li>
-<li><a href="https://www.yangcs.net/posts/lvs-persistent-connection/" target="_blank">LVS负载均衡之持久性连接介绍</a></li>
+<li><a href="https://fuckcloudnative.io/posts/lvs-persistent-connection/" target="_blank">LVS负载均衡之持久性连接介绍</a></li>
 </ul>
 
 <h3 id="容器网络-run-router">容器网络 | <code>--run-router</code></h3>
@@ -872,7 +872,7 @@ $ ipvsadm -S -n
 -a -t 10.254.226.105:8080 -r 172.20.104.9:8080 -m -w 1
 </code></pre>
 
-<p>可以看到 lvs 的规则条目里多了个 <code>persistent</code>，即 lvs 的持久连接，关于 lvs 持久连接的具体内容可以参考我的另一篇博文 <a href="https://www.yangcs.net/posts/lvs-persistent-connection/" target="_blank">LVS负载均衡之持久性连接介绍</a>。</p>
+<p>可以看到 lvs 的规则条目里多了个 <code>persistent</code>，即 lvs 的持久连接，关于 lvs 持久连接的具体内容可以参考我的另一篇博文 <a href="https://fuckcloudnative.io/posts/lvs-persistent-connection/" target="_blank">LVS负载均衡之持久性连接介绍</a>。</p>
 
 <p>可以通过设置 <code>service.spec.sessionAffinityConfig.clientIP.timeoutSeconds</code> 的值来修改 lvs 的 <code>persistence_timeout</code> 超时时间。</p>
 

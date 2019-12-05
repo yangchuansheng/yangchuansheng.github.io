@@ -550,9 +550,9 @@ autocomplete('#aa-search-input',
 
          
            
-           <p>在上一篇文章 <a href="https://www.yangcs.net/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 中，我演示了如何在网格内部直接通过 HTTP 协议访问外部加密服务，并揭示了其背后 Envoy 的配置逻辑。</p>
+           <p>在上一篇文章 <a href="https://fuckcloudnative.io/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 中，我演示了如何在网格内部直接通过 HTTP 协议访问外部加密服务，并揭示了其背后 Envoy 的配置逻辑。</p>
 
-<p>本文将会通过 <code>Egress Gateway</code> 来引导 Istio 的出口流量，与 <a href="https://www.yangcs.net/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 任务中描述的功能的相同，唯一的区别就是，这里会使用 <code>Egress Gateway</code> 来完成这一任务。</p>
+<p>本文将会通过 <code>Egress Gateway</code> 来引导 Istio 的出口流量，与 <a href="https://fuckcloudnative.io/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 任务中描述的功能的相同，唯一的区别就是，这里会使用 <code>Egress Gateway</code> 来完成这一任务。</p>
 
 <p>Istio 0.8 引入了 i<a href="https://preliminary.istio.io/zh/docs/reference/config/istio.networking.v1alpha3/#gateway" target="_blank">ngress 和 Egress gateway</a> 的概念。 Ingress Gateway 允许定义进入服务网格的流量入口，所有入站流量都通过该入口；<code>Egress Gateway</code> 与之相对，它定义了网格的流量出口。 Egress Gateway 允许将 Istio  的流量治理功能（例如，监控和路由规则）应用于 Egress 流量。</p>
 
@@ -635,7 +635,7 @@ Content-Length: 151654
 ...
 </code></pre>
 
-<p>此处的返回结果应该与 <a href="https://www.yangcs.net/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 中没有配置 TLS 发起的情况下的返回结果相同。</p>
+<p>此处的返回结果应该与 <a href="https://fuckcloudnative.io/posts/egress-tls-origination/" target="_blank">Istio 出口流量的 TLS</a> 中没有配置 TLS 发起的情况下的返回结果相同。</p>
 
 <p><span id=blue>3.</span> 为 <code>edition.cnn.com</code> 的 80 端口创建一个 Egress Gateway（假设没有启用<a href="https://preliminary.istio.io/zh/docs/tasks/security/mutual-tls/" target="_blank">双向 TLS 认证</a>）。</p>
 
