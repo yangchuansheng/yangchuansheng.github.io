@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>devicemapper on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/devicemapper/</link>
+    <description>Recent content in devicemapper on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Mon, 22 Jan 2018 16:17:11 +0800</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/devicemapper/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Device Mapper基础教程：Docker 中使用 devicemapper 存储驱动</title>
+      <link>https://fuckcloudnative.io/posts/use-devicemapper/</link>
+      <pubDate>Mon, 22 Jan 2018 16:17:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/use-devicemapper/</guid>
+      <description>1. 准备条件 devicemapper 存储驱动是 RHEL, CentOS 和 Oracle Linux 系统上唯一一个支持 Docker EE 和 Commercially Supported Docker Engine (CS-Engine) 的存储驱动，具体参考 Product compatibility matrix. devicemapper 在 CentOS, Fedora, Ubuntu 和 Debian 上也支持 Docker CE。 如果你更改了 Docker 的存</description>
+    </item>
+    
+    <item>
+      <title>Device Mapper系列基础教程：Thin Provisioning 实践</title>
+      <link>https://fuckcloudnative.io/posts/thin-provisioning/</link>
+      <pubDate>Mon, 22 Jan 2018 16:00:22 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/thin-provisioning/</guid>
+      <description>1. Thin Provisioning Snapshot 演示 上一篇我们介绍了 Device Mapper 框架的技术原理及其核心概念，下面，我们用一系列的命令来演示一下 Device Mapper 的 Thin Provisioning Snapshot 是怎么玩的。 首先，我们需要先建两个</description>
+    </item>
+    
+    <item>
+      <title>Device Mapper系列基础教程：Device Mapper 的原理</title>
+      <link>https://fuckcloudnative.io/posts/devicemapper-theory/</link>
+      <pubDate>Sun, 21 Jan 2018 09:28:41 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/devicemapper-theory/</guid>
+      <description>1. Device Mapper 简介 注意 Device Mapper 是 linux 的内核用来将块设备映射到虚拟块设备的 framework，它支持许多高级卷管理技术。docker 的 devicemapper 存储驱动程序利用此框</description>
+    </item>
+    
+  </channel>
+</rss>

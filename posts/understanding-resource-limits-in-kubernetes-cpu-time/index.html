@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>深入理解 Kubernetes 资源限制：CPU - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="" name="keywords">
+
+  <meta name="description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/understanding-resource-limits-in-kubernetes-cpu-time\/",
+          "name": "深入理解 kubernetes 资源限制： c p u"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "深入理解 Kubernetes 资源限制：CPU",
+  "description" : "原文地址：Understanding resource limits in kubernetes: cpu time 作者：Mark Betz 译者：杨传胜 建议先阅读下面的系列文章： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：C",
+  "inLanguage" : "zh",
+  "wordCount":  3884 ,
+  "datePublished" : "2018-11-10T13:32:30",
+  "dateModified" : "2018-11-10T13:32:30",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "kubernetes" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/understanding-resource-limits-in-kubernetes-cpu-time\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="深入理解 Kubernetes 资源限制：CPU" />
+<meta property="og:description" content="剖析 CPU 资源限制背后的 cgroup 实现原理">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/understanding-resource-limits-in-kubernetes-cpu-time/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="深入理解 Kubernetes 资源限制：CPU" />
+  <meta name="twitter:description" content="剖析 CPU 资源限制背后的 cgroup 实现原理">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">深入理解 Kubernetes 资源限制：CPU</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">剖析 CPU 资源限制背后的 cgroup 实现原理</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 11 月 10 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3884&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>深入理解 Kubernetes 资源限制：CPU</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">剖析 CPU 资源限制背后的 cgroup 实现原理</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 11 月 10 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3884&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-cpu-限制"><span id="inline-toc">1.</span> CPU 限制</a></li>
+<li><a href="#span-id-inline-toc-2-span-默认限制"><span id="inline-toc">2.</span> 默认限制</a></li>
+<li><a href="#span-id-inline-toc-3-span-参考资料"><span id="inline-toc">3.</span> 参考资料</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<p id="div-border-left-red">
+<strong>原文地址：</strong><a href="https://medium.com/@betz.mark/understanding-resource-limits-in-kubernetes-cpu-time-9eff74d3161b" target="_blank">Understanding resource limits in kubernetes: cpu time</a>
+<br />
+<strong>作者：</strong><a href="https://medium.com/@betz.mark?source=post_header_lockup" target="_blank">Mark Betz</a>
+<br />
+<strong>译者：</strong>杨传胜
+</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/VAOaON.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/VAOaON.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/VAOaON.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>建议先阅读下面的系列文章：</p>
+
+<ul>
+<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-1-basics/" target="_blank">Linux Cgroup 入门教程：基本概念</a></li>
+<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-2-cpu/" target="_blank">Linux Cgroup 入门教程：CPU</a></li>
+<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-3-memory/" target="_blank">Linux Cgroup 入门教程：内存</a></li>
+</ul>
+
+<p>在关于 Kubernetes 资源限制的系列文章的<a href="https://mp.weixin.qq.com/s/j2FfqUHSRTzczNcfPuwRQw" target="_blank">第一篇文章</a>中，我讨论了如何使用 <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.12/#resourcerequirements-v1-core" target="_blank">ResourceRequirements</a> 对象来设置 Pod 中容器的内存资源限制，以及如何通过容器运行时和 linux control group（<code>cgroup</code>）来实现这些限制。我还谈到了 Requests 和 Limits 之间的区别，其中 <code>Requests</code> 用于在调度时通知调度器 Pod 需要多少资源才能调度，而 <code>Limits</code> 用来告诉 Linux 内核什么时候你的进程可以为了清理空间而被杀死。在这篇文章中，我会继续仔细分析 CPU 资源限制。想要理解这篇文章所说的内容，不一定要先阅读上一篇文章，但我建议那些工程师和集群管理员最好还是先阅读完第一篇，以便全面掌控你的集群。</p>
+
+<h2 id="span-id-inline-toc-1-span-cpu-限制"><span id="inline-toc">1.</span> CPU 限制</h2>
+
+<hr />
+
+<p>正如我在上一篇文章中提到的，<code>CPU</code> 资源限制比内存资源限制更复杂，原因将在下文详述。幸运的是 <code>CPU</code> 资源限制和内存资源限制一样都是由 <code>cgroup</code> 控制的，上文中提到的思路和工具在这里同样适用，我们只需要关注他们的不同点就行了。首先，让我们将 CPU 资源限制添加到之前示例中的 yaml：</p>
+
+<pre><code class="language-yaml">resources:
+  requests:
+    memory: 50Mi
+    cpu: 50m
+  limits:
+    memory: 100Mi
+    cpu: 100m
+</code></pre>
+
+<p>单位后缀 <code>m</code> 表示千分之一核，也就是说 <code>1 Core = 1000m</code>。因此该资源对象指定容器进程需要 <code>50/1000</code> 核（5%）才能被调度，并且允许最多使用 <code>100/1000</code> 核（10%）。同样，<code>2000m</code> 表示两个完整的 CPU 核心，你也可以写成 <code>2</code> 或者 <code>2.0</code>。为了了解 Docker 和 cgroup 如何使用这些值来控制容器，我们首先创建一个只配置了 CPU <code>requests</code> 的 Pod：</p>
+
+<pre><code class="language-bash">$ kubectl run limit-test --image=busybox --requests &quot;cpu=50m&quot; --command -- /bin/sh -c &quot;while true; do sleep 2; done&quot;
+
+deployment.apps &quot;limit-test&quot; created
+</code></pre>
+
+<p>通过 kubectl 命令我们可以验证这个 Pod 配置了 <code>50m</code> 的 CPU requests：</p>
+
+<pre><code class="language-bash">$ kubectl get pods limit-test-5b4c495556-p2xkr -o=jsonpath='{.spec.containers[0].resources}'
+
+map[requests:map[cpu:50m]]
+</code></pre>
+
+<p>我们还可以看到 Docker 为容器配置了相同的资源限制：</p>
+
+<pre><code class="language-bash">$ docker ps | grep busy | cut -d' ' -f1
+f2321226620e
+
+$ docker inspect f2321226620e --format '{{.HostConfig.CpuShares}}'
+51
+</code></pre>
+
+<p>这里显示的为什么是 <code>51</code>，而不是 <code>50</code>？这是因为 Linux cgroup 和 Docker 都将 CPU 核心数分成了 <code>1024</code> 个时间片（shares），而 Kubernetes 将它分成了 <code>1000</code> 个 shares。</p>
+
+<blockquote>
+<p>shares 用来设置 CPU 的相对值，并且是针对所有的 CPU（内核），默认值是 1024，假如系统中有两个 cgroup，分别是 A 和 B，A 的 shares 值是 1024，B 的 shares 值是 512，那么 A 将获得 1024/(1204+512)=66% 的 CPU 资源，而 B 将获得 33% 的 CPU 资源。shares 有两个特点：</p>
+
+<p><li>如果 A 不忙，没有使用到 66% 的 CPU 时间，那么剩余的 CPU 时间将会被系统分配给 B，即 B 的 CPU 使用率可以超过 33%。</li>
+<li>如果添加了一个新的 cgroup C，且它的 shares 值是 1024，那么 A 的限额变成了 1024/(1204+512+1024)=40%，B 的变成了 20%。</li>
+<br />
+从上面两个特点可以看出：</p>
+
+<p><li>在闲的时候，shares 基本上不起作用，只有在 CPU 忙的时候起作用，这是一个优点。</li>
+<li>由于 shares 是一个绝对值，需要和其它 cgroup 的值进行比较才能得到自己的相对限额，而在一个部署很多容器的机器上，cgroup 的数量是变化的，所以这个限额也是变化的，自己设置了一个高的值，但别人可能设置了一个更高的值，所以这个功能没法精确的控制 CPU 使用率。</li></p>
+</blockquote>
+
+<p>与配置内存资源限制时 Docker 配置容器进程的内存 cgroup 的方式相同，设置 CPU 资源限制时 Docker 会配置容器进程的 <code>cpu,cpuacct</code> cgroup：</p>
+
+<pre><code class="language-bash">$ ps ax | grep /bin/sh
+   60554 ?      Ss     0:00 /bin/sh -c while true; do sleep 2; done
+
+$ sudo cat /proc/60554/cgroup
+...
+4:cpu,cpuacct:/kubepods/burstable/pode12b33b1-db07-11e8-b1e1-42010a800070/3be263e7a8372b12d2f8f8f9b4251f110b79c2a3bb9e6857b2f1473e640e8e75
+
+$ ls -l /sys/fs/cgroup/cpu,cpuacct/kubepods/burstable/pode12b33b1-db07-11e8-b1e1-42010a800070/3be263e7a8372b12d2f8f8f9b4251f110b79c2a3bb9e6857b2f1473e640e8e75
+total 0
+drwxr-xr-x 2 root root 0 Oct 28 23:19 .
+drwxr-xr-x 4 root root 0 Oct 28 23:19 ..
+...
+-rw-r--r-- 1 root root 0 Oct 28 23:19 cpu.shares
+</code></pre>
+
+<p>Docker 容器的 <code>HostConfig.CpuShares</code> 属性映射到 cgroup 的 <code>cpu.shares</code> 属性，可以验证一下：</p>
+
+<pre><code class="language-bash">$ sudo cat /sys/fs/cgroup/cpu,cpuacct/kubepods/burstable/podb5c03ddf-db10-11e8-b1e1-42010a800070/64b5f1b636dafe6635ddd321c5b36854a8add51931c7117025a694281fb11444/cpu.shares
+
+51
+</code></pre>
+
+<p>你可能会很惊讶，设置了 CPU requests 竟然会把值传播到 <code>cgroup</code>，而在上一篇文章中我们设置内存 requests 时并没有将值传播到 cgroup。这是因为内存的 <code>soft limit</code> 内核特性对 Kubernetes 不起作用，而设置了 <code>cpu.shares</code> 却对 Kubernetes 很有用。后面我会详细讨论为什么会这样。现在让我们先看看设置 CPU <code>limits</code> 时会发生什么：</p>
+
+<pre><code class="language-bash">$ kubectl run limit-test --image=busybox --requests &quot;cpu=50m&quot; --limits &quot;cpu=100m&quot; --command -- /bin/sh -c &quot;while true; do
+sleep 2; done&quot;
+
+deployment.apps &quot;limit-test&quot; created
+</code></pre>
+
+<p>再一次使用 kubectl 验证我们的资源配置：</p>
+
+<pre><code class="language-bash">$ kubectl get pods limit-test-5b4fb64549-qpd4n -o=jsonpath='{.spec.containers[0].resources}'
+
+map[limits:map[cpu:100m] requests:map[cpu:50m]]
+</code></pre>
+
+<p>查看对应的 Docker 容器的配置：</p>
+
+<pre><code class="language-bash">$ docker ps | grep busy | cut -d' ' -f1
+f2321226620e
+$ docker inspect 472abbce32a5 --format '{{.HostConfig.CpuShares}} {{.HostConfig.CpuQuota}} {{.HostConfig.CpuPeriod}}'
+51 10000 100000
+</code></pre>
+
+<p>可以明显看出，CPU requests 对应于 Docker 容器的 <code>HostConfig.CpuShares</code> 属性。而 CPU limits 就不太明显了，它由两个属性控制：<code>HostConfig.CpuPeriod</code> 和 <code>HostConfig.CpuQuota</code>。Docker 容器中的这两个属性又会映射到进程的 <code>cpu,couacct</code> cgroup 的另外两个属性：<code>cpu.cfs_period_us</code> 和 <code>cpu.cfs_quota_us</code>。我们来看一下：</p>
+
+<pre><code class="language-bash">$ sudo cat /sys/fs/cgroup/cpu,cpuacct/kubepods/burstable/pod2f1b50b6-db13-11e8-b1e1-42010a800070/f0845c65c3073e0b7b0b95ce0c1eb27f69d12b1fe2382b50096c4b59e78cdf71/cpu.cfs_period_us
+100000
+
+$ sudo cat /sys/fs/cgroup/cpu,cpuacct/kubepods/burstable/pod2f1b50b6-db13-11e8-b1e1-42010a800070/f0845c65c3073e0b7b0b95ce0c1eb27f69d12b1fe2382b50096c4b59e78cdf71/cpu.cfs_quota_us
+10000
+</code></pre>
+
+<p>如我所说，这些值与容器配置中指定的值相同。但是这两个属性的值是如何从我们在 Pod 中设置的 <code>100m</code> cpu limits 得出的呢，他们是如何实现该 limits 的呢？这是因为 cpu requests 和 cpu limits 是使用两个独立的控制系统来实现的。Requests 使用的是 cpu <code>shares</code> 系统，cpu shares 将每个 CPU 核心划分为 <code>1024</code> 个时间片，并保证每个进程将获得固定比例份额的时间片。如果总共有 1024 个时间片，并且两个进程中的每一个都将 <code>cpu.shares</code> 设置为 <code>512</code>，那么它们将分别获得大约一半的 CPU 可用时间。但 cpu shares 系统无法精确控制 CPU 使用率的上限，如果一个进程没有设置 shares，则另一个进程可用自由使用 CPU 资源。</p>
+
+<p>大约在 2010 年左右，谷歌团队和其他一部分人注意到了<a href="https://ai.google/research/pubs/pub36669" target="_blank">这个问题</a>。为了解决这个问题，后来在 linux 内核中增加了第二个功能更强大的控制系统：<strong>CPU 带宽控制组</strong>。带宽控制组定义了一个 <span id=inline-purple>周期</span>，通常为 <code>1/10</code> 秒（即 100000 微秒）。还定义了一个 <span id=inline-purple>配额</span>，表示允许进程在设置的周期长度内所能使用的 CPU 时间数，两个文件配合起来设置CPU的使用上限。两个文件的单位都是微秒（us），<code>cfs_period_us</code> 的取值范围为 1 毫秒（ms）到 1 秒（s），<code>cfs_quota_us</code> 的取值大于 1ms 即可，如果 cfs_quota_us 的值为 <code>-1</code>（默认值），表示不受 CPU 时间的限制。</p>
+
+<p>下面是几个例子：</p>
+
+<pre><code class="language-bash"># 1.限制只能使用1个CPU（每250ms能使用250ms的CPU时间）
+$ echo 250000 &gt; cpu.cfs_quota_us /* quota = 250ms */
+$ echo 250000 &gt; cpu.cfs_period_us /* period = 250ms */
+
+# 2.限制使用2个CPU（内核）（每500ms能使用1000ms的CPU时间，即使用两个内核）
+$ echo 1000000 &gt; cpu.cfs_quota_us /* quota = 1000ms */
+$ echo 500000 &gt; cpu.cfs_period_us /* period = 500ms */
+
+# 3.限制使用1个CPU的20%（每50ms能使用10ms的CPU时间，即使用一个CPU核心的20%）
+$ echo 10000 &gt; cpu.cfs_quota_us /* quota = 10ms */
+$ echo 50000 &gt; cpu.cfs_period_us /* period = 50ms */
+</code></pre>
+
+<p>在本例中我们将 Pod 的 cpu limits 设置为 <code>100m</code>，这表示 <code>100/1000</code> 个 CPU 核心，即 <code>100000</code> 微秒的 CPU 时间周期中的 <code>10000</code>。所以该 limits 翻译到 <code>cpu,cpuacct</code> cgroup 中被设置为 <code>cpu.cfs_period_us=100000</code> 和 <code>cpu.cfs_quota_us=10000</code>。顺便说一下，其中的 <span id=inline-purple>cfs</span> 代表 <code>Completely Fair Scheduler</code>（绝对公平调度），这是 Linux 系统中默认的 CPU 调度算法。还有一个实时调度算法，它也有自己相应的配额值。</p>
+
+<p>现在让我们来总结一下：</p>
+
+<ul>
+<li>在 Kubernetes 中设置的 cpu requests 最终会被 cgroup 设置为 <code>cpu.shares</code> 属性的值， cpu limits 会被带宽控制组设置为 <code>cpu.cfs_period_us</code> 和 <code>cpu.cfs_quota_us</code> 属性的值。与内存一样，cpu requests 主要用于在调度时通知调度器节点上至少需要多少个 cpu shares 才可以被调度。</li>
+<li>与 内存 requests 不同，设置了 cpu requests 会在 cgroup 中设置一个属性，以确保内核会将该数量的 shares 分配给进程。</li>
+<li>cpu limits 与 内存 limits 也有所不同。如果容器进程使用的内存资源超过了内存使用限制，那么该进程将会成为 <code>oom-killing</code> 的候选者。但是容器进程基本上永远不能超过设置的 CPU 配额，所以容器永远不会因为尝试使用比分配的更多的 CPU 时间而被驱逐。系统会在调度程序中强制进行 CPU 资源限制，以确保进程不会超过这个限制。</li>
+</ul>
+
+<p>如果你没有在容器中设置这些属性，或将他们设置为不准确的值，会发生什么呢？与内存一样，如果只设置了 limits 而没有设置 requests，Kubernetes 会将 CPU 的 requests 设置为 与 limits 的值一样。如果你对你的工作负载所需要的 CPU 时间了如指掌，那再好不过了。如果只设置了 CPU requests 却没有设置 CPU limits 会怎么样呢？这种情况下，Kubernetes 会确保该 Pod 被调度到合适的节点，并且该节点的内核会确保节点上的可用 cpu shares 大于 Pod 请求的 cpu shares，但是你的进程不会被阻止使用超过所请求的 CPU 数量。既不设置 requests 也不设置 limits 是最糟糕的情况：调度程序不知道容器需要什么，并且进程对 cpu shares 的使用是无限制的，这可能会对 node 产生一些负面影响。</p>
+
+<p>最后我还想告诉你们的是：为每个 pod 都手动配置这些参数是挺麻烦的事情，kubernetes 提供了 <code>LimitRange</code> 资源，可以让我们配置某个 namespace 默认的 request 和 limit 值。</p>
+
+<h2 id="span-id-inline-toc-2-span-默认限制"><span id="inline-toc">2.</span> 默认限制</h2>
+
+<hr />
+
+<p>通过上文的讨论大家已经知道了忽略资源限制会对 Pod 产生负面影响，因此你可能会想，如果能够配置某个 namespace 默认的 request 和 limit 值就好了，这样每次创建新 Pod 都会默认加上这些限制。Kubernetes 允许我们通过 <a href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#limitrange-v1-core" target="_blank">LimitRange</a> 资源对每个命名空间设置资源限制。要创建默认的资源限制，需要在对应的命名空间中创建一个 <code>LimitRange</code> 资源。下面是一个例子：</p>
+
+<pre><code class="language-yaml">apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-limit
+spec:
+  limits:
+  - default:
+      memory: 100Mi
+      cpu: 100m
+    defaultRequest:
+      memory: 50Mi
+      cpu: 50m
+  - max:
+      memory: 512Mi
+      cpu: 500m
+  - min:
+      memory: 50Mi
+      cpu: 50m
+    type: Container
+</code></pre>
+
+<p>这里的几个字段可能会让你们有些困惑，我拆开来给你们分析一下。</p>
+
+<ul>
+<li><code>limits</code> 字段下面的 <code>default</code> 字段表示每个 Pod 的默认的 <code>limits</code> 配置，所以任何没有分配资源的 limits 的 Pod 都会被自动分配 <code>100Mi</code> limits 的内存和 <code>100m</code> limits 的 CPU。</li>
+<li><code>defaultRequest</code> 字段表示每个 Pod 的默认 <code>requests</code> 配置，所以任何没有分配资源的 requests 的 Pod 都会被自动分配 <code>50Mi</code> requests 的内存和 <code>50m</code> requests 的 CPU。</li>
+<li><code>max</code> 和 <code>min</code> 字段比较特殊，如果设置了这两个字段，那么只要这个命名空间中的 Pod 设置的 <code>limits</code> 和 <code>requests</code> 超过了这个上限和下限，就不会允许这个 Pod 被创建。我暂时还没有发现这两个字段的用途，如果你知道，欢迎在留言告诉我。</li>
+</ul>
+
+<p><code>LimitRange</code> 中设定的默认值最后由 Kubernetes 中的准入控制器 <code>LimitRanger</code> 插件来实现。准入控制器由一系列插件组成，它会在 API 接收对象之后创建 Pod 之前对 Pod 的 <code>Spec</code> 字段进行修改。对于 <code>LimitRanger</code> 插件来说，它会检查每个 Pod 是否设置了 limits 和 requests，如果没有设置，就给它配置 <code>LimitRange</code> 中设定的默认值。通过检查 Pod 中的 <code>annotations</code> 注释，你可以看到 <code>LimitRanger</code> 插件已经在你的 Pod 中设置了默认值。例如：</p>
+
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubernetes.io/limit-ranger: 'LimitRanger plugin set: cpu request for container
+      limit-test'
+  name: limit-test-859d78bc65-g6657
+  namespace: default
+spec:
+  containers:
+  - args:
+    - /bin/sh
+    - -c
+    - while true; do sleep 2; done
+    image: busybox
+    imagePullPolicy: Always
+    name: limit-test
+    resources:
+      requests:
+        cpu: 100m
+</code></pre>
+
+<p>以上就是我对 Kubernetes 资源限制的全部见解，希望能对你有所帮助。如果你想了解更多关于 Kubernetes 中资源的 limits 和 requests、以及 linux cgroup 和内存管理的更多详细信息，可以查看我在文末提供的参考链接。</p>
+
+<h2 id="span-id-inline-toc-3-span-参考资料"><span id="inline-toc">3.</span> 参考资料</h2>
+
+<hr />
+
+<ul>
+<li><a href="https://engineering.squarespace.com/blog/2017/understanding-linux-container-scheduling" target="_blank">Understanding Linux Container Scheduling</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/" target="_blank">Managing Compute Resources for Containers</a></li>
+<li><a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-memory" target="_blank">Red Hat Customer Portal</a></li>
+<li><a href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/ch01" target="_blank">Chapter 1. Introduction to Control Groups (Cgroups)</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/memory-default-namespace/" target="_blank">Configure Default Memory Requests and Limits for a Namespace</a></li>
+</ul>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/kubernetes/"><i class="fa fa-tags"></i>kubernetes</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-resource-limits-in-kubernetes-cpu-time%2f&amp;title=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubernetes%20%e8%b5%84%e6%ba%90%e9%99%90%e5%88%b6%ef%bc%9aCPU&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2fVAOaON.jpg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-resource-limits-in-kubernetes-cpu-time%2f&amp;title=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubernetes%20%e8%b5%84%e6%ba%90%e9%99%90%e5%88%b6%ef%bc%9aCPU&amp;source=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubernetes%20%e8%b5%84%e6%ba%90%e9%99%90%e5%88%b6%ef%bc%9aCPU&amp;desc=&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2fVAOaON.jpg&amp;summary=" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-resource-limits-in-kubernetes-cpu-time%2f&amp;text=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubernetes%20%e8%b5%84%e6%ba%90%e9%99%90%e5%88%b6%ef%bc%9aCPU&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-resource-limits-in-kubernetes-cpu-time%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-resource-limits-in-kubernetes-cpu-time%2f&amp;title=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubernetes%20%e8%b5%84%e6%ba%90%e9%99%90%e5%88%b6%ef%bc%9aCPU" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/sealos/">kubernetes 高可用部署工具：sealos</a></li>
+                
+                    <li><a href="/posts/what-happens-when-k8s/">kubectl 创建 Pod 背后到底发生了什么？</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/kubesphere/">KubeSphere 安装教程</a></li>
+                
+                    <li><a href="/posts/istio-1.3/">Istio 1.3 发布，HTTP 遥测不再需要 Mixer</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/hugo-social-share-plugin/" data-toggle="tooltip" data-placement="top" title="Hugo 集成社交分享插件">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/service-mesh-performance-testing/" data-toggle="tooltip" data-placement="top" title="了解如何在服务网格中进行性能测试">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

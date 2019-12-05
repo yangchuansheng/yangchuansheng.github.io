@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Podman 使用指南 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨, podman, envoy, conmon, cgroup" name="keywords">
+
+  <meta name="description" content="本文介绍了 podman 相对于 docker 的优势，并成功将hugo静态博客从 docker 迁移到 podman。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/podman-sidecar\/",
+          "name": "Podman 使用指南"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "Podman 使用指南",
+  "description" : "本文介绍了 podman 相对于 docker 的优势，并成功将hugo静态博客从 docker 迁移到 podman。",
+  "inLanguage" : "zh",
+  "wordCount":  3516 ,
+  "datePublished" : "2019-10-18T00:16:16",
+  "dateModified" : "2019-10-18T00:16:16",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "podman, envoy" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/podman-sidecar\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Podman 使用指南" />
+<meta property="og:description" content="本文介绍了 podman 相对于 docker 的优势，并成功将hugo静态博客从 docker 迁移到 podman。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/podman-sidecar/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="Podman 使用指南" />
+  <meta name="twitter:description" content="本文介绍了 podman 相对于 docker 的优势，并成功将hugo静态博客从 docker 迁移到 podman。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">Podman 使用指南</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">使用 Podman 部署 hugo 静态博客</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 10 月 18 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3516&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Podman 使用指南</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">使用 Podman 部署 hugo 静态博客</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 10 月 18 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3516&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-方案架构"><span id="inline-toc">1.</span> 方案架构</a></li>
+<li><a href="#span-id-inline-toc-2-span-部署-hugo-和-sidecar-proxy"><span id="inline-toc">2.</span> 部署 hugo 和 sidecar proxy</a></li>
+<li><a href="#span-id-inline-toc-3-span-部署前端代理"><span id="inline-toc">3.</span> 部署前端代理</a></li>
+<li><a href="#span-id-inline-toc-4-span-开机自启"><span id="inline-toc">4.</span> 开机自启</a></li>
+<li><a href="#span-id-inline-toc-4-span-总结"><span id="inline-toc">4.</span> 总结</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<blockquote>
+<p><strong>郑重声明</strong>：本文不是 Podman 的入门篇，入门请阅读这篇文章：<a href="https://mp.weixin.qq.com/s/MDi4RB5V60EGl3ii9usD0Q" target="_blank">再见 Docker，是时候拥抱下一代容器工具了</a></p>
+</blockquote>
+
+<p><code>Podman</code> 原来是 <a href="https://github.com/kubernetes-incubator/cri-o" target="_blank">CRI-O</a> 项目的一部分，后来被分离成一个单独的项目叫 <a href="https://github.com/containers/libpod" target="_blank">libpod</a>。Podman 的使用体验和 <code>Docker</code> 类似，不同的是 Podman 没有 daemon。以前使用 Docker CLI 的时候，Docker CLI 会通过 gRPC API 去跟 Docker Engine 说「我要启动一个容器」，然后 Docker Engine 才会通过 OCI Container runtime（默认是 <code>runc</code>）来启动一个容器。这就意味着容器的进程不可能是 Docker CLI 的子进程，而是 Docker Engine 的子进程。</p>
+
+<p>Podman 比较简单粗暴，它不使用 Daemon，而是直接通过 OCI runtime（默认也是 <code>runc</code>）来启动容器，所以容器的进程是 podman 的子进程。这比较像 Linux 的 <code>fork/exec</code> 模型，而 Docker 采用的是 <code>C/S</code>（客户端/服务器）模型。与 C/S 模型相比，<code>fork/exec</code> 模型有很多优势，比如：</p>
+
+<ul>
+<li>系统管理员可以知道某个容器进程到底是谁启动的。</li>
+<li>如果利用 <code>cgroup</code> 对 podman 做一些限制，那么所有创建的容器都会被限制。</li>
+<li><strong>SD_NOTIFY</strong> : 如果将 podman 命令放入 <code>systemd</code> 单元文件中，容器进程可以通过 podman 返回通知，表明服务已准备好接收任务。</li>
+<li><strong>socket 激活</strong> : 可以将连接的 <code>socket</code> 从 systemd 传递到 podman，并传递到容器进程以便使用它们。</li>
+</ul>
+
+<p>废话不多说，下面我们直接进入实战环节，本文将手把手教你如何用 podman 来部署静态博客，并通过 Sidecar 模式将博客所在的容器加入到 <code>Envoy</code> mesh 之中。</p>
+
+<h2 id="span-id-inline-toc-1-span-方案架构"><span id="inline-toc">1.</span> 方案架构</h2>
+
+<hr />
+
+<p>我的部署方案涉及到两层 Envoy：</p>
+
+<ul>
+<li>首先会有一个前端代理单独跑一个容器。前端代理的工作是给访问者提供一个入口，将来自外部的访问请求转发到具体的后端服务。</li>
+<li>其次，博客静态页面由 nginx 提供，同时以 Sidecar 模式运行一个 <code>Envoy</code> 容器，它与 nginx 共享 <code>network nemspace</code>。</li>
+<li>所有的 Envoy 形成一个 mesh，然后在他们之间共享路由信息。</li>
+</ul>
+
+<p>我之前写过一篇用 <code>Docker</code> 部署 hugo 静态博客并配置 <code>HTTPS</code> 证书的文章，本文采用的是相同的方案，只是将 docker 换成了 podman，具体参考<a href="https://www.yangcs.net/posts/setting-up-ssl-in-envoy-practice/" target="_blank">为 Envoy 开启 TLS 验证实战</a>。</p>
+
+<h2 id="span-id-inline-toc-2-span-部署-hugo-和-sidecar-proxy"><span id="inline-toc">2.</span> 部署 hugo 和 sidecar proxy</h2>
+
+<hr />
+
+<p>我的博客是通过 hugo 生成的静态页面，可以将其放到 <code>nginx</code> 中，其他静态网站工具类似（比如 hexo 等），都可以这么做。现在我要做的是<strong>让 nginx 容器和 envoy 容器共享同一个 network namespace，同时还要让前端代理能够通过域名来进行服务发现</strong>。以前用 docker 很简单，直接用 docker-compose 就搞定了，podman 就比较麻烦了，它又不能用 <code>docker-compose</code>，服务发现看来是搞不定了。</p>
+
+<p>好不容易在 Github 上发现了一个项目叫 <a href="https://github.com/containers/podman-compose" target="_blank">podman-compose</a>，以为有救了，试用了一下发现还是不行，podman-compose 创建容器时会将字段 <code>network_mode: &quot;service:hugo&quot;</code> 转化为 podman CLI 的参数 <code>--network service:hugo</code>（真脑残），导致容器创建失败，报错信息为 <code>CNI network &quot;service:hugo&quot; not found</code>。将该字段值改为 <code>network_mode: &quot;container:hugo_hugo_1&quot;</code> 可以启动成功，然而又引来了另一个问题：podman-compose 的做法是为每一个 <code>service</code> 创建一个 <code>pod</code>（pod 的名字为 docker-compose.yml 所在目录名称），然后往这个 pod 中添加容器。我总不能将前端代理和后端服务塞进同一个 pod 中吧？只能分别为前端代理和 hugo 创建两个目录，然后分别创建 docker-compose.yml。这个问题解决了，下个问题又来了，podman-compose 不支持通过 service name 进行服务发现，扒了一圈发现支持 <code>links</code>（其实就是加个参数 <code>--add-host</code>），然而 links 只在同一个 pod 下才生效，我都拆分成两个 pod 了，links 鞭长莫及啊，还是没什么卵用。我能怎么办，现在唯一的办法就是手撸命令行了。</p>
+
+<p>上面我提到了一个新名词叫 <code>pod</code>，这里花 30 秒的时间给大家简单介绍一下，如果你是 <code>Kubernetes</code> 的重度使用者，对这个词应该不陌生，但这里确实说的是 podman 的 pod，意思还是一样的，先创建一个 <code>pause</code> 容器，然后再创建业务容器，业务容器共享 <code>pause</code> 容器的各种 linux namespace，因此同一个 pod 中的容器之间可以通过 localhost 轻松地相互通信。不仅如此，podman 还可以将 pod 导出为 Kubernetes 的声明式资源定义，举个栗子：</p>
+
+<p>先创建一个 pod：</p>
+
+<pre><code class="language-bash">$ podman pod create --name hugo
+</code></pre>
+
+<p>查看 pod：</p>
+
+<pre><code class="language-bash">$ podman pod ls
+
+POD ID         NAME   STATUS    CREATED         # OF CONTAINERS   INFRA ID
+88226423c4d2   hugo   Running   2 minutes ago   2                 7e030ef2e7ca
+</code></pre>
+
+<p>在这个 pod 中启动一个 hugo 容器：</p>
+
+<pre><code class="language-bash">$ podman run -d --pod hugo nginx:alpine
+</code></pre>
+
+<p>查看容器：</p>
+
+<pre><code class="language-bash">$ podman ps
+
+CONTAINER ID  IMAGE                           COMMAND               CREATED        STATUS            PORTS  NAMES
+3c91cab1e99d  docker.io/library/nginx:alpine  nginx -g daemon o...  3 minutes ago  Up 3 minutes ago         reverent_kirch
+</code></pre>
+
+<p>查看所有容器，包括 pause 容器：</p>
+
+<pre><code class="language-bash">$ podman ps -a
+
+CONTAINER ID  IMAGE                           COMMAND               CREATED        STATUS            PORTS  NAMES
+3c91cab1e99d  docker.io/library/nginx:alpine  nginx -g daemon o...  4 minutes ago  Up 4 minutes ago         reverent_kirch
+7e030ef2e7ca  k8s.gcr.io/pause:3.1                                  6 minutes ago  Up 6 minutes ago         88226423c4d2-infra
+</code></pre>
+
+<p>查看所有容器，包括 pause 容器，并显示容器所属的 pod id：</p>
+
+<pre><code class="language-bash">$ podman ps -ap
+
+CONTAINER ID  IMAGE                           COMMAND               CREATED        STATUS            PORTS  NAMES               POD
+3c91cab1e99d  docker.io/library/nginx:alpine  nginx -g daemon o...  4 minutes ago  Up 4 minutes ago         reverent_kirch      88226423c4d2
+7e030ef2e7ca  k8s.gcr.io/pause:3.1                                  6 minutes ago  Up 6 minutes ago         88226423c4d2-infra  88226423c4d2
+</code></pre>
+
+<p>查看 pod 中进程的资源使用情况：</p>
+
+<pre><code class="language-bash">$ podman pod top hugo
+
+USER    PID   PPID   %CPU    ELAPSED           TTY   TIME   COMMAND
+root    1     0      0.000   8m5.045493912s    ?     0s     nginx: master process nginx -g daemon off;
+nginx   6     1      0.000   8m5.045600833s    ?     0s     nginx: worker process
+nginx   7     1      0.000   8m5.045638877s    ?     0s     nginx: worker process
+0       1     0      0.000   9m41.051039367s   ?     0s     /pause
+</code></pre>
+
+<p>将 pod 导出为声明式部署清单：</p>
+
+<pre><code class="language-bash">$ podman generate kube hugo &gt; hugo.yaml
+</code></pre>
+
+<p>查看部署清单内容：</p>
+
+<pre><code class="language-bash">$ cat hugo.yaml
+
+# Generation of Kubernetes YAML is still under development!
+#
+# Save the output of this file and use kubectl create -f to import
+# it into Kubernetes.
+#
+# Created with podman-1.0.2-dev
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: 2019-10-17T04:17:40Z
+  labels:
+    app: hugo
+  name: hugo
+spec:
+  containers:
+  - command:
+    - nginx
+    - -g
+    - daemon off;
+    env:
+    - name: PATH
+      value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - name: TERM
+      value: xterm
+    - name: HOSTNAME
+    - name: container
+      value: podman
+    - name: NGINX_VERSION
+      value: 1.17.4
+    - name: NJS_VERSION
+      value: 0.3.5
+    - name: PKG_RELEASE
+      value: &quot;1&quot;
+    image: docker.io/library/nginx:alpine
+    name: reverentkirch
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities: {}
+      privileged: false
+      readOnlyRootFilesystem: false
+    workingDir: /
+status: {}
+</code></pre>
+
+<p>怎么样，是不是有种熟悉的味道？这是一个兼容 kubernetes 的 pod 定义，你可以直接通过 <code>kubectl apply -f hugo.yaml</code> 将其部署在 Kubernetes 集群中，也可以直接通过 podman 部署，步骤大致是这样的：</p>
+
+<p>先删除之前创建的 pod：</p>
+
+<pre><code class="language-bash">$ podman pod rm -f hugo
+</code></pre>
+
+<p>然后通过部署清单创建 pod：</p>
+
+<pre><code class="language-bash">$ podman play kube hugo.yaml
+</code></pre>
+
+<p>回到之前的问题，如果通过声明式定义来创建 pod，还是无法解决服务发现的问题，除非换个支持静态 IP 的 <code>CNI</code> 插件，而支持静态 IP 的这些 CNI 插件又需要 etcd 作为数据库，我就这么点资源，可不想再加个 etcd，还是手撸命令行吧。</p>
+
+<p>首先我要创建一个 hugo 容器，并指定容器的 IP：</p>
+
+<pre><code class="language-bash">$ podman run -d --name hugo \
+  --ip=10.88.0.10 \
+  -v /opt/hugo/public:/usr/share/nginx/html \
+  -v /etc/localtime:/etc/localtime \
+  nginx:alpine
+</code></pre>
+
+<p>再创建一个 envoy 容器，与 hugo 容器共享 network namespace：</p>
+
+<pre><code class="language-bash">$ podman run -d --name hugo-envoy \
+  -v /opt/hugo/service-envoy.yaml:/etc/envoy/envoy.yaml \
+  -v /etc/localtime:/etc/localtime \
+  --net=container:hugo envoyproxy/envoy-alpine:latest
+</code></pre>
+
+<p>service-envoy.yaml 的内容如下：</p>
+
+<pre><code class="language-yaml">static_resources:
+  listeners:
+  - address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 8080
+    filter_chains:
+    - filters:
+      - name: envoy.http_connection_manager
+        config:
+          codec_type: auto
+          stat_prefix: ingress_http
+          access_log:
+          - name: envoy.file_access_log
+            config:
+              path: &quot;/dev/stdout&quot;
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: service
+              domains:
+              - &quot;*&quot;
+              routes:
+              - match:
+                  prefix: &quot;/&quot;
+                route:
+                  cluster: local_service
+          http_filters:
+          - name: envoy.router
+            config: {}
+  clusters:
+  - name: local_service
+    connect_timeout: 0.25s
+    type: strict_dns
+    lb_policy: round_robin
+    hosts:
+    - socket_address:
+        address: 127.0.0.1
+        port_value: 80
+admin:
+  access_log_path: &quot;/dev/null&quot;
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 8081
+</code></pre>
+
+<p>具体的含义请参考<a href="https://www.yangcs.net/posts/setting-up-ssl-in-envoy-practice/" target="_blank">为 Envoy 开启 TLS 验证实战</a>。</p>
+
+<p>本文开头提到 podman 创建的容器是 podman 的子进程，这个表述可能比较模糊，实际上 podman 由两部分组成，一个是 podman CLI，还有一个是 container runtime，container runtime 由 <code>conmon</code> 来负责，主要包括监控、日志、TTY 分配以及类似 <code>out-of-memory</code> 情况的杂事。也就是说，conmon 是所有容器的父进程。</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-064233.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-064233.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-064233.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>conmon 需要去做所有 <code>systemd</code> 不做或者不想做的事情。即使 CRI-O 不直接使用 systemd 来管理容器，它也将容器分配到 sytemd 兼容的 <code>cgroup</code> 中，这样常规的 systemd 工具比如 <code>systemctl</code> 就可以看见容器资源使用情况了。</p>
+
+<pre><code class="language-bash">$ podman ps
+
+CONTAINER ID  IMAGE                                     COMMAND               CREATED             STATUS                 PORTS  NAMES
+42762bf7d37a  docker.io/envoyproxy/envoy-alpine:latest  /docker-entrypoin...  About a minute ago  Up About a minute ago         hugo-envoy
+f0204fdc9524  docker.io/library/nginx:alpine            nginx -g daemon o...  2 minutes ago       Up 2 minutes ago              hugo
+</code></pre>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-%E6%88%AA%E5%B1%8F2019-10-17%E4%B8%8B%E5%8D%882.18.30.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-%E6%88%AA%E5%B1%8F2019-10-17%E4%B8%8B%E5%8D%882.18.30.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-%E6%88%AA%E5%B1%8F2019-10-17%E4%B8%8B%E5%8D%882.18.30.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>对 cgroup 不熟的同学，可以参考下面这个系列：</p>
+
+<ul>
+<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-1-basics/" target="_blank">深入理解 Linux Cgroup 系列（一）：基本概念</a></li>
+<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-2-cpu/" target="_blank">深入理解 Linux Cgroup 系列（二）：玩转 CPU</a></li>
+<li><a href="https://www.yangcs.net/posts/understanding-cgroups-part-3-memory/" target="_blank">深入理解 Linux Cgroup 系列（三）：内存</a></li>
+<li><a href="https://www.yangcs.net/posts/understanding-resource-limits-in-kubernetes-cpu-time/" target="_blank">深入理解 Kubernetes 资源限制：CPU</a></li>
+<li><a href="https://www.yangcs.net/posts/memory-limit-of-pod-and-oom-killer/" target="_blank">Kubernetes 内存资源限制实战</a></li>
+<li><a href="https://www.yangcs.net/posts/kubernetes-eviction/" target="_blank">Kubernetes Pod 驱逐详解</a></li>
+</ul>
+
+<p>零基础的同学建议按照上面的目录从上到下打怪升级，祝你好运！</p>
+
+<h2 id="span-id-inline-toc-3-span-部署前端代理"><span id="inline-toc">3.</span> 部署前端代理</h2>
+
+<hr />
+
+<p>这个很简单，直接创建容器就好了：</p>
+
+<pre><code class="language-bash">$ podman run -d --name front-envoy \
+--add-host=hugo:10.88.0.10 \
+-v /opt/hugo/front-envoy.yaml:/etc/envoy/envoy.yaml \
+-v /etc/localtime:/etc/localtime \
+-v /root/.acme.sh/yangcs.net:/root/.acme.sh/yangcs.net \
+--net host envoyproxy/envoy
+</code></pre>
+
+<p>由于没办法自动服务发现，需要通过参数 <code>--add-host</code> 手动添加 hosts 到容器中。envoy 的配置文件中是通过域名来添加 cluster 的，front-envoy.yaml 内容如下：</p>
+
+<pre><code class="language-yaml">static_resources:
+  listeners:
+  - address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 80
+    filter_chains:
+    - filters:
+      - name: envoy.http_connection_manager
+        config:
+          codec_type: auto
+          stat_prefix: ingress_http
+          access_log:
+          - name: envoy.file_access_log
+            config:
+              path: &quot;/dev/stdout&quot;
+          route_config:
+            virtual_hosts:
+            - name: backend
+              domains:
+              - &quot;*&quot;
+              routes:
+              - match:
+                  prefix: &quot;/&quot;
+                redirect:
+                  https_redirect: true
+                  response_code: &quot;FOUND&quot;
+          http_filters:
+          - name: envoy.router
+            config: {}
+  - address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: 443
+    filter_chains:
+    - filter_chain_match:
+        server_names: [&quot;yangcs.net&quot;, &quot;www.yangcs.net&quot;]
+      tls_context:
+        common_tls_context:
+          alpn_protocols: h2
+          tls_params:
+            tls_maximum_protocol_version: TLSv1_3
+          tls_certificates:
+            - certificate_chain:
+                filename: &quot;/root/.acme.sh/yangcs.net/fullchain.cer&quot;
+              private_key:
+                filename: &quot;/root/.acme.sh/yangcs.net/yangcs.net.key&quot;
+      filters:
+      - name: envoy.http_connection_manager
+        config:
+          codec_type: auto
+          stat_prefix: ingress_http
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: backend
+              domains:
+              - &quot;yangcs.net&quot;
+              - &quot;www.yangcs.net&quot;
+              routes:
+              - match:
+                  prefix: &quot;/admin&quot;
+                route:
+                  prefix_rewrite: &quot;/&quot;
+                  cluster: envoy-ui
+              - match:
+                  prefix: &quot;/&quot;
+                route:
+                  cluster: hugo
+                  response_headers_to_add:
+                    - header:
+                        key: &quot;Strict-Transport-Security&quot;
+                        value: &quot;max-age=63072000; includeSubDomains; preload&quot;
+          http_filters:
+          - name: envoy.router
+            config: {}
+  clusters:
+  - name: hugo
+    connect_timeout: 0.25s
+    type: strict_dns
+    lb_policy: round_robin
+    http2_protocol_options: {}
+    hosts:
+    - socket_address:
+        address: hugo
+        port_value: 8080
+admin:
+  access_log_path: &quot;/dev/null&quot;
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 8001
+</code></pre>
+
+<p>具体的含义请参考<a href="https://www.yangcs.net/posts/setting-up-ssl-in-envoy-practice/" target="_blank">为 Envoy 开启 TLS 验证实战</a>。</p>
+
+<p>现在就可以通过公网域名访问博客网站了，如果后续还有其他应用，都可以参考第二节的步骤，然后重新创建前端代理，添加 <code>--add-host</code>参数。以我的网站 <a href="https://www.yangcs.net" target="_blank">https://www.yangcs.net</a> 为例：</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-%E6%88%AA%E5%B1%8F2019-10-17%E4%B8%8B%E5%8D%883.07.30.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-%E6%88%AA%E5%B1%8F2019-10-17%E4%B8%8B%E5%8D%883.07.30.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-%E6%88%AA%E5%B1%8F2019-10-17%E4%B8%8B%E5%8D%883.07.30.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-%E6%88%AA%E5%B1%8F2019-10-17%E4%B8%8B%E5%8D%883.19.21.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-%E6%88%AA%E5%B1%8F2019-10-17%E4%B8%8B%E5%8D%883.19.21.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-%E6%88%AA%E5%B1%8F2019-10-17%E4%B8%8B%E5%8D%883.19.21.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-072659.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-072659.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/2019-10-17-072659.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>我好像透露了一些什么不得了的东西，就此打住，你也不要说，你也不要问。</p>
+
+<h2 id="span-id-inline-toc-4-span-开机自启"><span id="inline-toc">4.</span> 开机自启</h2>
+
+<hr />
+
+<p>由于 podman 不再使用 daemon 管理服务，<code>--restart</code> 参数被废弃了，要想实现开机自动启动容器，只能通过 systemd 来管理了。先创建 systemd 服务配置文件：</p>
+
+<pre><code class="language-bash">$ vim /etc/systemd/system/hugo_container.service
+
+[Unit]
+Description=Podman Hugo Service
+After=network.target
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/podman start -a hugo
+ExecStop=/usr/bin/podman stop -t 10 hugo
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<pre><code class="language-bash">$ vim /etc/systemd/system/hugo-envoy_container.service
+
+[Unit]
+Description=Podman Hugo Sidecar Service
+After=network.target
+After=network-online.target
+After=hugo_container.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/podman start -a hugo-envoy
+ExecStop=/usr/bin/podman stop -t 10 hugo-envoy
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<pre><code class="language-bash">$ vim /etc/systemd/system/front-envoy_container.service
+
+[Unit]
+Description=Podman Front Envoy Service
+After=network.target
+After=network-online.target
+After=hugo_container.service hugo-envoy_container.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/podman start -a front-envoy
+ExecStop=/usr/bin/podman stop -t 10 front-envoy
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>然后将之前停止之前创建的容器，<strong>注意：是停止，不是删除！</strong></p>
+
+<pre><code class="language-bash">$ podman stop $(podman ps -aq)
+</code></pre>
+
+<p>最后通过 systemd 服务启动这些容器。</p>
+
+<pre><code class="language-bash">$ systemctl start hugo_container
+$ systemctl start hugo-envoy_container
+$ systemctl start front-envoy_container
+</code></pre>
+
+<p>设置开机自启。</p>
+
+<pre><code class="language-bash">$ systemctl enable hugo_container
+$ systemctl enable hugo-envoy_container
+$ systemctl enable front-envoy_container
+</code></pre>
+
+<p>之后每次系统重启后 systemd 都会自动启动这个服务所对应的容器。</p>
+
+<h2 id="span-id-inline-toc-4-span-总结"><span id="inline-toc">4.</span> 总结</h2>
+
+<hr />
+
+<p>以上就是将博客从 Docker 迁移到 Podman 的所有变更操作，总体看下来还是比较曲折，因为 Podman 是为 Kubernetes 而设计的，而我要求太高了，就一个资源紧张的 vps，即不想上 <code>Kubernetes</code>，也不想上 <code>etcd</code>，既想搞 sidecar，又想搞自动服务发现，我能怎么办，我也很绝望啊，这个事怨不得 podman，为了防止在大家心里留下 <strong>“podman 不好用”</strong> 的印象，特此声明一下。啥都不想要，只能自己想办法了~~</p>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/podman/"><i class="fa fa-tags"></i>podman</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/envoy/"><i class="fa fa-tags"></i>envoy</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fpodman-sidecar%2f&amp;title=Podman%20%e4%bd%bf%e7%94%a8%e6%8c%87%e5%8d%97&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2f2019-10-18-072928.jpg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fpodman-sidecar%2f&amp;title=Podman%20%e4%bd%bf%e7%94%a8%e6%8c%87%e5%8d%97&amp;source=Podman%20%e4%bd%bf%e7%94%a8%e6%8c%87%e5%8d%97&amp;desc=%e6%9c%ac%e6%96%87%e4%bb%8b%e7%bb%8d%e4%ba%86%20podman%20%e7%9b%b8%e5%af%b9%e4%ba%8e%20docker%20%e7%9a%84%e4%bc%98%e5%8a%bf%ef%bc%8c%e5%b9%b6%e6%88%90%e5%8a%9f%e5%b0%86hugo%e9%9d%99%e6%80%81%e5%8d%9a%e5%ae%a2%e4%bb%8e%20docker%20%e8%bf%81%e7%a7%bb%e5%88%b0%20podman%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2f2019-10-18-072928.jpg&amp;summary=%e6%9c%ac%e6%96%87%e4%bb%8b%e7%bb%8d%e4%ba%86%20podman%20%e7%9b%b8%e5%af%b9%e4%ba%8e%20docker%20%e7%9a%84%e4%bc%98%e5%8a%bf%ef%bc%8c%e5%b9%b6%e6%88%90%e5%8a%9f%e5%b0%86hugo%e9%9d%99%e6%80%81%e5%8d%9a%e5%ae%a2%e4%bb%8e%20docker%20%e8%bf%81%e7%a7%bb%e5%88%b0%20podman%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fpodman-sidecar%2f&amp;text=Podman%20%e4%bd%bf%e7%94%a8%e6%8c%87%e5%8d%97&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fpodman-sidecar%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fpodman-sidecar%2f&amp;title=Podman%20%e4%bd%bf%e7%94%a8%e6%8c%87%e5%8d%97" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/adguard-home/">AdGuard Home 安装使用教程</a></li>
+                
+                    <li><a href="/posts/blue-green-deployments-contours-ingressroute/">Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布</a></li>
+                
+                    <li><a href="/posts/use-envoy-as-a-kubernetes-ingress/">Contour 学习笔记（一）：使用 Contour 接管 Kubernetes 的南北流量</a></li>
+                
+                    <li><a href="/posts/migrating-from-nginx-to-envoy/">Envoy 基础教程：从 Nginx 迁移到 Envoy Proxy</a></li>
+                
+                    <li><a href="/posts/sre-resiliency-bolt-on-sidecar-rate-limiting-with-envoy-sidecar/">Envoy 基础教程：对应用进行速率限制</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/grafana-v6.4-released/" data-toggle="tooltip" data-placement="top" title="Grafana 6.4 正式发布！">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/linux-capabilities-why-they-exist-and-how-they-work/" data-toggle="tooltip" data-placement="top" title="Linux Capabilities 入门教程：概念篇">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

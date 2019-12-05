@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Vistio—使用 Netflix 的 Vizceral 可视化 Istio service mesh - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="" name="keywords">
+
+  <meta name="description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/vistio-visualize-your-istio-mesh-using-netflixs-vizceral\/",
+          "name": "Vistio—使用 netflix 的 vizceral 可视化 istio service mesh"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "Vistio—使用 Netflix 的 Vizceral 可视化 Istio service mesh",
+  "description" : "本文转载自 Jimmy Song 的博客，并且有很多改动。 Vizceral 是 Netflix 发布的一个开源项目，用于近乎实时地监控应用程序和集群之间的网络流量。Vistio 是使用 Vizceral 对 Istio 和网",
+  "inLanguage" : "zh",
+  "wordCount":  1790 ,
+  "datePublished" : "2018-08-03T15:29:37",
+  "dateModified" : "2018-08-03T15:29:37",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "istio, service mesh" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/vistio-visualize-your-istio-mesh-using-netflixs-vizceral\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Vistio—使用 Netflix 的 Vizceral 可视化 Istio service mesh" />
+<meta property="og:description" content="Vistio 部署使用教程">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/vistio-visualize-your-istio-mesh-using-netflixs-vizceral/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="Vistio—使用 Netflix 的 Vizceral 可视化 Istio service mesh" />
+  <meta name="twitter:description" content="Vistio 部署使用教程">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">Vistio—使用 Netflix 的 Vizceral 可视化 Istio service mesh</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">Vistio 部署使用教程</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 8 月 3 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;4&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;1790&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Vistio—使用 Netflix 的 Vizceral 可视化 Istio service mesh</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">Vistio 部署使用教程</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 8 月 3 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;4&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;1790&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-在-istio-服务网格中安装-vistio"><span id="inline-toc">1.</span> 在 Istio 服务网格中安装 Vistio</a>
+<ul>
+<li><a href="#依赖">依赖</a></li>
+<li><a href="#假设">假设</a></li>
+<li><a href="#前言">前言</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-2-span-部署-vistio"><span id="inline-toc">2.</span> 部署 Vistio</a>
+<ul>
+<li><a href="#使用-helm-部署">使用 Helm 部署</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-3-span-验证和暴露-vistio-web-api"><span id="inline-toc">3.</span> 验证和暴露 Vistio Web/API</a>
+<ul>
+<li><a href="#暴露-vistio-web-api">暴露 Vistio Web/API</a></li>
+<li><a href="#验证-visito-api">验证 visito-api</a></li>
+<li><a href="#访问-vistio">访问 Vistio</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-4-span-探索"><span id="inline-toc">4.</span> 探索</a></li>
+<li><a href="#span-id-inline-toc-5-span-问题排查"><span id="inline-toc">5.</span> 问题排查</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<p id="div-border-left-red">本文转载自 <a href="https://jimmysong.io/posts/vistio-visualize-your-istio-mesh-using-netflixs-vizceral/" target="_blank">Jimmy Song 的博客</a>，并且有很多改动。</p>
+
+<p><a href="https://github.com/Netflix/vizceral" target="_blank">Vizceral</a> 是 <code>Netflix</code> 发布的一个开源项目，用于近乎实时地监控应用程序和集群之间的网络流量。<a href="https://github.com/nmnellis/vistio" target="_blank">Vistio</a> 是使用 Vizceral 对 Istio 和网格监控的改进。它利用 <code>Istio Mixer</code> 生成的指标，然后将其输入 Prometheus。Vistio 查询 <code>Prometheus</code> 并将数据存储在本地以允许重播流量。关于 Vizceral 可以参考这篇文章：<a href="https://medium.com/netflix-techblog/vizceral-open-source-acc0c32113fe" target="_blank">Vizceral Open Source</a>。</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/QLT35D.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/QLT35D.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/QLT35D.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>Vizceral 有两个可视化级别，全局可视化和集群级别可视化。在全局范围内（如上所示），您可以通过 Istio Ingress Gateway 等入口点将从 Internet 到 Istio 服务网格网络的网络流量可视化，或者您可以在 Istio 服务网格网络中显示总网络流量。</p>
+
+<p>在集群级别（如下所示），您可以可视化内部网格的流量。通过设置警告和错误级别警报，当应用程序出现问题时可以被快速检测出来。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/81eYoC.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/81eYoC.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/81eYoC.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<h2 id="span-id-inline-toc-1-span-在-istio-服务网格中安装-vistio"><span id="inline-toc">1.</span> 在 Istio 服务网格中安装 Vistio</h2>
+
+<hr />
+
+<h3 id="依赖">依赖</h3>
+
+<ul>
+<li>Prometheus</li>
+<li>Istio 1.0</li>
+</ul>
+
+<h3 id="假设">假设</h3>
+
+<p>以下 Demo 使得这些假设更容易部署。如果您的环境设置不同，则可能需要将代码下载到本地并编辑一些文件。</p>
+
+<ul>
+<li>Prometheus 部署在 <code>istio-system</code> namespace 下，可以通过 <code>http://prometheus.istio-system:9090</code> 地址访问</li>
+<li>Istio mixer 启用了 <code>istio_request_count metric</code></li>
+<li>Kubernetes 集群包含有 <code>standard StorageClass</code></li>
+<li>为了便于部署已安装了 Helm（可选）</li>
+</ul>
+
+<p><strong>由于测试环境大多数都没有外部网络存储，无法创建 StorageClass，待会儿我们可以将这部分的配置修改为 <code>hostPath</code>。</strong></p>
+
+<h3 id="前言">前言</h3>
+
+<p>如果您还尚未部署服务网格，可以按照此 <a href="https://istio.io/docs/guides/bookinfo/" target="_blank">Istio Bookinfo Demo</a> 中的说明部署 Istio 及其示例应用程序。您需要能够在应用程序之间生成流量。要测试指标是否从 Mixer 正确发送到 Prometheus，您可以打开 Prometheus 查询 <code>istio_request_bytes_count</code>，应该会看到多个条目。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/r6foLP.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/r6foLP.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/r6foLP.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<h2 id="span-id-inline-toc-2-span-部署-vistio"><span id="inline-toc">2.</span> 部署 Vistio</h2>
+
+<hr />
+
+<p>您可以选择通过 <code>kubectl</code> 或者 <code>Helm</code> 来部署 Vistio，下面会主要介绍 Helm 部署方式。有些变量可能需要根据您自己的环境来修改。</p>
+
+<p>如果你想通过 Helm 部署 Vistio，你将需要在 GitHub 上下载项目来获取 Helm 模板。此外，如果上述假设之一不符合您的需求（例如 prometheus url 不同），则应手动编辑文件。</p>
+
+<pre><code class="language-bash">$ git clone https://github.com/nmnellis/vistio.git
+</code></pre>
+
+<h3 id="使用-helm-部署">使用 Helm 部署</h3>
+
+<p>由于我们使用的是 Istio 1.0 版本，而 Vistio 已经有相当一段时间没有更新了，很多配置项已经不适用了，需要改动很多地方。</p>
+
+<p>切换到 Vistio 项目的根目录，修改 <code>values-with-ingress.yaml</code> 配置文件。</p>
+
+<pre><code class="language-bash">$ vim helm/vistio/values-with-ingress.yaml
+</code></pre>
+
+<pre><code class="language-yaml">vistioConfig:
+  graphName: Vistio
+  globalLevel:
+    maxVolume: 2000000
+    clusterConnections:
+      # Total requests per second coming into the ingress controller from internet
+      # 将 istio_request_count 修改为 istio_request_bytes_count
+      # 将 destination_service=&quot;istio-ingressgateway.istio-system.svc.cluster.local&quot; 修改为 source_workload=&quot;istio-ingressgateway&quot;
+      - query: sum(rate(istio_request_bytes_count{source_workload=&quot;istio-ingressgateway&quot;}[1m])) by (response_code)
+        prometheusURL: http://prometheus.istio-system:9090
+        ...
+  clusterLevel:
+    # Cluster name must match 'target' name in global
+    - cluster: istio-mesh
+      maxVolume: 3000
+      serviceConnections:
+      # 将 istio_request_count 修改为 istio_request_bytes_count
+      # 将 source_service 修改为 source_app
+        - query: sum(rate(istio_request_bytes_count[1m])) by (source_app,destination_service,response_code)
+          prometheusURL: http://prometheus.istio-system:9090
+          source:
+            # 将 source_service 修改为 source_app
+            label: source_app
+            ...
+</code></pre>
+
+<p>修改 <code>values.yaml</code> 配置文件。</p>
+
+<pre><code class="language-bash">$ vim helm/vistio/values.yaml
+</code></pre>
+
+<pre><code class="language-yaml">...
+######################################
+## Vistio-web
+######################################
+web:
+  env:
+    # Vistio-web 需要调用 Vistio-api 的 url，而且这个 url 必须是通过浏览器可以访问的，所以可以使用 ingress，后面将会创建
+    updateURL: &quot;http://vistio-api.istio.io/graph&quot;
+</code></pre>
+
+<p>修改 <code>statefulset.yaml</code> 配置文件。</p>
+
+<pre><code class="language-bash">$ vim helm/vistio/templates/statefulset.yaml
+</code></pre>
+
+<pre><code class="language-yaml">apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: vistio-api
+  ...
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  serviceName: vistio
+  template:
+    metadata:
+    ...
+    spec:
+      volumes:
+        - name: config
+          configMap:
+            name: vistio-api-config
+        # 添加 volume vistio-db
+        - name: vistio-db
+          hostPath:
+            path: /data/vistio
+  # 将 volumeClaimTemplates 配置项注释或删除
+  #volumeClaimTemplates:
+  #- metadata:
+  #    annotations:
+  #      volume.beta.kubernetes.io/storage-class: {{ .Values.api.storage.class }}
+  #    name: vistio-db
+  #  spec:
+  #    accessModes:
+  #    - ReadWriteOnce
+  #    resources:
+  #      requests:
+  #        storage: {{ .Values.api.storage.size }}
+</code></pre>
+
+<p><strong>同时你需要在运行 vistio-api 的节点上提前创建 <code>/data/vistio</code> 目录。</strong></p>
+
+<p>运行 <code>helm install</code> 部署 Vistio。</p>
+
+<pre><code class="language-bash">$ helm install helm/vistio -f helm/vistio/values-with-ingress.yaml --name vistio --namespace default
+</code></pre>
+
+<pre><code class="language-bash">$ kubectl get pod
+
+vistio-api-0                      1/1       Running   0          2m
+vistio-web-5c44b7f76d-hmjdc       1/1       Running   0          2m
+</code></pre>
+
+<h2 id="span-id-inline-toc-3-span-验证和暴露-vistio-web-api"><span id="inline-toc">3.</span> 验证和暴露 Vistio Web/API</h2>
+
+<hr />
+
+<h3 id="暴露-vistio-web-api">暴露 Vistio Web/API</h3>
+
+<p>为 Service vistio-api 和 vistio-web 创建 <code>Ingress</code>：</p>
+
+<pre><code class="language-yaml">$ cat ingress.yaml
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: vistio-web
+  namespace: default
+spec:
+  rules:
+  - host: vistio-web.istio.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: vistio-web
+          servicePort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: vistio-api
+  namespace: default
+spec:
+  rules:
+  - host: vistio-api.istio.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: vistio-api
+          servicePort: 9091
+</code></pre>
+
+<pre><code class="language-bash">$ kubectl create -f ingress.yaml
+</code></pre>
+
+<p>然后在你的本地电脑上添加两条 hosts：</p>
+
+<pre><code class="language-bash">$Ingree_host vistio-web.istio.io
+$Ingree_host vistio-api.istio.io
+</code></pre>
+
+<p>将 <code>$Ingree_host</code> 替换为 Ingress Controller 运行节点的 IP。</p>
+
+<h3 id="验证-visito-api">验证 visito-api</h3>
+
+<p>vistio-web 调用 vistio-api 来渲染服务网格。访问 <code>http://vistio-api.istio.io/graph</code> 您应该会看到类似下列的输出。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/mA3qxn.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/mA3qxn.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/mA3qxn.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<h3 id="访问-vistio">访问 Vistio</h3>
+
+<p>如果一切都已经启动并准备就绪，您就可以访问 Vistio UI，开始探索服务网格网络，访问<code>http://vistio-web.istio.io</code> 您将会看到类似下图的输出。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/zO6YHU.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/zO6YHU.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/zO6YHU.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<h2 id="span-id-inline-toc-4-span-探索"><span id="inline-toc">4.</span> 探索</h2>
+
+<hr />
+
+<p>在全局范围内，您将看到Istio网格内所有请求的总和，如果你点击 <code>istio-mesh</code> 气泡，就能查看你的网状网络。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/vInWWw.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/vInWWw.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/vInWWw.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>在你的 Istio 网格中，您可以使用许多可视化工具来帮助您查明故障的应用程序。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/p3Rf9a.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/p3Rf9a.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/p3Rf9a.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>使用屏幕右上方的过滤器可以快速过滤出错误率较高的应用程序。通过高级配置，当错误率超过特定值时，也可以触发警报。警报将显示给定应用程序的当前错误率趋势。</p>
+
+<h2 id="span-id-inline-toc-5-span-问题排查"><span id="inline-toc">5.</span> 问题排查</h2>
+
+<hr />
+
+<p>访问 <code>http://vistio-api.istio.io/graph</code>，如果你从 vistio-api 中看到以下输出，表示某些功能无法正常工作。正确的输出显示在教程上面。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/7N7vFf.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/7N7vFf.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/7N7vFf.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<ol>
+<li><p>检查 vistio-api 日志中是否有错误——在大多数情况下，vistio-api 将记录与 Prometheus 通信时遇到的任何问题。</p>
+
+<pre><code class="language-bash">$ kubectl logs -f $(kubectl get pod -l app=vistio-api -o go-template='{{range .items}}{{.metadata.name}}{{end}}') -c vistio-api
+</code></pre></li>
+
+<li><p>验证 Prometheus 查询——vistio-api 使用以下查询检索其数据。您应该确保 Prometheus 内部的数据都存在。</p>
+
+<pre><code class="language-yaml"># Global Level Query
+sum(rate(istio_request_bytes_count{source_workload=&quot;istio-ingressgateway&quot;}[1m])) by (response_code)
+# Cluster Level Query
+sum(rate(istio_request_bytes_count[1m])) by (source_app,destination_service,response_code)
+</code></pre></li>
+
+<li><p>提交 Issue——如果遇到问题无法解决请提交 Issue：<a href="https://github.com/nmnellis/vistio/issues" target="_blank">https://github.com/nmnellis/vistio/issues</a></p></li>
+</ol>
+
+<hr />
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/wechat.gif" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/wechat.gif"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/wechat.gif" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/istio/"><i class="fa fa-tags"></i>istio</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/service-mesh/"><i class="fa fa-tags"></i>service mesh</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fvistio-visualize-your-istio-mesh-using-netflixs-vizceral%2f&amp;title=Vistio%e2%80%94%e4%bd%bf%e7%94%a8%20Netflix%20%e7%9a%84%20Vizceral%20%e5%8f%af%e8%a7%86%e5%8c%96%20Istio%20service%20mesh&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2fQLT35D.jpg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fvistio-visualize-your-istio-mesh-using-netflixs-vizceral%2f&amp;title=Vistio%e2%80%94%e4%bd%bf%e7%94%a8%20Netflix%20%e7%9a%84%20Vizceral%20%e5%8f%af%e8%a7%86%e5%8c%96%20Istio%20service%20mesh&amp;source=Vistio%e2%80%94%e4%bd%bf%e7%94%a8%20Netflix%20%e7%9a%84%20Vizceral%20%e5%8f%af%e8%a7%86%e5%8c%96%20Istio%20service%20mesh&amp;desc=&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2fQLT35D.jpg&amp;summary=" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fvistio-visualize-your-istio-mesh-using-netflixs-vizceral%2f&amp;text=Vistio%e2%80%94%e4%bd%bf%e7%94%a8%20Netflix%20%e7%9a%84%20Vizceral%20%e5%8f%af%e8%a7%86%e5%8c%96%20Istio%20service%20mesh&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fvistio-visualize-your-istio-mesh-using-netflixs-vizceral%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fvistio-visualize-your-istio-mesh-using-netflixs-vizceral%2f&amp;title=Vistio%e2%80%94%e4%bd%bf%e7%94%a8%20Netflix%20%e7%9a%84%20Vizceral%20%e5%8f%af%e8%a7%86%e5%8c%96%20Istio%20service%20mesh" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/istio-1.3/">Istio 1.3 发布，HTTP 遥测不再需要 Mixer</a></li>
+                
+                    <li><a href="/posts/circuit_breaking-and-outlier-detection-in-istio/">熔断与异常检测在 Istio 中的应用</a></li>
+                
+                    <li><a href="/posts/life-of-a-packet-through-istio/">数据包在 Istio 网格中的生命周期</a></li>
+                
+                    <li><a href="/posts/conflictingvirtualservicehost/">Istio 中 VirtualService 的注意事项</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/istio-ingress/" data-toggle="tooltip" data-placement="top" title="Istio 服务网格中的网关">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/kubernetes-resource-management/" data-toggle="tooltip" data-placement="top" title="Kubernetes 资源管理概述">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

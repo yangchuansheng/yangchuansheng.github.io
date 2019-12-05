@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>etcd on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/etcd/</link>
+    <description>Recent content in etcd on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Wed, 30 Jan 2019 18:45:42 +0800</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/etcd/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Etcd 的分布式一致性详解</title>
+      <link>https://fuckcloudnative.io/posts/etcd-server-learner/</link>
+      <pubDate>Wed, 30 Jan 2019 18:45:42 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/etcd-server-learner/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>etcd 集群大小迷思</title>
+      <link>https://fuckcloudnative.io/posts/etcd-cluster-number/</link>
+      <pubDate>Wed, 30 Jan 2019 13:13:56 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/etcd-cluster-number/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>network on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/categories/network/</link>
+    <description>Recent content in network on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Tue, 30 Jul 2019 17:00:49 +0800</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/categories/network/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Calico 网络通信原理揭秘</title>
+      <link>https://fuckcloudnative.io/posts/poke-calicos-lies/</link>
+      <pubDate>Tue, 30 Jul 2019 17:00:49 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/poke-calicos-lies/</guid>
+      <description>Calico 是一个纯三层的数据中心网络方案，而且无缝集成像 OpenStack 这种 Iaas 云架构，能够提供可控的 VM、容器、裸机之间的 IP 通信。为什么说它是纯三层呢？因为所有的</description>
+    </item>
+    
+    <item>
+      <title>Macvlan 网络方案实践</title>
+      <link>https://fuckcloudnative.io/posts/macvlan-in-action/</link>
+      <pubDate>Mon, 01 Apr 2019 10:20:04 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/macvlan-in-action/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linux 虚拟网卡技术：Macvlan</title>
+      <link>https://fuckcloudnative.io/posts/netwnetwork-virtualization-macvlan/</link>
+      <pubDate>Mon, 25 Mar 2019 17:29:43 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/netwnetwork-virtualization-macvlan/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

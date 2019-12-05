@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Linux 虚拟网卡技术：Macvlan - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨, macvlan, vepa" name="keywords">
+
+  <meta name="description" content="本文主要介绍了 Macvlan 的实现原理，比较了它和 Linux Bridge 模式之间的差异及其使用场景，还详细剖析了 Macvlan 四种模式的工作原理和相关注意项。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/netwnetwork-virtualization-macvlan\/",
+          "name": "Linux 虚拟网卡技术： macvlan"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "Linux 虚拟网卡技术：Macvlan",
+  "description" : "本文主要介绍了 Macvlan 的实现原理，比较了它和 Linux Bridge 模式之间的差异及其使用场景，还详细剖析了 Macvlan 四种模式的工作原理和相关注意项。",
+  "inLanguage" : "zh",
+  "wordCount":  3267 ,
+  "datePublished" : "2019-03-25T17:29:43",
+  "dateModified" : "2019-03-25T17:29:43",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "macvlan" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/netwnetwork-virtualization-macvlan\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Linux 虚拟网卡技术：Macvlan" />
+<meta property="og:description" content="本文主要介绍了 Macvlan 的实现原理，比较了它和 Linux Bridge 模式之间的差异及其使用场景，还详细剖析了 Macvlan 四种模式的工作原理和相关注意项。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/netwnetwork-virtualization-macvlan/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="Linux 虚拟网卡技术：Macvlan" />
+  <meta name="twitter:description" content="本文主要介绍了 Macvlan 的实现原理，比较了它和 Linux Bridge 模式之间的差异及其使用场景，还详细剖析了 Macvlan 四种模式的工作原理和相关注意项。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">Linux 虚拟网卡技术：Macvlan</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">Macvlan 的实现原理及其工作模式</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 3 月 25 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;7&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3267&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Linux 虚拟网卡技术：Macvlan</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">Macvlan 的实现原理及其工作模式</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 3 月 25 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;7&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3267&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-macvlan-简介"><span id="inline-toc">1.</span> Macvlan 简介</a></li>
+<li><a href="#span-id-inline-toc-2-span-macvlan-vs-bridge"><span id="inline-toc">2.</span> Macvlan vs Bridge</a>
+<ul>
+<li><a href="#bridge">Bridge</a></li>
+<li><a href="#macvlan">Macvlan</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-3-span-macvlan-的工作模式"><span id="inline-toc">3.</span> Macvlan 的工作模式</a>
+<ul>
+<li><a href="#vepa-virtual-ethernet-port-aggregator">VEPA（Virtual Ethernet Port Aggregator）</a></li>
+<li><a href="#bridge-1">Bridge</a></li>
+<li><a href="#private">Private</a></li>
+<li><a href="#passthru">Passthru</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-4-span-macvlan-和-bridge-的使用场景"><span id="inline-toc">4.</span> Macvlan 和 Bridge 的使用场景</a></li>
+<li><a href="#span-id-inline-toc-5-span-macvlan-的局限性"><span id="inline-toc">5.</span> Macvlan 的局限性</a></li>
+<li><a href="#span-id-inline-toc-6-span-总结"><span id="inline-toc">6.</span> 总结</a></li>
+<li><a href="#span-id-inline-toc-7-span-参考资料"><span id="inline-toc">7.</span> 参考资料</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           <h2 id="span-id-inline-toc-1-span-macvlan-简介"><span id="inline-toc">1.</span> Macvlan 简介</h2>
+
+<hr />
+
+<p>在 Macvlan 出现之前，我们只能为一块以太网卡添加多个 IP 地址，却不能添加多个 MAC 地址，因为 MAC 地址正是通过其全球唯一性来标识一块以太网卡的，即便你使用了创建 <code>ethx:y</code> 这样的方式，你会发现所有这些“网卡”的 MAC 地址和 ethx 都是一样的，本质上，它们还是一块网卡，这将限制你做很多二层的操作。有了 <code>Macvlan</code> 技术，你可以这么做了。</p>
+
+<p>Macvlan 允许你在主机的一个网络接口上配置多个虚拟的网络接口，这些网络 <code>interface</code> 有自己独立的 MAC 地址，也可以配置上 IP 地址进行通信。Macvlan 下的虚拟机或者容器网络和主机在同一个网段中，共享同一个广播域。Macvlan 和 <code>Bridge</code> 比较相似，但因为它省去了 Bridge 的存在，所以配置和调试起来比较简单，而且效率也相对高。除此之外，Macvlan 自身也完美支持 <code>VLAN</code>。</p>
+
+<p>同一 VLAN 间数据传输是通过二层互访，即 MAC 地址实现的，不需要使用路由。不同 VLAN 的用户单播默认不能直接通信，如果想要通信，还需要三层设备做路由，Macvlan 也是如此。用 Macvlan 技术虚拟出来的虚拟网卡，在逻辑上和物理网卡是对等的。物理网卡也就相当于一个<strong>交换机</strong>，记录着对应的虚拟网卡和 MAC 地址，当物理网卡收到数据包后，会根据目的 MAC 地址判断这个包属于哪一个虚拟网卡。<strong>这也就意味着，只要是从 Macvlan 子接口发来的数据包（或者是发往 Macvlan 子接口的数据包），物理网卡只接收数据包，不处理数据包，所以这就引出了一个问题：本机 Macvlan 网卡上面的 IP 无法和物理网卡上面的 IP 通信！</strong>关于这个问题的解决方案我们下一节再讨论。</p>
+
+<p>我们先来看一下 Macvlan 技术的流程示意图：</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/mSHyZc.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/mSHyZc.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/mSHyZc.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>简单来说，Macvlan 虚拟网卡设备是寄生在物理网卡设备上的。发包时调用自己的发包函数，查找到寄生的物理设备，然后通过物理设备发包。收包时，通过注册寄生的物理设备的 <code>rx_handler</code> 回调函数，处理数据包。</p>
+
+<h2 id="span-id-inline-toc-2-span-macvlan-vs-bridge"><span id="inline-toc">2.</span> Macvlan vs Bridge</h2>
+
+<hr />
+
+<p>说到 Macvlan，就不得不提 <code>Bridge</code>，因为你可以把 Macvlan 看成一个简单的 Bridge。但他们之间还是有很大的区别的。</p>
+
+<h3 id="bridge">Bridge</h3>
+
+<p>Bridge 实际上就是一种旧式交换机，他们之间并没有很大的差别。Bridge 与交换机的区别在与市场，而不在与技术。交换机对网络进行分段的方式与 Bridge 相同，交换机就是一个多端口的网桥。确切地说，高端口密度的 Bridge 就称为局域网交换机。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/xTkQl9.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/xTkQl9.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/xTkQl9.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>Bridge 有以下特点：</p>
+
+<ul>
+<li>Bridge 是二层设备，仅用来处理二层的通讯。</li>
+<li>Bridge 使用 MAC 地址表来决定怎么转发帧（<code>Frame</code>）。</li>
+<li>Bridge 会从 host 之间的通讯数据包中学习 MAC 地址。</li>
+<li>可以是硬件设备，也可以是纯软件实现(例如：<code>Linux Bridge</code>)。</li>
+</ul>
+
+<p>以下是一个在 Linux 主机上，多个 VM 使用 bridge 相互通讯的状况：</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/LwCdhI.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/LwCdhI.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/LwCdhI.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>Linux 主机中可以通过命令行工具 <code>brctl</code> 来查看 Bridge 的配置，该工具可以通过安装软件包 <code>bridge-utils</code> 来获得。</p>
+
+<pre><code class="language-bash">$ brctl show
+
+bridge name  bridge id          STP enabled  interfaces
+br0          8000.080006ad34d1  no           eth0
+                                             veth0
+br1          8000.080021d2a187  no           veth1
+                                             veth2
+</code></pre>
+
+<style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:"Font Awesome 5 Free",FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:'\f071'}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:'\f05a'}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:'\f06a'}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:'\f058'}.notice.tip{background:#e6f9e6}</style><div class="notice note" >
+<p class="first notice-title">注意</p><p>Bridge 有可能会遇到二层环路，如有需要，你可以开启 <a href="https://www.wikiwand.com/zh-hans/%E7%94%9F%E6%88%90%E6%A0%91%E5%8D%8F%E8%AE%AE" target="_blank">STP</a> 来防止出现环路。</p></div>
+
+
+<h3 id="macvlan">Macvlan</h3>
+
+<p>Macvlan 有以下特点：</p>
+
+<ul>
+<li>可让使用者在同一张实体网卡上设定多个 MAC 地址。</li>
+<li>承上，带有上述设定的 MAC 地址的网卡称为子接口（<code>sub interface</code>）；而实体网卡则称为父接口（<code>parent interface</code>）。</li>
+<li><code>parent interface</code> 可以是一个物理接口（eth0），可以是一个 802.1q 的子接口（eth0.10），也可以是 <code>bonding</code> 接口。</li>
+<li>可在 parent/sub interface 上设定的不只是 MAC 地址，IP 地址同样也可以被设定。</li>
+<li><code>sub interface</code> 无法直接与 <code>parent interface</code> 通讯 (带有 sub interface 的 VM 或容器无法与 host 直接通讯)。</li>
+<li>承上，若 VM 或容器需要与 host 通讯，那就必须额外建立一个 <code>sub interface</code> 给 host 用。</li>
+<li>sub interface 通常以 <code>mac0@eth0</code> 的形式来命名以方便区別。</li>
+</ul>
+
+<p>用张图来解释一下设定 Macvlan 后的样子：</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/11BacB.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/11BacB.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/11BacB.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<h2 id="span-id-inline-toc-3-span-macvlan-的工作模式"><span id="inline-toc">3.</span> Macvlan 的工作模式</h2>
+
+<hr />
+
+<p>Macvlan 共支持四种模式，分别是：</p>
+
+<h3 id="vepa-virtual-ethernet-port-aggregator">VEPA（Virtual Ethernet Port Aggregator）</h3>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/hWQfo8.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/hWQfo8.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/hWQfo8.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>在 <code>VEPA</code> 模式下，所有从 Macvlan 接口发出的流量，不管目的地全部都发送给父接口，即使流量的目的地是共享同一个父接口的其它 Macvlan 接口。在二层网络场景下，由于生成树协议的原因，两个 Macvlan 接口之间的通讯会被阻塞，这时需要上层路由器上为其添加路由（需要外部交换机配置 <code>Hairpin</code> 支持，即需要兼容 802.1Qbg 的交换机支持，其可以把源和目的地址都是本地 Macvlan 接口地址的流量发回给相应的接口）。此模式下从父接口收到的广播包，会泛洪给 VEPA 模式的所有子接口。</p>
+
+<p>现在大多数交换机都不支持 <code>Hairpin</code> 模式，但 Linux 主机中可以通过一种 <code>Harpin</code> 模式的 Bridge 来让 <code>VEPA</code> 模式下的不同 Macvlan 接口通信(前文已经提到，Bridge 其实就是一种旧式交换机)。怎么配置呢？非常简单，通过一条命令就可以解决：</p>
+
+<pre><code class="language-bash">$ brctl hairpin br0 eth1 on
+</code></pre>
+
+<p>或者使用 <code>iproute2</code> 来设置：</p>
+
+<pre><code class="language-bash">$ bridge link set dev eth0 hairpin on
+</code></pre>
+
+<p>如果你的内核是你手工编译升级的，那么可能你的用户态程序并不支持新内核对应的所有特性，也就是说你的 <code>brctl</code> 可能版本过老不支持 hairpin 命令，那么可以 <code>sysfs</code> 来搞定：</p>
+
+<pre><code class="language-bash">$ echo 1 &gt;/sys/class/net/br0/brif/eth1/hairpin_mode
+</code></pre>
+
+<p>在 Linux 主机上配置了 <code>Harpin</code> 模式之后，源和目的地址都是本地 Macvlan 接口地址的流量，都会被 <code>br0</code>（假设你创建的 Bridge 是 br0）发回给相应的接口。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/Upu0WA.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/Upu0WA.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/Upu0WA.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>如果想在物理交换机层面对虚拟机或容器之间的访问流量进行优化设定，VEPA 模式将是一种比较好的选择。</p>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p><code>VEPA</code> 和 <code>Passthru</code> 模式下，两个 Macvlan 接口之间的通信会经过主接口两次：第一次是发出的时候，第二次是返回的时候。这样会影响物理接口的宽带，也限制了不同 Macvlan 接口之间通信的速度。如果多个 Macvlan 接口之间通信比较频繁，对于性能的影响会比较明显。</p></div>
+
+
+<h3 id="bridge-1">Bridge</h3>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/DX8XTB.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/DX8XTB.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/DX8XTB.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>此种模式类似 Linux 的 Bridge，拥有相同父接口的两块 Macvlan 虚拟网卡是可以直接通讯的，不需要把流量通过父网卡发送到外部网络，广播帧将会被泛洪到连接在&rdquo;网桥&rdquo;上的所有其他子接口和物理接口。这比较适用于让共享同一个父接口的 Macvlan 网卡进行直接通讯的场景。</p>
+
+<p>这里所谓的 Bridge 指的是在这些网卡之间，数据流可以实现直接转发，不需要外部的协助，这有点类似于 Linux host 内建了一个 Bridge，即用 brctl 命令所做的那一切。但和 Linux bridge 绝不是一回事，它不需要学习 MAC 地址，也不需要 <code>STP</code>，因此效能比起使用 Linux bridge 好上很多。</p>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>Bridge 模式有个缺点：如果父接口 down 掉，所有的 Macvlan 子接口也会全部 down 掉，同时子接口之间也将无法进行通讯。</p></div>
+
+
+<h3 id="private">Private</h3>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/uDCfcQ.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/uDCfcQ.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/uDCfcQ.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>此种模式相当于 <code>VEPA</code> 模式的增强模式，其完全阻止共享同一父接口的 Macvlan 虚拟网卡之间的通讯，即使配置了 <code>Hairpin</code> 让从父接口发出的流量返回到宿主机，相应的通讯流量依然被丢弃。具体实现方式是丢弃广播/多播数据，这就意味着以太网地址解析 <code>arp</code> 将不可运行，除非手工探测 MAC 地址，否则通信将无法在同一宿主机下的多个 Macvlan 网卡间展开。之所以隔离广播流量，是因为以太网是基于广播的，隔离了广播，以太网将失去了依托。</p>
+
+<h3 id="passthru">Passthru</h3>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/udMMFI.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/udMMFI.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/udMMFI.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>此种模式会直接把父接口和相应的MacVLAN接口捆绑在一起，这种模式每个父接口只能和一个 Macvlan 虚拟网卡接口进行捆绑，并且 Macvlan 虚拟网卡接口继承父接口的 MAC 地址。</p>
+
+<p>此种模式的优点是虚拟机和容器可以更改 MAC 地址和其它一些接口参。</p>
+
+<h2 id="span-id-inline-toc-4-span-macvlan-和-bridge-的使用场景"><span id="inline-toc">4.</span> Macvlan 和 Bridge 的使用场景</h2>
+
+<hr />
+
+<p>最后我们再来讨论一下 Macvlan 和 Bridge 的各自使用场景。</p>
+
+<p><strong>使用 Macvlan：</strong></p>
+
+<ul>
+<li>仅仅需要为虚拟机或容器提供访问外部物理网络的连接。</li>
+<li><a href="https://www.google.si/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;cad=rja&amp;uact=8&amp;ved=0ahUKEwiSiaXg69bLAhVDdCwKHY9KA_cQFggdMAA&amp;url=http%3A%2F%2Fevents.linuxfoundation.org%2Fsites%2Fevents%2Ffiles%2Fslides%2FLinuxConJapan2014_makita_0.pdf&amp;usg=AFQjCNFl2atyFB5aALHH5cKA8XkFqGQ1DQ&amp;sig2=Nc5q1QsTrG9g8_YYRDrEog" target="_blank">Macvlan 占用较少的 CPU，同时提供较高的吞吐量</a>。</li>
+<li>当使用 Macvlan 时，宿主机无法和 VM 或容器直接进行通讯。</li>
+</ul>
+
+<p><strong>使用 Bridge：</strong></p>
+
+<ul>
+<li>当在同一台宿主机上需要连接多个虚拟机或容器时。</li>
+<li>对于拥有多个网桥的混合环境。</li>
+<li>需要应用高级流量控制，FDB的维护。</li>
+</ul>
+
+<h2 id="span-id-inline-toc-5-span-macvlan-的局限性"><span id="inline-toc">5.</span> Macvlan 的局限性</h2>
+
+<hr />
+
+<p>Macvlan 是将 VM 或容器通过二层连接到物理网络的近乎理想的方案，但它也有一些局限性：</p>
+
+<ul>
+<li>Linux 主机连接的交换机可能会限制同一个物理端口上的 MAC 地址数量。虽然你可以让网络管理员更改这些策略，但有时这种方法是无法实行的（比如你要去给客户做一个快速的 PoC 演示）。</li>
+<li>许多 <a href="https://www.wikiwand.com/zh/%E7%BD%91%E5%8D%A1" target="_blank">NIC</a> 也会对该物理网卡上的 MAC地址数量有限制。超过这个限制就会影响到系统的性能。</li>
+<li><a href="https://www.wikiwand.com/zh-hans/IEEE_802.11" target="_blank">IEEE 802.11</a> 不喜欢同一个客户端上有多个 MAC 地址，这意味着你的 Macvlan 子接口在无线网卡或 <a href="https://www.wikiwand.com/en/Wireless_access_point" target="_blank">AP</a> 中都无法通信。可以通过复杂的办法来突破这种限制，但还有一种更简单的办法，那就是使用 <code>Ipvlan</code>，感兴趣可以自己查阅相关资料。</li>
+</ul>
+
+<h2 id="span-id-inline-toc-6-span-总结"><span id="inline-toc">6.</span> 总结</h2>
+
+<hr />
+
+<p>本文主要介绍了 Macvlan 的实现原理，比较了它和 Linux Bridge 模式之间的差异及其使用场景，还详细剖析了 Macvlan 四种模式的工作原理和相关注意项。下一节我们将通过实际演练来模拟 Macvlan 的四种工作模式。</p>
+
+<h2 id="span-id-inline-toc-7-span-参考资料"><span id="inline-toc">7.</span> 参考资料</h2>
+
+<hr />
+
+<ul>
+<li><a href="http://hicu.be/bridge-vs-macvlan" target="_blank">Bridge vs Macvlan</a></li>
+<li><a href="https://blog.csdn.net/ztguang/article/details/51854037" target="_blank">图解几个与Linux网络虚拟化相关的虚拟网卡-VETH/MACVLAN/MACVTAP/IPVLAN</a></li>
+<li><a href="https://lists.linuxfoundation.org/pipermail/bridge/2009-November/006842.html" target="_blank">iproute2/iplink: add macvlan options for bridge mode</a></li>
+</ul>
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/macvlan/"><i class="fa fa-tags"></i>macvlan</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fnetwnetwork-virtualization-macvlan%2f&amp;title=Linux%20%e8%99%9a%e6%8b%9f%e7%bd%91%e5%8d%a1%e6%8a%80%e6%9c%af%ef%bc%9aMacvlan&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2fmceclip0.png" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fnetwnetwork-virtualization-macvlan%2f&amp;title=Linux%20%e8%99%9a%e6%8b%9f%e7%bd%91%e5%8d%a1%e6%8a%80%e6%9c%af%ef%bc%9aMacvlan&amp;source=Linux%20%e8%99%9a%e6%8b%9f%e7%bd%91%e5%8d%a1%e6%8a%80%e6%9c%af%ef%bc%9aMacvlan&amp;desc=%e6%9c%ac%e6%96%87%e4%b8%bb%e8%a6%81%e4%bb%8b%e7%bb%8d%e4%ba%86%20Macvlan%20%e7%9a%84%e5%ae%9e%e7%8e%b0%e5%8e%9f%e7%90%86%ef%bc%8c%e6%af%94%e8%be%83%e4%ba%86%e5%ae%83%e5%92%8c%20Linux%20Bridge%20%e6%a8%a1%e5%bc%8f%e4%b9%8b%e9%97%b4%e7%9a%84%e5%b7%ae%e5%bc%82%e5%8f%8a%e5%85%b6%e4%bd%bf%e7%94%a8%e5%9c%ba%e6%99%af%ef%bc%8c%e8%bf%98%e8%af%a6%e7%bb%86%e5%89%96%e6%9e%90%e4%ba%86%20Macvlan%20%e5%9b%9b%e7%a7%8d%e6%a8%a1%e5%bc%8f%e7%9a%84%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86%e5%92%8c%e7%9b%b8%e5%85%b3%e6%b3%a8%e6%84%8f%e9%a1%b9%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2fmceclip0.png&amp;summary=%e6%9c%ac%e6%96%87%e4%b8%bb%e8%a6%81%e4%bb%8b%e7%bb%8d%e4%ba%86%20Macvlan%20%e7%9a%84%e5%ae%9e%e7%8e%b0%e5%8e%9f%e7%90%86%ef%bc%8c%e6%af%94%e8%be%83%e4%ba%86%e5%ae%83%e5%92%8c%20Linux%20Bridge%20%e6%a8%a1%e5%bc%8f%e4%b9%8b%e9%97%b4%e7%9a%84%e5%b7%ae%e5%bc%82%e5%8f%8a%e5%85%b6%e4%bd%bf%e7%94%a8%e5%9c%ba%e6%99%af%ef%bc%8c%e8%bf%98%e8%af%a6%e7%bb%86%e5%89%96%e6%9e%90%e4%ba%86%20Macvlan%20%e5%9b%9b%e7%a7%8d%e6%a8%a1%e5%bc%8f%e7%9a%84%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86%e5%92%8c%e7%9b%b8%e5%85%b3%e6%b3%a8%e6%84%8f%e9%a1%b9%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fnetwnetwork-virtualization-macvlan%2f&amp;text=Linux%20%e8%99%9a%e6%8b%9f%e7%bd%91%e5%8d%a1%e6%8a%80%e6%9c%af%ef%bc%9aMacvlan&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fnetwnetwork-virtualization-macvlan%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fnetwnetwork-virtualization-macvlan%2f&amp;title=Linux%20%e8%99%9a%e6%8b%9f%e7%bd%91%e5%8d%a1%e6%8a%80%e6%9c%af%ef%bc%9aMacvlan" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/macvlan-in-action/">Macvlan 网络方案实践</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/a-deep-dive-into-kubernetes-controllers/" data-toggle="tooltip" data-placement="top" title="Kubernetes 控制器的工作原理解读">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/macvlan-in-action/" data-toggle="tooltip" data-placement="top" title="Macvlan 网络方案实践">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

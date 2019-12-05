@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>envoy on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/envoy/</link>
+    <description>Recent content in envoy on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Fri, 18 Oct 2019 00:16:16 -0400</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/envoy/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Podman 使用指南</title>
+      <link>https://fuckcloudnative.io/posts/podman-sidecar/</link>
+      <pubDate>Fri, 18 Oct 2019 00:16:16 -0400</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/podman-sidecar/</guid>
+      <description>郑重声明：本文不是 Podman 的入门篇，入门请阅读这篇文章：再见 Docker，是时候拥抱下一代容器工具了 Podman 原来是 CRI-O 项目的一部分，后来被分离成一个单独的</description>
+    </item>
+    
+    <item>
+      <title>AdGuard Home 安装使用教程</title>
+      <link>https://fuckcloudnative.io/posts/adguard-home/</link>
+      <pubDate>Sun, 22 Sep 2019 09:02:26 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/adguard-home/</guid>
+      <description>通常我们使用网络时，宽带运营商会为我们分配一个 DNS 服务器。这个 DNS 通常是最快的，距离最近的服务器，但会有很多问题，比如： 访问某些网络服务很缓慢，</description>
+    </item>
+    
+    <item>
+      <title>Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布</title>
+      <link>https://fuckcloudnative.io/posts/blue-green-deployments-contours-ingressroute/</link>
+      <pubDate>Fri, 06 Sep 2019 02:08:54 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/blue-green-deployments-contours-ingressroute/</guid>
+      <description>上篇文章介绍了 Contour 分布式架构的工作原理，顺便简单介绍了下 IngressRoute 的使用方式。本文将探讨 IngressRoute 更高级的用法，其中级联功能是重点。 1. IngressRoute 大入门 上篇文章在 examples/example-workload 目录</description>
+    </item>
+    
+    <item>
+      <title>Contour 学习笔记（一）：使用 Contour 接管 Kubernetes 的南北流量</title>
+      <link>https://fuckcloudnative.io/posts/use-envoy-as-a-kubernetes-ingress/</link>
+      <pubDate>Thu, 29 Aug 2019 15:38:15 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/use-envoy-as-a-kubernetes-ingress/</guid>
+      <description>在 Kubernetes 中运行大规模以 Web 为中心的工作负载，最关键的需求之一就是在 L7 层实现高效流畅的入口流量管理。自从第一批 Kubernetes Ingress Controller 开发完成以来，Envoy（由 Matt Klein</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：从 Nginx 迁移到 Envoy Proxy</title>
+      <link>https://fuckcloudnative.io/posts/migrating-from-nginx-to-envoy/</link>
+      <pubDate>Fri, 14 Dec 2018 17:39:06 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/migrating-from-nginx-to-envoy/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：对应用进行速率限制</title>
+      <link>https://fuckcloudnative.io/posts/sre-resiliency-bolt-on-sidecar-rate-limiting-with-envoy-sidecar/</link>
+      <pubDate>Thu, 01 Nov 2018 17:55:47 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/sre-resiliency-bolt-on-sidecar-rate-limiting-with-envoy-sidecar/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：扩展 Envoy 的管理界面</title>
+      <link>https://fuckcloudnative.io/posts/extending-the-envoy-admin-interface/</link>
+      <pubDate>Thu, 25 Oct 2018 16:34:20 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/extending-the-envoy-admin-interface/</guid>
+      <description>原文地址：Extending the Envoy Admin Interface 译者：杨传胜 Envoy 是一个动态可配置的高性能现代化代理工具，现在几乎所有的 IT 潮男都用它来构建服务网格。Envo</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：xDS REST 和 gRPC 协议详解</title>
+      <link>https://fuckcloudnative.io/posts/envoy-xds-protocol/</link>
+      <pubDate>Wed, 10 Oct 2018 22:23:51 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/envoy-xds-protocol/</guid>
+      <description>转载自：Envoy 中的 xDS REST 和 gRPC 协议详解 原文地址：https://github.com/envoyproxy/data-plane-api/b</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：开启 TLS 验证实战</title>
+      <link>https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy-practice/</link>
+      <pubDate>Wed, 26 Sep 2018 17:43:00 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy-practice/</guid>
+      <description>我的博客之前是使用 Nginx 来反代的，由于 Nginx 性能优异，目前有很多国内网站采用 Nginx 作为 Web 服务器，而且参考文档比较丰富，无论是对于其部署，配置还是调优都更</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：熔断器的原理和使用</title>
+      <link>https://fuckcloudnative.io/posts/circuit-breaking/</link>
+      <pubDate>Fri, 13 Jul 2018 09:22:49 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/circuit-breaking/</guid>
+      <description>在微服务领域，各个服务之间经常会相互调用。如果某个服务繁忙或者无法响应请求，将有可能引发集群的大规模级联故障，从而造成整个系统不可用，通常把</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：通过控制平面提供路由</title>
+      <link>https://fuckcloudnative.io/posts/routing-with-a-control-plane/</link>
+      <pubDate>Fri, 06 Jul 2018 06:16:02 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/routing-with-a-control-plane/</guid>
+      <description>当微服务集群规模非常庞大时，控制平面包含了大量的 Envoy 配置项和基础设施状态，这时最好将数据平面与控制平面分离。控制平面最主要的功能包括自动重试和</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：集成服务发现</title>
+      <link>https://fuckcloudnative.io/posts/integrating-service-discovery-with-envoy/</link>
+      <pubDate>Wed, 04 Jul 2018 10:12:43 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/integrating-service-discovery-with-envoy/</guid>
+      <description>在微服务中使用 Envoy，需要明确两个核心概念：数据平面和控制平面。 数据平面 由一组 Envoy 实例组成，用来调解和控制微服务之间的所有网络通信。 控制平</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：启用证书验证</title>
+      <link>https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy/</link>
+      <pubDate>Tue, 03 Jul 2018 06:43:33 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy/</guid>
+      <description>如果你准备将服务暴露在互联网上，最好启用 SSL/TLS 加密协议。当使用 Envoy 作为前端代理或者服务网格代理时，可以通过 SSL/TLS 协议来加密客户端和代理之间的所有通信流</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：实现增量部署</title>
+      <link>https://fuckcloudnative.io/posts/incremental-deploys/</link>
+      <pubDate>Mon, 02 Jul 2018 05:37:37 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/incremental-deploys/</guid>
+      <description>微服务最常见的工作流程之一就是版本更新。不同于基础架构更新，通过流量管理可以优雅地实现微服务的版本更新。当新发布的版本有缺陷时，这种方法就可</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：HTTP 路由解析</title>
+      <link>https://fuckcloudnative.io/posts/routing-basics/</link>
+      <pubDate>Fri, 29 Jun 2018 09:57:33 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/routing-basics/</guid>
+      <description>本文将更详细地讨论 Envoy 的 HTTP 路由，如果你已经看过了我的上篇文章：在你的笔记本上运行 Envoy，现在就可以更深入地了解如何在静态文件中配置路由（R</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：入门篇</title>
+      <link>https://fuckcloudnative.io/posts/run-envoy-on-your-laptop/</link>
+      <pubDate>Thu, 28 Jun 2018 08:54:18 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/run-envoy-on-your-laptop/</guid>
+      <description>1. 前言 过去一年中，Kubernetes 已经赢得了容器编排大战，如果说 2017 年是 Kubernetes 的元年，那么 2018 将会是 Service Mesh（服务网格） 的元年，在未来两年中，</description>
+    </item>
+    
+  </channel>
+</rss>

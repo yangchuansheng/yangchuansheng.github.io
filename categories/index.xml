@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/categories/</link>
+    <description>Recent content in Categories on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Sun, 17 Nov 2019 13:54:43 -0500</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>docker</title>
+      <link>https://fuckcloudnative.io/categories/docker/</link>
+      <pubDate>Sun, 17 Nov 2019 13:54:43 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/docker/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>linux</title>
+      <link>https://fuckcloudnative.io/categories/linux/</link>
+      <pubDate>Mon, 04 Nov 2019 23:47:34 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/linux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>monitoring</title>
+      <link>https://fuckcloudnative.io/categories/monitoring/</link>
+      <pubDate>Tue, 08 Oct 2019 01:49:41 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/monitoring/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>service mesh</title>
+      <link>https://fuckcloudnative.io/categories/service-mesh/</link>
+      <pubDate>Wed, 25 Sep 2019 13:00:34 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/service-mesh/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>share</title>
+      <link>https://fuckcloudnative.io/categories/share/</link>
+      <pubDate>Sun, 22 Sep 2019 09:02:26 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/share/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubernetes</title>
+      <link>https://fuckcloudnative.io/categories/kubernetes/</link>
+      <pubDate>Thu, 19 Sep 2019 21:53:07 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/kubernetes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>devops</title>
+      <link>https://fuckcloudnative.io/categories/devops/</link>
+      <pubDate>Wed, 21 Aug 2019 14:03:42 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/devops/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>network</title>
+      <link>https://fuckcloudnative.io/categories/network/</link>
+      <pubDate>Tue, 30 Jul 2019 17:00:49 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/network/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>math</title>
+      <link>https://fuckcloudnative.io/categories/math/</link>
+      <pubDate>Sat, 09 Mar 2019 19:32:33 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/math/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>gfw</title>
+      <link>https://fuckcloudnative.io/categories/gfw/</link>
+      <pubDate>Wed, 06 Mar 2019 13:41:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/gfw/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>loadbalance</title>
+      <link>https://fuckcloudnative.io/categories/loadbalance/</link>
+      <pubDate>Mon, 28 Jan 2019 16:39:48 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/loadbalance/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>hugo</title>
+      <link>https://fuckcloudnative.io/categories/hugo/</link>
+      <pubDate>Mon, 12 Nov 2018 15:30:35 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/hugo/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

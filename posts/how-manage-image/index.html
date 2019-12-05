@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>docker 在本地如何管理 image（镜像）? - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="" name="keywords">
+
+  <meta name="description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/how-manage-image\/",
+          "name": "Docker 在本地如何管理 image（镜像）?"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "docker 在本地如何管理 image（镜像）?",
+  "description" : "docker 里面可以通过 docker pull、docker build、docker commit、docker load、docker import 等方式得到一个 image，得",
+  "inLanguage" : "zh",
+  "wordCount":  4162 ,
+  "datePublished" : "2018-04-02T05:12:18",
+  "dateModified" : "2018-04-02T05:12:18",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "docker" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/how-manage-image\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="docker 在本地如何管理 image（镜像）?" />
+<meta property="og:description" content="探索 image 的获取和存储方式">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/how-manage-image/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="docker 在本地如何管理 image（镜像）?" />
+  <meta name="twitter:description" content="探索 image 的获取和存储方式">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">docker 在本地如何管理 image（镜像）?</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">探索 image 的获取和存储方式</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 4 月 2 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;9&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4162&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>docker 在本地如何管理 image（镜像）?</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">探索 image 的获取和存储方式</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 4 月 2 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;9&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4162&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-镜像相关的配置"><span id="inline-toc">1.</span> 镜像相关的配置</a></li>
+<li><a href="#span-id-inline-toc-2-span-镜像的引用方式"><span id="inline-toc">2.</span> 镜像的引用方式</a>
+<ul>
+<li><a href="#docker-hub-上的官方镜像">docker hub 上的官方镜像</a></li>
+<li><a href="#docker-hub-上的非官方-个人-镜像">docker hub 上的非官方（个人）镜像</a></li>
+<li><a href="#自己搭建的-registry-里的镜像">自己搭建的 registry 里的镜像</a></li>
+<li><a href="#为什么需要镜像的-digest">为什么需要镜像的 digest？</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-3-span-docker-pull的大概过程"><span id="inline-toc">3.</span> docker pull的大概过程</a></li>
+<li><a href="#span-id-inline-toc-4-span-image-本地存放位置"><span id="inline-toc">4.</span> image 本地存放位置</a>
+<ul>
+<li><a href="#repositories-json">repositories.json</a></li>
+<li><a href="#配置文件-image-config">配置文件（image config）</a></li>
+<li><a href="#layer-的-diff-id-和-digest-的对应关系">layer 的 diff_id 和 digest 的对应关系</a></li>
+<li><a href="#layer-的元数据">layer 的元数据</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-5-span-layer数据"><span id="inline-toc">5.</span> layer数据</a></li>
+<li><a href="#span-id-inline-toc-6-span-manifest文件去哪了"><span id="inline-toc">6.</span> manifest文件去哪了？</a></li>
+<li><a href="#span-id-inline-toc-7-span-结束语"><span id="inline-toc">7.</span> 结束语</a></li>
+<li><a href="#span-id-inline-toc-8-span-参考"><span id="inline-toc">8.</span> 参考</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+
+<p>docker 里面可以通过 <code>docker pull</code>、<code>docker build</code>、<code>docker commit</code>、<code>docker load</code>、<code>docker import</code> 等方式得到一个 image，得到 image 之后 docker 在本地是怎么存储的呢？本篇将以 <code>docker pull</code> 为例，简述 image 的获取和存储方式。</p>
+
+<h2 id="span-id-inline-toc-1-span-镜像相关的配置"><span id="inline-toc">1.</span> 镜像相关的配置</h2>
+
+<hr />
+
+<p>docker 里面和 image 有关的目录为 <code>/var/lib/docker</code>，里面存放着 image 的所有信息，可以通过下面这个 dockerd 的启动参数来修改这个目录的路径。</p>
+
+<pre><code class="language-bash">--graph, -g /var/lib/docker Root of the Docker runtime
+</code></pre>
+
+<h2 id="span-id-inline-toc-2-span-镜像的引用方式"><span id="inline-toc">2.</span> 镜像的引用方式</h2>
+
+<hr />
+
+<p>在需要引用 image 的时候，比如 docker pull 的时候，或者运行容器的时候，都需要指定一个image名称，引用一个镜像有多种方式，下面以 <code>alpine</code> 为例进行说明.</p>
+
+<style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:"Font Awesome 5 Free",FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:'\f071'}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:'\f05a'}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:'\f06a'}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:'\f058'}.notice.tip{background:#e6f9e6}</style><div class="notice note" >
+<p class="first notice-title">注意</p><p>由于 sha256 码太长，所以用 abcdef&hellip; 来表示完整的 sha256，节约空间</p></div>
+
+
+<h3 id="docker-hub-上的官方镜像">docker hub 上的官方镜像</h3>
+
+<ul>
+<li><strong>alpine:</strong> 官方提供的最新 alpine 镜像，对应的完整名称为 <code>docker.io/library/alpine:latest</code></li>
+<li><strong>alpine:3.7:</strong> 官方提供的 alpine 3.7 镜像，对应的完整名称为 <code>docker.io/library/alpine:3.7</code></li>
+<li><strong>alpine:@sha256:abcdef&hellip;:</strong> 官方提供的 digest 码为 sha256:abcdef&hellip; 的 alpine 镜像，对应的完整名称为 <code>docker.io/library/alpine@sha256:abcdef...</code></li>
+</ul>
+
+<h3 id="docker-hub-上的非官方-个人-镜像">docker hub 上的非官方（个人）镜像</h3>
+
+<p>引用方式和官方镜像一样，唯一不同的是需要在镜像名称前面带上用户前缀，如：</p>
+
+<ul>
+<li><strong>user1/alpine:</strong> 由 user1 提供的最新 alpine 镜像， 对应的完整名称为 <code>docker.io/user1/alpine:latest</code></li>
+</ul>
+
+<p><code>user1/alpine:3.7</code> 和 <code>user1/alpine:@sha256:abcdef...</code> 这两种方式也是和上面一样，等同于 <code>docker.io/user1/alpine:3.7</code> 和 <code>docker.io/user1/alpine:@sha256:abcdef...</code></p>
+
+<h3 id="自己搭建的-registry-里的镜像">自己搭建的 registry 里的镜像</h3>
+
+<p>引用方式和 <code>docker hub</code> 一样，唯一不同的是需要在镜像名称最前面带上地址，如：</p>
+
+<ul>
+<li><strong>localhost:5000/alpine:</strong> 本地自己搭建的 registry（localhost:5000）里面的官方 alpine 的最新镜像，对应的完整名称为 <code>localhost:5000/library/alpine:latest</code></li>
+<li><strong>localhost:5000/user1/alpine@sha256:a123def&hellip;:</strong> 本地自己搭建的 registry（localhost:5000）里面由用户 user1 提供的 digest 为 sha256:a123def 的 alpine 镜像</li>
+</ul>
+
+<p>其它的几种情况和上面的类似。</p>
+
+<h3 id="为什么需要镜像的-digest">为什么需要镜像的 digest？</h3>
+
+<p>对于某些 <code>image</code> 来说，可能在发布之后还会做一些更新，比如安全方面的，这时虽然镜像的内容变了，但镜像的名称和 <code>tag</code> 没有变，所以会造成前后两次通过同样的名称和 <code>tag</code> 从服务器得到不同的两个镜像的问题，于是 docker 引入了镜像的 <code>digest</code> 的概念，一个镜像的 <code>digest</code> 就是镜像的 <code>manifes</code> 文件的 <code>sha256</code> 码，当镜像的内容发生变化的时候，即镜像的 <code>layer</code> 发生变化，从而 <code>layer</code> 的 <code>sha256</code> 发生变化，而 <code>manifest</code> 里面包含了每一个 <code>layer</code> 的 <code>sha256</code>，所以 <code>manifest</code> 的 <code>sha256</code> 也会发生变化，即镜像的 <code>digest</code> 发生变化，这样就保证了 <code>digest</code> 能唯一的对应一个镜像。</p>
+
+<h2 id="span-id-inline-toc-3-span-docker-pull的大概过程"><span id="inline-toc">3.</span> docker pull的大概过程</h2>
+
+<hr />
+
+<p>如果对 Image manifest，Image Config 和 Filesystem Layers 等概念不是很了解，请先参考 <a href="https://segmentfault.com/a/1190000009309347" target="_blank">image(镜像)是什么</a>。</p>
+
+<p>取 image 的大概过程如下：</p>
+
+<ul>
+<li>docker 发送 <code>image</code> 的名称+tag（或者 digest）给 <code>registry</code> 服务器，服务器根据收到的 image 的名称+tag（或者 digest），找到相应 image 的 <code>manifest</code>，然后将 manifest 返回给 docker</li>
+<li>docker 得到 <code>manifest</code> 后，读取里面 image 配置文件的 <code>digest</code>(sha256)，这个 sha256 码就是 image 的 <code>ID</code></li>
+<li>根据 <code>ID</code> 在本地找有没有存在同样 <code>ID</code> 的 image，有的话就不用继续下载了</li>
+<li>如果没有，那么会给 registry 服务器发请求（里面包含配置文件的 <code>sha256</code> 和 <code>media type</code>），拿到 image 的配置文件（<code>Image Config</code>）</li>
+<li>根据配置文件中的 <code>diff_ids</code>（每个 diffid 对应一个 layer tar 包的 sha256，tar 包相当于 layer 的原始格式），在本地找对应的 layer 是否存在</li>
+<li>如果 layer 不存在，则根据 <code>manifest</code> 里面 layer 的 <code>sha256</code> 和 <code>media type</code> 去服务器拿相应的 layer（相当去拿压缩格式的包）。</li>
+<li>拿到后进行解压，并检查解压后 tar 包的 sha256 能否和配置文件（<code>Image Config</code>）中的 <code>diff_id</code> 对的上，对不上说明有问题，下载失败</li>
+<li>根据 docker 所用的后台文件系统类型，解压 tar 包并放到指定的目录</li>
+<li>等所有的 layer 都下载完成后，整个 image 下载完成，就可以使用了</li>
+</ul>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>对于 layer 来说，<code>config</code> 文件中 diffid 是 layer 的 <code>tar</code> 包的 sha256，而 <code>manifest</code> 文件中的 digest 依赖于 media type，比如 media type 是 <code>tar+gzip</code>，那 digest 就是 layer 的 tar 包经过 gzip 压缩后的内容的 sha256，如果 media type 就是 tar 的话，diffid 和 digest 就会一样。</p></div>
+
+
+<blockquote>
+<p>dockerd 和 registry 服务器之间的协议为 <a href="https://docs.docker.com/registry/spec/api/" target="_blank">Registry HTTP API V2</a>。</p>
+</blockquote>
+
+<h2 id="span-id-inline-toc-4-span-image-本地存放位置"><span id="inline-toc">4.</span> image 本地存放位置</h2>
+
+<hr />
+
+<p>这里以 <code>ubuntu</code> 的 image 为例，展示 docker 的 image 存储方式。</p>
+
+<p>先看看 ubuntu 的 <code>image id</code> 和 <code>digest</code>，然后再分析 image 数据都存在哪里。</p>
+
+<pre><code class="language-bash">$ docker images --digests
+
+REPOSITORY                                           TAG                 DIGEST                                                                    IMAGE ID            CREATED             SIZE
+ubuntu                                               latest              sha256:e348fbbea0e0a0e73ab0370de151e7800684445c509d46195aef73e090a49bd6   f975c5035748        3 weeks ago         112MB
+......
+</code></pre>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>对于本地生成的镜像来说，由于没有上传到 registry 上去，所以没有 digest，因为镜像的 manifest 由 registry 生成。</p></div>
+
+
+<h3 id="repositories-json">repositories.json</h3>
+
+<p><code>repositories.json</code> 中记录了和本地 image 相关的 <code>repository</code> 信息，主要是 <code>name</code> 和 <code>image id</code> 的对应关系，当 image 从 registry 上被 pull 下来后，就会更新该文件：</p>
+
+<pre><code class="language-bash">#这里目录中的 overlay2 为 docker 后台所采用的存储文件系统名称，
+#如果是其他的文件系统的话，名字会是其他的，比如btrfs、aufs、devicemapper等。
+$ cat /var/lib/docker/image/overlay2/repositories.json|jq .
+
+{
+    &quot;Repositories&quot;: {
+        &quot;ubuntu&quot;: {
+            &quot;ubuntu:latest&quot;: &quot;sha256:f975c50357489439eb9145dbfa16bb7cd06c02c31aa4df45c77de4d2baa4e232&quot;,
+            &quot;ubuntu@sha256:e348fbbea0e0a0e73ab0370de151e7800684445c509d46195aef73e090a49bd6&quot;: &quot;sha256:f975c50357489439eb9145dbfa16bb7cd06c02c31aa4df45c77de4d2baa4e232&quot;
+        }
+        ......
+    }
+}
+</code></pre>
+
+<ul>
+<li><p><strong>ubuntu:</strong> <code>repository</code> 的名称，前面没有服务器信息的表示这是官方 registry(docker hub) 里面的 repository，里面包含的都是 image 标识和 image ID 的对应关系</p></li>
+
+<li><p><strong>ubuntu:latest 和 ubuntu@sha256:e348fbb&hellip;:</strong> 他们都指向同一个image（<code>sha256:f975c5...</code>）</p></li>
+</ul>
+
+<h3 id="配置文件-image-config">配置文件（image config）</h3>
+
+<p>docker 根据后台所采用的文件系统不同，在 <code>/var/lib/docker</code> 目录下创建了不同的子目录，对于 <code>CentOS</code> 来说，默认文件系统是 <code>overlay2</code>。本文以 <span id="inline-purple">CentOS</span> 为例。</p>
+
+<p>docker 根据第一步得到的 manifest，从 registry 拿到 config 文件，然后保存在 <code>image/overlay2/imagedb/content/sha256/</code> 目录下，文件名称就是文件内容的 <code>sha256</code> 码，即 <code>image id</code>：</p>
+
+<pre><code class="language-bash">$ sha256sum /var/lib/docker/image/overlay2/imagedb/content/sha256/f975c50357489439eb9145dbfa16bb7cd06c02c31aa4df45c77de4d2baa4e232
+
+f975c50357489439eb9145dbfa16bb7cd06c02c31aa4df45c77de4d2baa4e232  /var/lib/docker/image/overlay2/imagedb/content/sha256/f975c50357489439eb9145dbfa16bb7cd06c02c31aa4df45c77de4d2baa4e232
+
+#这里我们只关注这个 image 的 rootfs，
+#从 diff_ids 里可以看出 ubuntu:latest 这个 image 包含了 5 个 layer，
+#从上到下依次是从底层到顶层，a94e0d...是最底层，db584c...是最顶层
+$ cat /var/lib/docker/image/overlay2/imagedb/content/sha256/f975c50357489439eb9145dbfa16bb7cd06c02c31aa4df45c77de4d2baa4e232|jq .
+
+......
+  &quot;rootfs&quot;: {
+    &quot;type&quot;: &quot;layers&quot;,
+    &quot;diff_ids&quot;: [
+      &quot;sha256:a94e0d5a7c404d0e6fa15d8cd4010e69663bd8813b5117fbad71365a73656df9&quot;,
+      &quot;sha256:88888b9b1b5b7bce5db41267e669e6da63ee95736cb904485f96f29be648bfda&quot;,
+      &quot;sha256:52f389ea437ebf419d1c9754d0184b57edb45c951666ee86951d9f6afd26035e&quot;,
+      &quot;sha256:52a7ea2bb533dc2a91614795760a67fb807561e8a588204c4858a300074c082b&quot;,
+      &quot;sha256:db584c622b50c3b8f9b8b94c270cc5fe235e5f23ec4aacea8ce67a8c16e0fbad&quot;
+    ]
+  }
+
+......
+</code></pre>
+
+<h3 id="layer-的-diff-id-和-digest-的对应关系">layer 的 diff_id 和 digest 的对应关系</h3>
+
+<p>layer 的 <code>diff_id</code> 存在 image 的配置文件中，而 layer 的 <code>digest</code> 存在 image 的 manifest 中，他们的对应关系被存储在了 <code>image/overlay2/distribution</code> 目录下：</p>
+
+<pre><code class="language-bash">$ tree -d /var/lib/docker/image/overlay2/distribution
+
+/var/lib/docker/image/overlay2/distribution
+├── diffid-by-digest
+│   └── sha256
+└── v2metadata-by-diffid
+    └── sha256
+</code></pre>
+
+<ul>
+<li><strong>diffid-by-digest：</strong> 存放 <code>digest</code> 到 <code>diffid</code> 的对应关系</li>
+
+<li><p><strong>v2metadata-by-diffid：</strong> 存放 <code>diffid</code> 到 <code>digest</code> 的对应关系</p>
+
+<pre><code class="language-bash">#这里以最底层 layer(a94e0d...) 为例，查看其 digest 信息
+$ cat /var/lib/docker/image/overlay2/distribution/v2metadata-by-diffid/sha256/db584c622b50c3b8f9b8b94c270cc5fe235e5f23ec4aacea8ce67a8c16e0fbad|jq .
+
+[
+{
+&quot;Digest&quot;: &quot;sha256:b78396653dae2bc0d9c02c0178bd904bb12195b2b4e541a92cd8793ac7d7d689&quot;,
+&quot;SourceRepository&quot;: &quot;docker.io/library/ubuntu&quot;,
+&quot;HMAC&quot;: &quot;&quot;
+}
+]
+
+#根据 digest 得到 diffid
+$ cat /var/lib/docker/image/overlay2/distribution/diffid-by-digest/sha256/b78396653dae2bc0d9c02c0178bd904bb12195b2b4e541a92cd8793ac7d7d689
+
+sha256:db584c622b50c3b8f9b8b94c270cc5fe235e5f23ec4aacea8ce67a8c16e0fbad
+</code></pre></li>
+</ul>
+
+<h3 id="layer-的元数据">layer 的元数据</h3>
+
+<p>layer 的属性信息都放在了 <code>image/overlay2/layerdb</code> 目录下，目录名称是 layer 的 <code>chainid</code>，由于最底层的 layer 的 chainid 和 diffid 相同，所以这里我们用第二层（fe9a3f&hellip;）作为示例：</p>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>计算 chainid 时，用到了所有祖先 layer 的信息，从而能保证根据 chainid 得到的 rootfs 是唯一的。比如我在 debian 和 ubuntu 的 image 基础上都添加了一个同样的文件，那么 commit 之后新增加的这两个 layer 具有相同的内容，相同的 diffid，但由于他们的父 layer 不一样，所以他们的 chainid 会不一样，从而根据 chainid 能找到唯一的 rootfs。计算 chainid 的方法请参考 <a href="https://github.com/opencontainers/image-spec/blob/master/config.md" target="_blank">image spec</a></p></div>
+
+
+<pre><code class="language-bash">#计算 chainid
+#这里 88888b... 是第二层的 diffid，而 a94e0d... 是 88888b... 父层的 chainid，
+#由于a94e0d...是最底层，它没有父层，所以 a94e0d... 的 chainid 就是 a94e0d...
+$ echo -n &quot;sha256:a94e0d5a7c404d0e6fa15d8cd4010e69663bd8813b5117fbad71365a73656df9 sha256:88888b9b1b5b7bce5db41267e669e6da63ee95736cb904485f96f29be648bfda&quot;|sha256sum -
+
+14a40a140881d18382e13b37588b3aa70097bb4f3fb44085bc95663bdc68fe20  -
+
+#根据 chainid 来看看相应目录的内容
+$ ll /var/lib/docker/image/overlay2/layerdb/sha256/14a40a140881d18382e13b37588b3aa70097bb4f3fb44085bc95663bdc68fe20
+
+total 20K
+-rw-r--r-- 1 root root   64 Apr  1 22:16 cache-id
+-rw-r--r-- 1 root root   71 Apr  1 22:16 diff
+-rw-r--r-- 1 root root   71 Apr  1 22:16 parent
+-rw-r--r-- 1 root root    3 Apr  1 22:16 size
+-rw-r--r-- 1 root root 1.5K Apr  1 22:16 tar-split.json.gz
+
+#每个 layer 都有这样一个对应的文件夹
+#cache-id 是 docker 下载 layer 的时候在本地生成的一个随机 uuid，
+#指向真正存放 layer 文件的地方
+$ cat /var/lib/docker/image/overlay2/layerdb/sha256/14a40a140881d18382e13b37588b3aa70097bb4f3fb44085bc95663bdc68fe20/cache-id
+
+658299560be0fd7eaf4a14b0927e134049d13eb31070a9902b0d275836a13cfb
+
+#diff 文件存放 layer 的 diffid
+$ cat /var/lib/docker/image/overlay2/layerdb/sha256/14a40a140881d18382e13b37588b3aa70097bb4f3fb44085bc95663bdc68fe20/diff
+
+sha256:88888b9b1b5b7bce5db41267e669e6da63ee95736cb904485f96f29be648bfda
+
+#parent 文件存放当前 layer 的父 layer 的 diffid，
+#注意：对于最底层的 layer 来说，由于没有父 layer，所以没有这个文件
+$ cat /var/lib/docker/image/overlay2/layerdb/sha256/14a40a140881d18382e13b37588b3aa70097bb4f3fb44085bc95663bdc68fe20/parent
+
+sha256:a94e0d5a7c404d0e6fa15d8cd4010e69663bd8813b5117fbad71365a73656df9
+
+#当前 layer 的大小，单位是字节
+$ cat /var/lib/docker/image/overlay2/layerdb/sha256/14a40a140881d18382e13b37588b3aa70097bb4f3fb44085bc95663bdc68fe20/size
+
+745
+
+#tar-split.json.gz，layer 压缩包的 split 文件，通过这个文件可以还原 layer 的 tar 包，
+#在 docker save 导出 image 的时候会用到
+#详情可参考 https://github.com/vbatts/tar-split
+$ ll /var/lib/docker/image/overlay2/layerdb/sha256/14a40a140881d18382e13b37588b3aa70097bb4f3fb44085bc95663bdc68fe20/tar-split.json.gz
+
+-rw-r--r-- 1 root root 1.5K Apr  1 22:16 /var/lib/docker/image/overlay2/layerdb/sha256/14a40a140881d18382e13b37588b3aa70097bb4f3fb44085bc95663bdc68fe20/tar-split.json.gz
+</code></pre>
+
+<h2 id="span-id-inline-toc-5-span-layer数据"><span id="inline-toc">5.</span> layer数据</h2>
+
+<hr />
+
+<p>以 <code>CentOS</code> 为例，所有 layer 的文件都放在了 <code>/var/lib/docker/overlay2</code> 目录下。</p>
+
+<pre><code class="language-bash">$ tree -d -L 2 /var/lib/docker/overlay2
+
+├── 658299560be0fd7eaf4a14b0927e134049d13eb31070a9902b0d275836a13cfb
+│   ├── diff
+│   └── work
+├── 66ce99b5da081f65afea7ebaf612229179b620dc728b7407adcb44a51a27ae24
+│   ├── diff
+│   └── work
+...
+└── l
+    ├── DYWQJVCIPQ2P2VFWZ4KBCV2JFW -&gt; ../658299560be0fd7eaf4a14b0927e134049d13eb31070a9902b0d275836a13cfb/diff
+    ├── 27O3MGWIL6SIN7K4GLVU4DLPSQ -&gt; ../9028bae38f520a09220f67fbcf698aae2326c8318390a1d6005457d51ad97369/diff
+...
+</code></pre>
+
+<p><code>”l“</code> 目录包含一些符号链接作为缩短的层标识符. 这些缩短的标识符用来避免挂载时超出页面大小的限制。</p>
+
+<pre><code class="language-bash">$ ll /var/lib/docker/overlay2/l/
+
+total 0
+lrwxrwxrwx 1 root root 72 Mar 29 06:25 27O3MGWIL6SIN7K4GLVU4DLPSQ -&gt; ../9028bae38f520a09220f67fbcf698aae2326c8318390a1d6005457d51ad97369/diff/
+lrwxrwxrwx 1 root root 72 Mar 21 00:55 2AYPFAXSXLNCCEA6WRFCAPFPX3 -&gt; ../23eb8415aec245a0291cca62d2da322de241263b8cbdfc690c0a77b353530b10/diff/
+lrwxrwxrwx 1 root root 72 Mar 29 02:55 2H2XLZTCOYYSDT3XU2BDJRC2SB -&gt; ../6b27128471bdfc742696ff9820bdfcdda73020753c26efeecea29b98096f0c5d/diff/
+lrwxrwxrwx 1 root root 77 Mar 29 05:44 2JQ3OQVJBRYD75J4WTG4CSWA4Z -&gt; ../641300d147b30f162167fed340cebcaae25f46db608939f6af09dbdb7078dcd4-init/diff/
+lrwxrwxrwx 1 root root 72 Mar 21 00:55 2TCUOOM7Y7HMGIERRS4CX4YHVA -&gt; ../cd3a3bd11269dc846ee9f79fca86c05336b8dd475d5ca8151991dc5d9fd7261f/diff/
+lrwxrwxrwx 1 root root 77 Mar 29 06:24 36WQQRTYLT4P3J7DYLQAUMUPJE -&gt; ../7ee9cc176abeb603ab0461650edd87890d167c579011813d0e864b7524f9fe24-init/diff/
+...
+</code></pre>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>注意：由于 docker 所采用的文件系统不同，<code>/var/lib/docker/<storage-driver></code> 目录下的目录结构及组织方式也会不一样，要具体文件系统具体分析，本文只介绍 overlay2 这种情况。
+关于 aufs 和 btrfs 的相关特性可以参考 <a href="https://segmentfault.com/a/1190000008489207" target="_blank">Linux 文件系统之 aufs</a> 和 <a href="https://segmentfault.com/a/1190000008605135" target="_blank">Btrfs 文件系统之 subvolume 与 snapshot</a></p></div>
+
+
+<p>还是以刚才的第二层 layer（88888b&hellip;）为例，看看实际的数据：</p>
+
+<p>最底层包含 <code>link</code> 文件(不包含 lower 文件，因为是最底层)，在上面的结果中 <code>a94e0d...</code> 为最底层。 这个文件记录着作为标识符的更短的符号链接的名字、最底层还有一个 <code>diff</code> 目录(包含实际内容)。</p>
+
+<pre><code class="language-bash"># 查看底层 a94e0d... 的 layer 存放的地方
+$ cat /var/lib/docker/image/overlay2/layerdb/sha256/a94e0d5a7c404d0e6fa15d8cd4010e69663bd8813b5117fbad71365a73656df9/cache-id
+
+8feee71ff338d03a22ef090f8e5a49771ca8c1f418db345782ff0fb9b9fff3ce
+
+$ ll /var/lib/docker/overlay2/8feee71ff338d03a22ef090f8e5a49771ca8c1f418db345782ff0fb9b9fff3ce/
+
+total 4.0K
+drwxr-xr-x 21 root root 224 Apr  1 22:16 diff/
+-rw-r--r--  1 root root  26 Apr  1 22:15 link
+
+$ cat  /var/lib/docker/overlay2/8feee71ff338d03a22ef090f8e5a49771ca8c1f418db345782ff0fb9b9fff3ce/link
+
+3GQZNQYZNRAXT6X453L5O73Y5U
+
+$ ll /var/lib/docker/overlay2/l/|grep 3GQZNQYZNRAXT6X453L5O73Y5U
+
+lrwxrwxrwx 1 root root 72 Apr  1 22:15 3GQZNQYZNRAXT6X453L5O73Y5U -&gt; ../8feee71ff338d03a22ef090f8e5a49771ca8c1f418db345782ff0fb9b9fff3ce/diff/
+
+# diff 目录下面是层的内容
+$ ll /var/lib/docker/overlay2/8feee71ff338d03a22ef090f8e5a49771ca8c1f418db345782ff0fb9b9fff3ce/diff/
+
+total 16K
+drwxr-xr-x  2 root root 4.0K Feb 28 14:14 bin/
+drwxr-xr-x  2 root root    6 Apr 12  2016 boot/
+drwxr-xr-x  4 root root 4.0K Feb 28 14:14 dev/
+drwxr-xr-x 42 root root 4.0K Feb 28 14:14 etc/
+drwxr-xr-x  2 root root    6 Apr 12  2016 home/
+...
+</code></pre>
+
+<p>从第二层开始，每层镜像层包含 <code>lower</code> 文件，该文件的内容表示父层镜像的符号链接，根据这个文件可以索引构建出整个镜像的层次结构。同时还包含 <code>merged</code> 和 <code>work</code> 目录。</p>
+
+<ul>
+<li>每当启动一个容器时，会将 <code>link</code> 指向的镜像层目录以及 <code>lower</code> 指向的镜像层目录联合挂载到 <code>merged</code> 目录，因此，容器内的视角就是 <code>merged</code> 目录下的内容。</li>
+
+<li><p>而 work 目录则是用来完成如 <code>copy-on_write</code> 的操作。</p>
+
+<pre><code class="language-bash">$ tree -L 1 /var/lib/docker/overlay2/658299560be0fd7eaf4a14b0927e134049d13eb31070a9902b0d275836a13cfb
+
+/var/lib/docker/overlay2/658299560be0fd7eaf4a14b0927e134049d13eb31070a9902b0d275836a13cfb
+├── diff
+├── link
+├── lower
+└── work
+
+# 父层镜像的符号链接
+$ cat /var/lib/docker/overlay2/658299560be0fd7eaf4a14b0927e134049d13eb31070a9902b0d275836a13cfb/lower
+
+l/3GQZNQYZNRAXT6X453L5O73Y5U
+
+$ ll /var/lib/docker/overlay2/658299560be0fd7eaf4a14b0927e134049d13eb31070a9902b0d275836a13cfb/diff
+
+total 0
+drwxr-xr-x 4 root root 29 Mar  6 17:17 etc/
+drwxr-xr-x 2 root root 21 Mar  6 17:17 sbin/
+drwxr-xr-x 3 root root 18 Feb 28 14:13 usr/
+drwxr-xr-x 3 root root 17 Feb 28 14:14 var/
+</code></pre></li>
+</ul>
+
+<h2 id="span-id-inline-toc-6-span-manifest文件去哪了"><span id="inline-toc">6.</span> manifest文件去哪了？</h2>
+
+<hr />
+
+<p>从前面介绍 docker pull 的过程中得知，docker 是先得到 <code>manifest</code>，然后根据 manifest 得到 <code>config</code> 文件和 <code>layer</code>。</p>
+
+<p>前面已经介绍了 config 文件和 layer 的存储位置，但唯独不见 manifest，去哪了呢？</p>
+
+<p>manifest 里面包含的内容就是对 config 和 layer 的 <code>sha256 + media type</code> 描述，目的就是为了下载 config 和 layer，等 image 下载完成后，manifest 的使命就完成了，里面的信息对于 image 的本地管理来说没什么用，所以 docker 在本地没有单独的存储一份 manifest 文件与之对应。</p>
+
+<h2 id="span-id-inline-toc-7-span-结束语"><span id="inline-toc">7.</span> 结束语</h2>
+
+<hr />
+
+<p>本篇介绍了image在本地的存储方式，包括了 <code>/var/lib/docker/image</code> 和 <code>/var/lib/docker/overlay2</code> 这两个目录，但 /var/lib/docker/image 下面有两个目录没有涉及：</p>
+
+<ul>
+<li><p><code>/var/lib/docker/image/overlay2/imagedb/metadata</code>：里面存放的是本地 image 的一些信息，从服务器上 pull 下来的 image 不会存数据到这个目录，下次有机会再补充这部分内容。</p></li>
+
+<li><p><code>/var/lib/docker/image/overlay2/layerdb/mounts</code>: 创建 container 时，docker 会为每个 container 在 image 的基础上创建一层新的 layer，里面主要包含 /etc/hosts、/etc/hostname、/etc/resolv.conf 等文件，创建的这一层 layer 信息就放在这里，后续在介绍容器的时候，会专门介绍这个目录的内容。</p></li>
+</ul>
+
+<h2 id="span-id-inline-toc-8-span-参考"><span id="inline-toc">8.</span> 参考</h2>
+
+<hr />
+
+<ul>
+<li><a href="https://github.com/moby/moby" target="_blank">docker源代码</a></li>
+</ul>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/docker/"><i class="fa fa-tags"></i>docker</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fhow-manage-image%2f&amp;title=docker%20%e5%9c%a8%e6%9c%ac%e5%9c%b0%e5%a6%82%e4%bd%95%e7%ae%a1%e7%90%86%20image%ef%bc%88%e9%95%9c%e5%83%8f%ef%bc%89%3f&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191204213400.png" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fhow-manage-image%2f&amp;title=docker%20%e5%9c%a8%e6%9c%ac%e5%9c%b0%e5%a6%82%e4%bd%95%e7%ae%a1%e7%90%86%20image%ef%bc%88%e9%95%9c%e5%83%8f%ef%bc%89%3f&amp;source=docker%20%e5%9c%a8%e6%9c%ac%e5%9c%b0%e5%a6%82%e4%bd%95%e7%ae%a1%e7%90%86%20image%ef%bc%88%e9%95%9c%e5%83%8f%ef%bc%89%3f&amp;desc=&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191204213400.png&amp;summary=" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fhow-manage-image%2f&amp;text=docker%20%e5%9c%a8%e6%9c%ac%e5%9c%b0%e5%a6%82%e4%bd%95%e7%ae%a1%e7%90%86%20image%ef%bc%88%e9%95%9c%e5%83%8f%ef%bc%89%3f&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fhow-manage-image%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fhow-manage-image%2f&amp;title=docker%20%e5%9c%a8%e6%9c%ac%e5%9c%b0%e5%a6%82%e4%bd%95%e7%ae%a1%e7%90%86%20image%ef%bc%88%e9%95%9c%e5%83%8f%ef%bc%89%3f" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/multiarch-docker-with-buildx/">使用 buildx 构建多平台 Docker 镜像</a></li>
+                
+                    <li><a href="/posts/intro-guide-to-dockerfile-best-practices/">你确定你会写 Dockerfile 吗？</a></li>
+                
+                    <li><a href="/posts/envoy-docker-shim/">使用 envoy-docker-shim 替代 docker-proxy</a></li>
+                
+                    <li><a href="/posts/cri-o/">CRI-O 简介</a></li>
+                
+                    <li><a href="/posts/container-runtime/">Kubernetes 中的容器运行时</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/federation/" data-toggle="tooltip" data-placement="top" title="Kubernetes 使用集群联邦实现多集群管理">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/container-runtime/" data-toggle="tooltip" data-placement="top" title="Kubernetes 中的容器运行时">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

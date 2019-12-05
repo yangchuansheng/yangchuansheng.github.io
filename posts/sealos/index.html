@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>kubernetes 高可用部署工具：sealos - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨, sealos, kubernetes, ipvs" name="keywords">
+
+  <meta name="description" content="这款安装神器会让你集群高可用变得非常简单，原理简单排错也会非常简单，而且因为是本地内核负载，所以可用性极高。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/sealos\/",
+          "name": "Kubernetes 高可用部署工具：sealos"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "kubernetes 高可用部署工具：sealos",
+  "description" : "这款安装神器会让你集群高可用变得非常简单，原理简单排错也会非常简单，而且因为是本地内核负载，所以可用性极高。",
+  "inLanguage" : "zh",
+  "wordCount":  4692 ,
+  "datePublished" : "2019-08-26T11:07:04",
+  "dateModified" : "2019-08-26T11:07:04",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "kubernetes" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/sealos\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="kubernetes 高可用部署工具：sealos" />
+<meta property="og:description" content="这款安装神器会让你集群高可用变得非常简单，原理简单排错也会非常简单，而且因为是本地内核负载，所以可用性极高。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/sealos/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="kubernetes 高可用部署工具：sealos" />
+  <meta name="twitter:description" content="这款安装神器会让你集群高可用变得非常简单，原理简单排错也会非常简单，而且因为是本地内核负载，所以可用性极高。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">kubernetes 高可用部署工具：sealos</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">通过 ipvs 实现 Kubernetes 的高可用</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 8 月 26 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;10&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4692&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>kubernetes 高可用部署工具：sealos</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">通过 ipvs 实现 Kubernetes 的高可用</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 8 月 26 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;10&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4692&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-设计原则"><span id="inline-toc">1.</span> 设计原则</a>
+<ul>
+<li><a href="#为什么不用-ansible">为什么不用 ansible？</a></li>
+<li><a href="#为什么不用-keepalived-haproxy">为什么不用 keepalived haproxy？</a></li>
+<li><a href="#本地负载为什么不使用-envoy-或者-nginx">本地负载为什么不使用 envoy 或者 nginx？</a></li>
+<li><a href="#为什么要定制-kubeadm">为什么要定制 kubeadm?</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-2-span-使用教程"><span id="inline-toc">2.</span> 使用教程</a>
+<ul>
+<li><a href="#安装依赖">安装依赖</a></li>
+<li><a href="#安装">安装</a></li>
+<li><a href="#增加节点">增加节点</a></li>
+<li><a href="#使用自定义-kubeadm-配置文件">使用自定义 kubeadm 配置文件</a></li>
+<li><a href="#版本升级">版本升级</a>
+<ul>
+<li><a href="#升级过程">升级过程</a></li>
+<li><a href="#升级-kubeadm">升级 kubeadm</a></li>
+<li><a href="#升级控制节点">升级控制节点</a></li>
+<li><a href="#升级其它控制节点">升级其它控制节点</a></li>
+<li><a href="#升级-node">升级 node</a></li>
+<li><a href="#验证">验证</a></li>
+<li><a href="#kubeadm-upgrade-apply-干了啥">kubeadm upgrade apply 干了啥？</a></li>
+</ul></li>
+<li><a href="#源码编译">源码编译</a></li>
+<li><a href="#卸载">卸载</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-3-span-sealos-实现原理"><span id="inline-toc">3.</span> sealos 实现原理</a>
+<ul>
+<li><a href="#执行流程">执行流程</a></li>
+<li><a href="#本地内核负载">本地内核负载</a></li>
+<li><a href="#定制-kubeadm">定制 kubeadm</a></li>
+<li><a href="#离线包结构分析">离线包结构分析</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<p id="div-border-left-red">sealos 项目地址：<a href="https://github.com/fanux/sealos" target="_blank">https://github.com/fanux/sealos</a></p>
+
+<p>本文教你如何用一条命令构建 k8s 高可用集群且不依赖 haproxy 和 keepalived，也无需 ansible。通过内核 <code>ipvs</code> 对 apiserver 进行负载均衡，并且带 <code>apiserver</code> 健康检测。架构如下图所示：</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-24-134318.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-24-134318.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-24-134318.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>本项目名叫 sealos，旨在做一个简单干净轻量级稳定的 kubernetes 安装工具，能很好的支持高可用安装。 其实把一个东西做的功能强大并不难，但是做到极简且灵活可扩展就比较难。 所以在实现时就必须要遵循这些原则。下面介绍一下 sealos 的设计原则：</p>
+
+<h2 id="span-id-inline-toc-1-span-设计原则"><span id="inline-toc">1.</span> 设计原则</h2>
+
+<hr />
+
+<p>sealos 特性与优势：</p>
+
+<ul>
+<li>支持离线安装，工具与资源包（二进制程序 配置文件 镜像 yaml文件等）分离,这样不同版本替换不同离线包即可</li>
+<li>证书延期</li>
+<li>使用简单</li>
+<li>支持自定义配置</li>
+<li>内核负载，极其稳定，因为简单所以排查问题也极其简单</li>
+</ul>
+
+<h3 id="为什么不用-ansible">为什么不用 ansible？</h3>
+
+<p>1.0 版本确实是用 <code>ansible</code> 实现，但是用户还是需要先装 ansile，装 ansible 又需要装 <code>python</code> 和一些依赖等，为了不让用户那么麻烦把 ansible 放到了容器里供用户使用。如果不想配置免密钥使用用户名密码时又需要 <code>ssh-pass</code> 等，总之不能让我满意，不是我想的极简。</p>
+
+<p>所以我想就来一个二进制文件工具，没有任何依赖，文件分发与远程命令都通过调用 sdk 实现所以不依赖其它任何东西，总算让我这个有洁癖的人满意了。</p>
+
+<h3 id="为什么不用-keepalived-haproxy">为什么不用 keepalived haproxy？</h3>
+
+<p><code>haproxy</code> 用 static pod 跑没有太大问题，还算好管理，<code>keepalived</code> 现在大部分开源 ansible 脚本都用 yum 或者 apt 等装，这样非常的不可控，有如下劣势：</p>
+
+<ul>
+<li>源不一致可能导致版本不一致，版本不一直连配置文件都不一样，我曾经检测脚本不生效一直找不到原因，后来才知道是版本原因。</li>
+<li>系统原因安装不上，依赖库问题某些环境就直接装不上了。</li>
+<li>看了网上很多安装脚本，很多检测脚本与权重调节方式都不对，直接去检测 haproxy 进程在不在，其实是应该去检测 apiserver 是不是 healthz 的，如果 apiserver 挂了，即使 haproxy 进程存在，集群也会不正常了，就是伪高可用了。</li>
+<li>管理不方便，通过 prometheus 对集群进行监控，是能直接监控到 static pod 的但是用 systemd 跑又需要单独设置监控，且重启啥的还需要单独拉起。不如 kubelet 统一管理来的干净简洁。</li>
+<li>我们还出现过 keepalived 把 CPU 占满的情况。</li>
+</ul>
+
+<p>所以为了解决这个问题，我把 keepalived 跑在了容器中(社区提供的镜像基本是不可用的) 改造中间也是发生过很多问题，最终好在解决了。</p>
+
+<p>总而言之，累觉不爱，所以在想能不能甩开 haproxy 和 keepalived 做出更简单更可靠的方案出来，还真找到了。。。</p>
+
+<h3 id="本地负载为什么不使用-envoy-或者-nginx">本地负载为什么不使用 envoy 或者 nginx？</h3>
+
+<p>我们通过本地负载解决高可用问题。</p>
+
+<style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:"Font Awesome 5 Free",FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:'\f071'}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:'\f05a'}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:'\f06a'}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:'\f058'}.notice.tip{background:#e6f9e6}</style><div class="notice note" >
+<p class="first notice-title">注意</p><p><strong>本地负载</strong>：在每个 node 节点上都启动一个负载均衡，上游就是三个 master。</p></div>
+
+
+<p>如果使用 <code>envoy</code> 之类的负载均衡器，则需要在每个节点上都跑一个进程，消耗的资源更多，这是我不希望的。ipvs 实际也多跑了一个进程 <code>lvscare</code>，但是 <code>lvscare</code> 只是负责管理 ipvs 规则，和 <code>kube-proxy</code> 类似，真正的流量还是从很稳定的内核走的，不需要再把包丢到用户态中去处理。</p>
+
+<p>在架构实现上有个问题会让使用 <code>envoy</code> 等变得非常尴尬，就是 <code>join</code> 时如果负载均衡没有建立那是会卡住的，<code>kubelet</code> 就不会起来，所以为此你需要先启动 envoy，意味着你又不能用 static pod 去管理它，同上面 keepalived 宿主机部署一样的问题，用 static pod 就会相互依赖，逻辑死锁，鸡说要先有蛋，蛋说要先有鸡，最后谁都没有。</p>
+
+<p>使用 <code>ipvs</code> 就不一样，我可以在 join 之前先把 ipvs 规则建立好，再去 join 就可以了，然后对规则进行守护即可。一旦 apiserver 不可访问了，会自动清理掉所有 node 上对应的 ipvs 规则， 等到 master 恢复正常时添加回来。</p>
+
+<h3 id="为什么要定制-kubeadm">为什么要定制 kubeadm?</h3>
+
+<p>首先是由于 <code>kubeadm</code> 把证书过期时间写死了，所以需要定制把它改成 <code>99</code> 年，虽然大部分人可以自己去签个新证书，但是我们还是不想再依赖个别的工具，就直接改源码了。</p>
+
+<p>其次就是做本地负载时修改 <code>kubeadm</code> 代码是最方便的，因为在 join 时我们需要做两个事，第一是 join 之前先创建好 ipvs 规则，第二是创建 static pod。如果这块不去定制 kubeadm 就把报静态 pod 目录已存在的错误，忽略这个错误很不优雅。 而且 kubeadm 中已经提供了一些很好用的 <code>sdk</code> 供我们去实现这个功能。</p>
+
+<p>且这样做之后最核心的功能都集成到 kubeadm 中了，<code>sealos</code> 就单单变成分发和执行上层命令的轻量级工具了，增加节点时我们也就可以直接用 kubeadm 了。</p>
+
+<h2 id="span-id-inline-toc-2-span-使用教程"><span id="inline-toc">2.</span> 使用教程</h2>
+
+<hr />
+
+<h3 id="安装依赖">安装依赖</h3>
+
+<ul>
+<li>安装并启动 docker</li>
+<li>下载 <a href="https://github.com/sealstore/cloud-kernel/releases/" target="_blank">kubernetes 离线安装包</a></li>
+<li>下载<a href="https://github.com/fanux/sealos/releases" target="_blank">最新版本 sealos</a></li>
+<li>支持 kubernetes 1.14.0+</li>
+</ul>
+
+<h3 id="安装">安装</h3>
+
+<p>多 master HA 只需执行以下命令：</p>
+
+<pre><code class="language-bash">$ sealos init --master 192.168.0.2 \
+  --master 192.168.0.3 \
+  --master 192.168.0.4 \
+  --node 192.168.0.5 \
+  --user root \
+  --passwd your-server-password \
+  --version v1.14.1 \
+  --pkg-url /root/kube1.14.1.tar.gz 
+</code></pre>
+
+<p>然后，就没有然后了。。。没错，你的高可用集群已经装好了，是不是觉得一脸懵逼？就是这么简单快捷！</p>
+
+<p>单 master 多 node：</p>
+
+<pre><code class="language-bash">$ sealos init --master 192.168.0.2 \
+  --node 192.168.0.5 \ 
+  --user root \
+  --passwd your-server-password \
+  --version v1.14.1 \
+  --pkg-url /root/kube1.14.1.tar.gz 
+</code></pre>
+
+<p>使用免密钥或者密钥对：</p>
+
+<pre><code class="language-bash">$ sealos init --master 172.16.198.83 \
+  --node 172.16.198.84 \
+  --pkg-url https://sealyun.oss-cn-beijing.aliyuncs.com/free/kube1.15.0.tar.gz \
+  --pk /root/kubernetes.pem # this is your ssh private key file \
+  --version v1.15.0
+</code></pre>
+
+<p>参数解释：</p>
+
+<pre><code class="language-bash">--master   master服务器地址列表
+--node     node服务器地址列表
+--user     服务器ssh用户名
+--passwd   服务器ssh用户密码
+--pkg-url  离线包位置，可以放在本地目录，也可以放在一个 http 服务器上，sealos 会 wget 到安装目标机
+--version  kubernetes 版本
+--pk       ssh 私钥地址，配置免密钥默认就是 /root/.ssh/id_rsa
+</code></pre>
+
+<p>其他参数：</p>
+
+<pre><code class="language-bash">--kubeadm-config string   kubeadm-config.yaml kubeadm 配置文件，可自定义 kubeadm 配置文件
+--vip string              virtual ip (default &quot;10.103.97.2&quot;) 本地负载时虚拟 ip，不推荐修改，集群外不可访问
+</code></pre>
+
+<p>检查安装是否正常：</p>
+
+<pre><code class="language-bash">$ kubectl get node
+NAME                      STATUS   ROLES    AGE     VERSION
+izj6cdqfqw4o4o9tc0q44rz   Ready    master   2m25s   v1.14.1
+izj6cdqfqw4o4o9tc0q44sz   Ready    master   119s    v1.14.1
+izj6cdqfqw4o4o9tc0q44tz   Ready    master   63s     v1.14.1
+izj6cdqfqw4o4o9tc0q44uz   Ready    &lt;none&gt;   38s     v1.14.1
+
+$ kubectl get pod --all-namespaces
+NAMESPACE     NAME                                              READY   STATUS    RESTARTS   AGE
+kube-system   calico-kube-controllers-5cbcccc885-9n2p8          1/1     Running   0          3m1s
+kube-system   calico-node-656zn                                 1/1     Running   0          93s
+kube-system   calico-node-bv5hn                                 1/1     Running   0          2m54s
+kube-system   calico-node-f2vmd                                 1/1     Running   0          3m1s
+kube-system   calico-node-tbd5l                                 1/1     Running   0          118s
+kube-system   coredns-fb8b8dccf-8bnkv                           1/1     Running   0          3m1s
+kube-system   coredns-fb8b8dccf-spq7r                           1/1     Running   0          3m1s
+kube-system   etcd-izj6cdqfqw4o4o9tc0q44rz                      1/1     Running   0          2m25s
+kube-system   etcd-izj6cdqfqw4o4o9tc0q44sz                      1/1     Running   0          2m53s
+kube-system   etcd-izj6cdqfqw4o4o9tc0q44tz                      1/1     Running   0          118s
+kube-system   kube-apiserver-izj6cdqfqw4o4o9tc0q44rz            1/1     Running   0          2m15s
+kube-system   kube-apiserver-izj6cdqfqw4o4o9tc0q44sz            1/1     Running   0          2m54s
+kube-system   kube-apiserver-izj6cdqfqw4o4o9tc0q44tz            1/1     Running   1          47s
+kube-system   kube-controller-manager-izj6cdqfqw4o4o9tc0q44rz   1/1     Running   1          2m43s
+kube-system   kube-controller-manager-izj6cdqfqw4o4o9tc0q44sz   1/1     Running   0          2m54s
+kube-system   kube-controller-manager-izj6cdqfqw4o4o9tc0q44tz   1/1     Running   0          63s
+kube-system   kube-proxy-b9b9z                                  1/1     Running   0          2m54s
+kube-system   kube-proxy-nf66n                                  1/1     Running   0          3m1s
+kube-system   kube-proxy-q2bqp                                  1/1     Running   0          118s
+kube-system   kube-proxy-s5g2k                                  1/1     Running   0          93s
+kube-system   kube-scheduler-izj6cdqfqw4o4o9tc0q44rz            1/1     Running   1          2m43s
+kube-system   kube-scheduler-izj6cdqfqw4o4o9tc0q44sz            1/1     Running   0          2m54s
+kube-system   kube-scheduler-izj6cdqfqw4o4o9tc0q44tz            1/1     Running   0          61s
+kube-system   kube-sealyun-lvscare-izj6cdqfqw4o4o9tc0q44uz      1/1     Running   0          86s
+</code></pre>
+
+<h3 id="增加节点">增加节点</h3>
+
+<p>先获取 join command，在 master 上执行：</p>
+
+<pre><code class="language-bash">$ kubeadm token create --print-join-command
+</code></pre>
+
+<p>可以使用超级 kubeadm，但是 join 时需要增加一个 <code>--master</code> 参数：</p>
+
+<pre><code class="language-bash">$ cd kube/shell &amp;&amp; init.sh
+$ echo &quot;10.103.97.2 apiserver.cluster.local&quot; &gt;&gt; /etc/hosts   # using vip
+$ kubeadm join 10.103.97.2:6443 --token 9vr73a.a8uxyaju799qwdjv \
+  --master 10.103.97.100:6443 \
+  --master 10.103.97.101:6443 \
+  --master 10.103.97.102:6443 \
+  --discovery-token-ca-cert-hash sha256:7c2e69131a36ae2a042a339b33381c6d0d43887e2de83720eff5359e26aec866
+</code></pre>
+
+<p>也可以用 sealos join 命令：</p>
+
+<pre><code class="language-bash">$ sealos join --master 192.168.0.2 \
+  --master 192.168.0.3 \
+  --master 192.168.0.4 \
+  --vip 10.103.97.2 \
+  --node 192.168.0.5 \
+  --user root \
+  --passwd your-server-password \
+  --pkg-url /root/kube1.15.0.tar.gz
+</code></pre>
+
+<h3 id="使用自定义-kubeadm-配置文件">使用自定义 kubeadm 配置文件</h3>
+
+<p>有时你可能需要自定义 kubeadm 的配置文件，比如要在证书里加入域名 <code>sealyun.com</code>。</p>
+
+<p>首先需要获取配置文件模板：</p>
+
+<pre><code class="language-bash">$ sealos config -t kubeadm &gt;&gt;  kubeadm-config.yaml.tmpl
+</code></pre>
+
+<p>然后修改 <code>kubeadm-config.yaml.tmpl</code> 即可，将 <code>sealyun.com</code> 添加到配置中：</p>
+
+<pre><code class="language-yaml">apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: {{.Version}}
+controlPlaneEndpoint: &quot;apiserver.cluster.local:6443&quot;
+networking:
+  podSubnet: 100.64.0.0/10
+apiServer:
+        certSANs:
+        - sealyun.com # 这是新增的域名
+        - 127.0.0.1
+        - apiserver.cluster.local
+        {{range .Masters -}}
+        - {{.}}
+        {{end -}}
+        - {{.VIP}}
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: &quot;ipvs&quot;
+ipvs:
+        excludeCIDRs: 
+        - &quot;{{.VIP}}/32&quot;
+</code></pre>
+
+<p><strong>注意：其它部分不用修改，sealos 会自动填充模板里面的内容。</strong></p>
+
+<p>最后在部署时使用 <code>--kubeadm-config</code> 指定配置文件模板即可：</p>
+
+<pre><code class="language-bash">$ sealos init --kubeadm-config kubeadm-config.yaml.tmpl \
+  --master 192.168.0.2 \
+  --master 192.168.0.3 \
+  --master 192.168.0.4 \
+  --node 192.168.0.5 \
+  --user root \
+  --passwd your-server-password \
+  --version v1.14.1 \
+  --pkg-url /root/kube1.14.1.tar.gz 
+</code></pre>
+
+<h3 id="版本升级">版本升级</h3>
+
+<p>本教程以 <code>1.14</code> 版本升级到 <code>1.15</code> 为例，其它版本原理类似，懂了这个其它的参考<a href="https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade-1-14/" target="_blank">官方教程</a>即可。</p>
+
+<h4 id="升级过程">升级过程</h4>
+
+<ol>
+<li>升级 kubeadm，所有节点导入镜像</li>
+<li>升级控制节点</li>
+<li>升级 master(控制节点)上的 kubelet</li>
+<li>升级其它 master(控制节点)</li>
+<li>升级 node</li>
+<li>验证集群状态</li>
+</ol>
+
+<h4 id="升级-kubeadm">升级 kubeadm</h4>
+
+<p>把离线包拷贝到所有节点执行 <code>cd kube/shell &amp;&amp; sh init.sh</code>。这里会把 kubeadm、kubectl、kubelet 的二进制文件都更新掉，而且会导入高版本镜像。</p>
+
+<h4 id="升级控制节点">升级控制节点</h4>
+
+<pre><code class="language-bash">$ kubeadm upgrade plan
+$ kubeadm upgrade apply v1.15.0
+</code></pre>
+
+<p>重启 kubelet：</p>
+
+<pre><code class="language-bash">$ systemctl restart kubelet
+</code></pre>
+
+<p>其实 kubelet 升级很简单粗暴，我们只需要把新版本的 kubelet 拷贝到 /usr/bin 下面，重启 kubelet service 即可，如果程序正在使用不让覆盖那么就停一下 kubelet 再进行拷贝，kubelet bin 文件在 <code>conf/bin</code> 目录下。</p>
+
+<h4 id="升级其它控制节点">升级其它控制节点</h4>
+
+<pre><code class="language-bash">$ kubeadm upgrade apply
+</code></pre>
+
+<h4 id="升级-node">升级 node</h4>
+
+<p>驱逐节点（要不要驱逐看情况, 喜欢粗暴的直接来也没啥）：</p>
+
+<pre><code class="language-bash">$ kubectl drain $NODE --ignore-daemonsets
+</code></pre>
+
+<p>更新 kubelet 配置：</p>
+
+<pre><code class="language-bash">$ kubeadm upgrade node config --kubelet-version v1.15.0
+</code></pre>
+
+<p>然后升级 kubelet。同样是替换二进制再重启 kubelet service。</p>
+
+<pre><code class="language-bash">$ systemctl restart kubelet
+</code></pre>
+
+<p>召回失去的爱情：</p>
+
+<pre><code class="language-bash">$ kubectl uncordon $NODE
+</code></pre>
+
+<h4 id="验证">验证</h4>
+
+<pre><code class="language-bash">$ kubectl get nodes
+</code></pre>
+
+<p>如果版本信息都对的话基本就升级成功了。</p>
+
+<h4 id="kubeadm-upgrade-apply-干了啥">kubeadm upgrade apply 干了啥？</h4>
+
+<ol>
+<li>检查集群是否可升级</li>
+<li>执行版本升级策略 哪些版本之间可以升级</li>
+<li>确认镜像是否存在</li>
+<li>执行控制组件升级，如果失败就回滚，其实就是 apiserver、controller manager、scheduler 等这些容器</li>
+<li>升级 kube-dns 和 kube-proxy</li>
+<li>创建新的证书文件，备份老的如果其超过 180 天</li>
+</ol>
+
+<h3 id="源码编译">源码编译</h3>
+
+<p>因为使用了 <code>netlink</code> 库，所以推荐在容器内进行编译，只需一条命令：</p>
+
+<pre><code class="language-bash">$ docker run --rm -v $GOPATH/src/github.com/fanux/sealos:/go/src/github.com/fanux/sealos -w /go/src/github.com/fanux/sealos -it golang:1.12.7  go build
+</code></pre>
+
+<p>如果你使用的是 go mod，则需要指定通过 <code>vendor</code> 编译：</p>
+
+<pre><code class="language-bash">$ go build -mod vendor
+</code></pre>
+
+<h3 id="卸载">卸载</h3>
+
+<pre><code class="language-bash">$ sealos clean \
+  --master 192.168.0.2 \
+  --master 192.168.0.3 \
+  --master 192.168.0.4 \
+  --node 192.168.0.5 \
+  --user root \
+  --passwd your-server-password
+</code></pre>
+
+<h2 id="span-id-inline-toc-3-span-sealos-实现原理"><span id="inline-toc">3.</span> sealos 实现原理</h2>
+
+<hr />
+
+<h3 id="执行流程">执行流程</h3>
+
+<ul>
+<li>通过 <code>sftp</code>或者 <code>wget</code> 把离线安装包拷贝到目标机器上（masters 和 nodes）。</li>
+<li>在 master0 上执行 <code>kubeadm init</code>。</li>
+<li>在其它 master 上执行 kubeadm join 并设置控制面，这个过程会在其它 master 上起动 <code>etcd</code> 并与 <code>master0</code> 的 etcd 组成集群，并启动控制平面的组件（apiserver、controller 等）。</li>
+<li>join node 节点，会在 node 上配置 ipvs 规则，配置 /etc/hosts 等。</li>
+</ul>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>所有对 apiserver 的请求都是通过域名进行访问，因为 node 需要通过虚拟 ip 连接多个 master，每个节点的 kubelet 与 kube-proxy 访问 apiserver 的虚拟地址是不一样的，而 kubeadm 又只能在配置文件中指定一个地址，所以使用一个域名但是每个节点解析的 IP 不同。当 IP 地址发生变化时仅需要修改解析地址即可。</p></div>
+
+
+<h3 id="本地内核负载">本地内核负载</h3>
+
+<p>通过这样的方式实现每个 node 上通过本地内核负载均衡访问 masters：</p>
+
+<pre><code class="language-bash">  +----------+                       +---------------+  virturl server: 127.0.0.1:6443
+  | mater0   |&lt;----------------------| ipvs nodes    |    real servers:
+  +----------+                      |+---------------+            10.103.97.200:6443
+                                    |                             10.103.97.201:6443
+  +----------+                      |                             10.103.97.202:6443
+  | mater1   |&lt;---------------------+
+  +----------+                      |
+                                    |
+  +----------+                      |
+  | mater2   |&lt;---------------------+
+  +----------+
+</code></pre>
+
+<p>在 node 上起了一个 <code>lvscare</code> 的 static pod 去守护这个 ipvs，一旦 apiserver 不可访问了，会自动清理掉所有 node 上对应的 ipvs 规则， master 恢复正常时添加回来。</p>
+
+<p>所以在你的 node 上加了三个东西，可以直观的看到：</p>
+
+<pre><code class="language-bash">$ cat /etc/kubernetes/manifests   # 这下面增加了 lvscare 的 static pod
+$ ipvsadm -Ln                     # 可以看到创建的ipvs规则
+$ cat /etc/hosts                  # 增加了虚拟IP的地址解析
+</code></pre>
+
+<h3 id="定制-kubeadm">定制 kubeadm</h3>
+
+<p>sealos 对 kubeadm 改动非常少，主要是延长了证书过期时间和扩展了 join 命令。下面主要讲讲对 join 命令的改造。</p>
+
+<p>首先 join 命令增加 <code>--master</code> 参数用于指定 master 地址列表：</p>
+
+<pre><code class="language-go">lagSet.StringSliceVar(
+	&amp;locallb.LVScare.Masters, &quot;master&quot;, []string{},
+	&quot;A list of ha masters, --master 192.168.0.2:6443  --master 192.168.0.2:6443  --master 192.168.0.2:6443&quot;,
+)
+</code></pre>
+
+<p>这样就可以拿到 master 地址列表去做 ipvs 负载均衡了。</p>
+
+<p>如果不是控制节点且不是单 master，那么就只创建一条 ipvs 规则，控制节点上不需要创建，连自己的 apiserver 即可：</p>
+
+<pre><code class="language-go">if data.cfg.ControlPlane == nil {
+			fmt.Println(&quot;This is not a control plan&quot;)
+			if len(locallb.LVScare.Masters) != 0 {
+				locallb.CreateLocalLB(args[0])
+			}
+		} 
+</code></pre>
+
+<p>然后再去创建 lvscare static pod 来守护 ipvs：</p>
+
+<pre><code class="language-go">if len(locallb.LVScare.Masters) != 0 {
+				locallb.LVScareStaticPodToDisk(&quot;/etc/kubernetes/manifests&quot;)
+			}
+</code></pre>
+
+<p><strong>所以哪怕你不使用 sealos，也可以直接用定制过的 kubeadm 去部署集群，只是麻烦一些。</strong>下面给出安装步骤。</p>
+
+<p>kubeadm 配置文件：</p>
+
+<pre><code class="language-yaml">apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: v1.14.0
+controlPlaneEndpoint: &quot;apiserver.cluster.local:6443&quot; # apiserver DNS name
+apiServer:
+        certSANs:
+        - 127.0.0.1
+        - apiserver.cluster.local
+        - 172.20.241.205
+        - 172.20.241.206
+        - 172.20.241.207
+        - 172.20.241.208
+        - 10.103.97.1          # virturl ip
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: &quot;ipvs&quot;
+ipvs:
+        excludeCIDRs: 
+        - &quot;10.103.97.1/32&quot; # 注意：如果不加这个，kube-proxy 就会清理你的规则
+</code></pre>
+
+<p>在 <code>master0</code>（假设 vip 地址为 10.103.97.100）上执行以下命令：</p>
+
+<pre><code class="language-bash">$ echo &quot;10.103.97.100 apiserver.cluster.local&quot; &gt;&gt; /etc/hosts # 解析的是 master0 的地址
+$ kubeadm init --config=kubeadm-config.yaml --experimental-upload-certs  
+$ mkdir ~/.kube &amp;&amp; cp /etc/kubernetes/admin.conf ~/.kube/config
+$ kubectl apply -f https://docs.projectcalico.org/v3.6/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+</code></pre>
+
+<p>在 <code>master1</code>（假设 vip 地址为 10.103.97.101）上执行以下命令：</p>
+
+<pre><code class="language-bash">$ echo &quot;10.103.97.100 apiserver.cluster.local&quot; &gt;&gt; /etc/hosts #解析的是 master0 的地址,为了能正常 join 进去
+$ kubeadm join 10.103.97.100:6443 --token 9vr73a.a8uxyaju799qwdjv \
+    --discovery-token-ca-cert-hash sha256:7c2e69131a36ae2a042a339b33381c6d0d43887e2de83720eff5359e26aec866 \
+    --experimental-control-plane \
+    --certificate-key f8902e114ef118304e561c3ecd4d0b543adc226b7a07f675f56564185ffe0c07 
+
+$ sed &quot;s/10.103.97.100/10.103.97.101/g&quot; -i /etc/hosts  # 解析再换成自己的地址，否则就都依赖 master0 的伪高可用了
+</code></pre>
+
+<p>在 <code>master2</code>（假设 vip 地址为 10.103.97.102）上执行以下命令：</p>
+
+<pre><code class="language-bash">$ echo &quot;10.103.97.100 apiserver.cluster.local&quot; &gt;&gt; /etc/hosts
+$ kubeadm join 10.103.97.100:6443 --token 9vr73a.a8uxyaju799qwdjv \
+    --discovery-token-ca-cert-hash sha256:7c2e69131a36ae2a042a339b33381c6d0d43887e2de83720eff5359e26aec866 \
+    --experimental-control-plane \
+    --certificate-key f8902e114ef118304e561c3ecd4d0b543adc226b7a07f675f56564185ffe0c07  
+
+$ sed &quot;s/10.103.97.100/10.103.97.102/g&quot; -i /etc/hosts
+</code></pre>
+
+<p>在 node 上 join 时加上 <code>--master</code> 参数指定 master 地址列表：</p>
+
+<pre><code class="language-bash">$ echo &quot;10.103.97.1 apiserver.cluster.local&quot; &gt;&gt; /etc/hosts   # 需要解析成虚拟 ip
+$ kubeadm join 10.103.97.1:6443 --token 9vr73a.a8uxyaju799qwdjv \
+    --master 10.103.97.100:6443 \
+    --master 10.103.97.101:6443 \
+    --master 10.103.97.102:6443 \
+    --discovery-token-ca-cert-hash sha256:7c2e69131a36ae2a042a339b33381c6d0d43887e2de83720eff5359e26aec866
+</code></pre>
+
+<h3 id="离线包结构分析">离线包结构分析</h3>
+
+<pre><code class="language-bash">.
+├── bin  # 指定版本的二进制文件，只需要这三个，其它组件跑在容器里
+│   ├── kubeadm
+│   ├── kubectl
+│   └── kubelet
+├── conf
+│   ├── 10-kubeadm.conf  # 这个文件新版本没用到，我在 shell 里直接生成，这样可以检测 cgroup driver
+│   ├── dashboard
+│   │   ├── dashboard-admin.yaml
+│   │   └── kubernetes-dashboard.yaml
+│   ├── heapster
+│   │   ├── grafana.yaml
+│   │   ├── heapster.yaml
+│   │   ├── influxdb.yaml
+│   │   └── rbac
+│   │       └── heapster-rbac.yaml
+│   ├── kubeadm.yaml # kubeadm 的配置文件
+│   ├── kubelet.service  # kubelet systemd 配置文件
+│   ├── net
+│   │   └── calico.yaml
+│   └── promethus
+├── images  # 所有镜像包
+│   └── images.tar
+└── shell
+    ├── init.sh  # 初始化脚本
+    └── master.sh # 运行master脚本
+</code></pre>
+
+<ul>
+<li><code>init.sh</code> 脚本会将 bin 目录下的二进制文件拷贝到 <code>$PATH</code> 下面，并配置好 systemd，关闭 swap 和防火墙等等，然后导入集群所需要的镜像。</li>
+<li><code>master.sh</code> 主要执行了 kubeadm init。</li>
+<li>conf 目录下面包含了 kubeadm 的配置文件，calico yaml 文件等等。</li>
+<li>sealos 会调用上面的两个脚本，所以大部分兼容。不同版本都可以通过微调脚本来保持兼容。</li>
+</ul>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/kubernetes/"><i class="fa fa-tags"></i>kubernetes</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fsealos%2f&amp;title=kubernetes%20%e9%ab%98%e5%8f%af%e7%94%a8%e9%83%a8%e7%bd%b2%e5%b7%a5%e5%85%b7%ef%bc%9asealos&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fblog%2f2019-08-24-134318.jpg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fsealos%2f&amp;title=kubernetes%20%e9%ab%98%e5%8f%af%e7%94%a8%e9%83%a8%e7%bd%b2%e5%b7%a5%e5%85%b7%ef%bc%9asealos&amp;source=kubernetes%20%e9%ab%98%e5%8f%af%e7%94%a8%e9%83%a8%e7%bd%b2%e5%b7%a5%e5%85%b7%ef%bc%9asealos&amp;desc=%e8%bf%99%e6%ac%be%e5%ae%89%e8%a3%85%e7%a5%9e%e5%99%a8%e4%bc%9a%e8%ae%a9%e4%bd%a0%e9%9b%86%e7%be%a4%e9%ab%98%e5%8f%af%e7%94%a8%e5%8f%98%e5%be%97%e9%9d%9e%e5%b8%b8%e7%ae%80%e5%8d%95%ef%bc%8c%e5%8e%9f%e7%90%86%e7%ae%80%e5%8d%95%e6%8e%92%e9%94%99%e4%b9%9f%e4%bc%9a%e9%9d%9e%e5%b8%b8%e7%ae%80%e5%8d%95%ef%bc%8c%e8%80%8c%e4%b8%94%e5%9b%a0%e4%b8%ba%e6%98%af%e6%9c%ac%e5%9c%b0%e5%86%85%e6%a0%b8%e8%b4%9f%e8%bd%bd%ef%bc%8c%e6%89%80%e4%bb%a5%e5%8f%af%e7%94%a8%e6%80%a7%e6%9e%81%e9%ab%98%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fblog%2f2019-08-24-134318.jpg&amp;summary=%e8%bf%99%e6%ac%be%e5%ae%89%e8%a3%85%e7%a5%9e%e5%99%a8%e4%bc%9a%e8%ae%a9%e4%bd%a0%e9%9b%86%e7%be%a4%e9%ab%98%e5%8f%af%e7%94%a8%e5%8f%98%e5%be%97%e9%9d%9e%e5%b8%b8%e7%ae%80%e5%8d%95%ef%bc%8c%e5%8e%9f%e7%90%86%e7%ae%80%e5%8d%95%e6%8e%92%e9%94%99%e4%b9%9f%e4%bc%9a%e9%9d%9e%e5%b8%b8%e7%ae%80%e5%8d%95%ef%bc%8c%e8%80%8c%e4%b8%94%e5%9b%a0%e4%b8%ba%e6%98%af%e6%9c%ac%e5%9c%b0%e5%86%85%e6%a0%b8%e8%b4%9f%e8%bd%bd%ef%bc%8c%e6%89%80%e4%bb%a5%e5%8f%af%e7%94%a8%e6%80%a7%e6%9e%81%e9%ab%98%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fsealos%2f&amp;text=kubernetes%20%e9%ab%98%e5%8f%af%e7%94%a8%e9%83%a8%e7%bd%b2%e5%b7%a5%e5%85%b7%ef%bc%9asealos&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fsealos%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fsealos%2f&amp;title=kubernetes%20%e9%ab%98%e5%8f%af%e7%94%a8%e9%83%a8%e7%bd%b2%e5%b7%a5%e5%85%b7%ef%bc%9asealos" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/what-happens-when-k8s/">kubectl 创建 Pod 背后到底发生了什么？</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/kubesphere/">KubeSphere 安装教程</a></li>
+                
+                    <li><a href="/posts/istio-1.3/">Istio 1.3 发布，HTTP 遥测不再需要 Mixer</a></li>
+                
+                    <li><a href="/posts/kubeman/">Kubeman 使用指南</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/what-happens-when-k8s/" data-toggle="tooltip" data-placement="top" title="kubectl 创建 Pod 背后到底发生了什么？">&larr; 前一篇</a>
+            </li>
+          
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

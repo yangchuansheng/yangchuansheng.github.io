@@ -1,0 +1,1122 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>云原生实验室</title>
+    <link>https://fuckcloudnative.io/</link>
+    <description>Recent content on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Sun, 17 Nov 2019 13:54:43 -0500</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>kubernetes 高可用部署工具：sealos</title>
+      <link>https://fuckcloudnative.io/posts/sealos/</link>
+      <pubDate>Mon, 26 Aug 2019 11:07:04 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/sealos/</guid>
+      <description>sealos 项目地址：https://github.com/fanux/sealos 本文教你如何用一条命令构建 k8s 高可用集群且不依赖 haproxy 和 keepaliv</description>
+    </item>
+    
+    <item>
+      <title>kubectl 创建 Pod 背后到底发生了什么？</title>
+      <link>https://fuckcloudnative.io/posts/what-happens-when-k8s/</link>
+      <pubDate>Fri, 01 Jun 2018 11:36:45 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/what-happens-when-k8s/</guid>
+      <description>想象一下，如果我想将 nginx 部署到 Kubernetes 集群，我可能会在终端中输入类似这样的命令： $ kubectl run --image=nginx --replicas=3 然后回车。几秒钟后，你就会看到三个 nginx pod 分布在所有的工作节点</description>
+    </item>
+    
+    <item>
+      <title>Linux全局智能分流方案</title>
+      <link>https://fuckcloudnative.io/posts/linux-circumvent/</link>
+      <pubDate>Tue, 23 Jan 2018 08:26:58 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/linux-circumvent/</guid>
+      <description>Github 地址：Linux 和 MacOS 设备智能分流方案 本来我是决定不再写这样的文章了的。但是呢，最近连续配置了两次 ArchLinux，在配置这种东西的时候连</description>
+    </item>
+    
+    <item>
+      <title>使用 buildx 构建多平台 Docker 镜像</title>
+      <link>https://fuckcloudnative.io/posts/multiarch-docker-with-buildx/</link>
+      <pubDate>Sun, 17 Nov 2019 13:54:43 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/multiarch-docker-with-buildx/</guid>
+      <description>在工作和生活中，我们可能经常需要将某个程序跑在不同的 CPU 架构上，比如让某些不可描述的软件运行在树莓派或嵌入式路由器设备上。特别是 Docker 席卷全球之后</description>
+    </item>
+    
+    <item>
+      <title>并发与并行的区别</title>
+      <link>https://fuckcloudnative.io/posts/concurrency-is-not-parallelism/</link>
+      <pubDate>Mon, 04 Nov 2019 23:47:34 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/concurrency-is-not-parallelism/</guid>
+      <description>现在我们都说设计可并行、高并发的程序，而且我们很多时候会在潜意识里觉得自己对并行（Parallelism）和并发（Concurrency）的</description>
+    </item>
+    
+    <item>
+      <title>Linux Capabilities 入门教程：基础实战篇</title>
+      <link>https://fuckcloudnative.io/posts/linux-capabilities-in-practice-1/</link>
+      <pubDate>Sun, 03 Nov 2019 23:23:19 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/linux-capabilities-in-practice-1/</guid>
+      <description>该系列文章总共分为三篇： Linux Capabilities 入门教程：概念篇 Linux Capabilities 入门教程：基础实战篇 待续&amp;hellip; 上篇文章介绍了 Linux capabilities 的诞生背景和基本原理，本文将会通过</description>
+    </item>
+    
+    <item>
+      <title>Linux Capabilities 入门教程：概念篇</title>
+      <link>https://fuckcloudnative.io/posts/linux-capabilities-why-they-exist-and-how-they-work/</link>
+      <pubDate>Sun, 27 Oct 2019 09:57:11 -0400</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/linux-capabilities-why-they-exist-and-how-they-work/</guid>
+      <description>该系列文章总共分为三篇： Linux Capabilities 入门教程：概念篇 Linux Capabilities 入门教程：基础实战篇 待续&amp;hellip; Linux 是一种安全的操作系统，它把所有的系统权限都赋予了一</description>
+    </item>
+    
+    <item>
+      <title>Podman 使用指南</title>
+      <link>https://fuckcloudnative.io/posts/podman-sidecar/</link>
+      <pubDate>Fri, 18 Oct 2019 00:16:16 -0400</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/podman-sidecar/</guid>
+      <description>郑重声明：本文不是 Podman 的入门篇，入门请阅读这篇文章：再见 Docker，是时候拥抱下一代容器工具了 Podman 原来是 CRI-O 项目的一部分，后来被分离成一个单独的</description>
+    </item>
+    
+    <item>
+      <title>Grafana 6.4 正式发布！</title>
+      <link>https://fuckcloudnative.io/posts/grafana-v6.4-released/</link>
+      <pubDate>Tue, 08 Oct 2019 01:49:41 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/grafana-v6.4-released/</guid>
+      <description>英文原文：Grafana v6.4 Released 2019 年 10 月 2 日，也就是中国的国庆期间，Grafana 实验室正式发布了 Grafana 6.4 版本。这个版本主要围绕数据模型和指标查询对</description>
+    </item>
+    
+    <item>
+      <title>nftables 使用教程</title>
+      <link>https://fuckcloudnative.io/posts/using-nftables/</link>
+      <pubDate>Sun, 29 Sep 2019 21:01:14 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/using-nftables/</guid>
+      <description>如果你没有生活在上个世纪，并且是云计算或相关领域的一名搬砖者，那你应该听说最近 CentOS 8 官方正式版已经发布了，CentOS 完全遵守 Red Hat 的再发行政策</description>
+    </item>
+    
+    <item>
+      <title>手把手教你部署 Istio 1.3</title>
+      <link>https://fuckcloudnative.io/posts/istio-1.3-tour/</link>
+      <pubDate>Wed, 25 Sep 2019 13:00:34 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/istio-1.3-tour/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>AdGuard Home 安装使用教程</title>
+      <link>https://fuckcloudnative.io/posts/adguard-home/</link>
+      <pubDate>Sun, 22 Sep 2019 09:02:26 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/adguard-home/</guid>
+      <description>通常我们使用网络时，宽带运营商会为我们分配一个 DNS 服务器。这个 DNS 通常是最快的，距离最近的服务器，但会有很多问题，比如： 访问某些网络服务很缓慢，</description>
+    </item>
+    
+    <item>
+      <title>KubeSphere 安装教程</title>
+      <link>https://fuckcloudnative.io/posts/kubesphere/</link>
+      <pubDate>Thu, 19 Sep 2019 21:53:07 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubesphere/</guid>
+      <description>2018 年 7 月份，青云在 Cloud Insight 云计算峰会上推出了一款全新的容器平台——KubeSphere，旨在帮助企业快速低成本管理容器。并且 KubeSphere 本身是开源的，它是</description>
+    </item>
+    
+    <item>
+      <title>Istio 1.3 发布，HTTP 遥测不再需要 Mixer</title>
+      <link>https://fuckcloudnative.io/posts/istio-1.3/</link>
+      <pubDate>Sat, 14 Sep 2019 23:31:46 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/istio-1.3/</guid>
+      <description>Istio 是 Google、IBM 和 Lyft 联合开源的服务网格（Service Mesh）框架，旨在解决大量微服务的发现、连接、管理、监控以及安全等问题。 Istio 对</description>
+    </item>
+    
+    <item>
+      <title>Kubeman 使用指南</title>
+      <link>https://fuckcloudnative.io/posts/kubeman/</link>
+      <pubDate>Sun, 08 Sep 2019 17:22:38 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubeman/</guid>
+      <description>周末闲逛 Twitter 时，发现一个很有意思的小工具叫 kubeman，野心倒是不小，励志成为 kubectl 的替代品，用于实时监控和管理 kubernetes 集群，还可以调试与 Istio 相关的问题</description>
+    </item>
+    
+    <item>
+      <title>Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布</title>
+      <link>https://fuckcloudnative.io/posts/blue-green-deployments-contours-ingressroute/</link>
+      <pubDate>Fri, 06 Sep 2019 02:08:54 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/blue-green-deployments-contours-ingressroute/</guid>
+      <description>上篇文章介绍了 Contour 分布式架构的工作原理，顺便简单介绍了下 IngressRoute 的使用方式。本文将探讨 IngressRoute 更高级的用法，其中级联功能是重点。 1. IngressRoute 大入门 上篇文章在 examples/example-workload 目录</description>
+    </item>
+    
+    <item>
+      <title>Contour 学习笔记（一）：使用 Contour 接管 Kubernetes 的南北流量</title>
+      <link>https://fuckcloudnative.io/posts/use-envoy-as-a-kubernetes-ingress/</link>
+      <pubDate>Thu, 29 Aug 2019 15:38:15 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/use-envoy-as-a-kubernetes-ingress/</guid>
+      <description>在 Kubernetes 中运行大规模以 Web 为中心的工作负载，最关键的需求之一就是在 L7 层实现高效流畅的入口流量管理。自从第一批 Kubernetes Ingress Controller 开发完成以来，Envoy（由 Matt Klein</description>
+    </item>
+    
+    <item>
+      <title>使用 Docker 和 Jenkins 持续交付</title>
+      <link>https://fuckcloudnative.io/posts/continuous-delivery-with-docker-jenkins-2nd-edition/</link>
+      <pubDate>Wed, 21 Aug 2019 14:03:42 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/continuous-delivery-with-docker-jenkins-2nd-edition/</guid>
+      <description>今天没有长篇大论，给大家推荐一本新书，书名：Continuous Delivery with Docker and Jenkins。封面如图所示： 以下内容纯属凑字数 本书结合了 Jenkins 和 Docker 的优</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes RBAC 策略审计指南</title>
+      <link>https://fuckcloudnative.io/posts/tools-and-methods-for-auditing-kubernetes-rbac-policies/</link>
+      <pubDate>Tue, 20 Aug 2019 14:18:15 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/tools-and-methods-for-auditing-kubernetes-rbac-policies/</guid>
+      <description>认证与授权对任何安全系统来说都至关重要，Kubernetes 也不例外。即使我们不是安全工作人员，也需要了解我们的 Kubernetes 集群是否具有足够的访问控制</description>
+    </item>
+    
+    <item>
+      <title>一文搞懂 Prometheus 的直方图</title>
+      <link>https://fuckcloudnative.io/posts/prometheus-histograms/</link>
+      <pubDate>Tue, 06 Aug 2019 14:25:12 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/prometheus-histograms/</guid>
+      <description>Prometheus 中提供了四种指标类型（参考：Prometheus 的指标类型），其中直方图（Histogram）和摘要（Summary）是最复杂和难以理解的</description>
+    </item>
+    
+    <item>
+      <title>Calico 网络通信原理揭秘</title>
+      <link>https://fuckcloudnative.io/posts/poke-calicos-lies/</link>
+      <pubDate>Tue, 30 Jul 2019 17:00:49 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/poke-calicos-lies/</guid>
+      <description>Calico 是一个纯三层的数据中心网络方案，而且无缝集成像 OpenStack 这种 Iaas 云架构，能够提供可控的 VM、容器、裸机之间的 IP 通信。为什么说它是纯三层呢？因为所有的</description>
+    </item>
+    
+    <item>
+      <title>Linux Cgroup 入门教程：内存</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-3-memory/</link>
+      <pubDate>Thu, 25 Jul 2019 22:41:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-3-memory/</guid>
+      <description>该系列文章总共分为三篇： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 通过上篇文章的学习，我们学会了如何查看当前 cgroup 的信息，如何</description>
+    </item>
+    
+    <item>
+      <title>云原生周报：第 3 期</title>
+      <link>https://fuckcloudnative.io/posts/cloud-native-weekly-3/</link>
+      <pubDate>Sun, 21 Jul 2019 21:25:34 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/cloud-native-weekly-3/</guid>
+      <description>本文首发于：微信公众号「云原生实验室」，公众号ID：cloud_native_yang。 这是云原生周报第 3 期，主要分享云原生社区最新开源项目</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 1.15 详细介绍</title>
+      <link>https://fuckcloudnative.io/posts/whats-new-kubernetes-1-15/</link>
+      <pubDate>Thu, 18 Jul 2019 08:38:48 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/whats-new-kubernetes-1-15/</guid>
+      <description>2019 年 6 月 20 日，Kubernetes 重磅发布了 1.15 版本，不过笔者忙到现在才有空认真来看一下到底更新了哪些东西。这一版本更新主要是针对稳定性的持续</description>
+    </item>
+    
+    <item>
+      <title>你确定你会写 Dockerfile 吗？</title>
+      <link>https://fuckcloudnative.io/posts/intro-guide-to-dockerfile-best-practices/</link>
+      <pubDate>Tue, 09 Jul 2019 17:53:17 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/intro-guide-to-dockerfile-best-practices/</guid>
+      <description>原文链接：Intro Guide to Dockerfile Best Practices 如今 GitHub 仓库中已经包含了成千上万的 Dockerfile，但并不是所有的 Dockerfile 都是高效的。本文将从五个方面来介绍 Dockerfile 的最</description>
+    </item>
+    
+    <item>
+      <title>云原生周报第 2 期</title>
+      <link>https://fuckcloudnative.io/posts/cloud-native-weekly-2/</link>
+      <pubDate>Fri, 05 Jul 2019 22:11:46 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/cloud-native-weekly-2/</guid>
+      <description>这是云原生周报第 2 期，主要分享云原生社区最新开源项目，优秀博客、电子书和视频。 1. 开源项目推荐 Kube Forwarder : Kubernetes 端口转发的 GUI 客户端，支持多集群，断开后可</description>
+    </item>
+    
+    <item>
+      <title>云原生周报第 1 期</title>
+      <link>https://fuckcloudnative.io/posts/cloud-native-weekly-1/</link>
+      <pubDate>Thu, 27 Jun 2019 16:12:50 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/cloud-native-weekly-1/</guid>
+      <description>1. 前言 云原生不但可以很好的支持互联网应用，也在深刻影响着新的计算架构、新的智能数据应用。以容器、服务网格、微服务、Serverless 为代表</description>
+    </item>
+    
+    <item>
+      <title>Linux Cgroup 入门教程：CPU</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-2-cpu/</link>
+      <pubDate>Fri, 31 May 2019 17:21:52 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-2-cpu/</guid>
+      <description>该系列文章总共分为三篇： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 上篇文章主要介绍了 cgroup 的一些基本概念，包括其在 CentOS 系统中的默</description>
+    </item>
+    
+    <item>
+      <title>Linux Cgroup 入门教程：基本概念</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-1-basics/</link>
+      <pubDate>Wed, 22 May 2019 17:13:10 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-1-basics/</guid>
+      <description>该系列文章总共分为三篇： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 Cgroup 是 Linux kernel 的一项功能：它是在一个系统中运行的层级制进程组，</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes Pod 驱逐详解</title>
+      <link>https://fuckcloudnative.io/posts/kubernetes-eviction/</link>
+      <pubDate>Fri, 17 May 2019 14:32:59 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubernetes-eviction/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 内存资源限制实战</title>
+      <link>https://fuckcloudnative.io/posts/memory-limit-of-pod-and-oom-killer/</link>
+      <pubDate>Mon, 29 Apr 2019 11:43:29 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/memory-limit-of-pod-and-oom-killer/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>在 Kubernetes 中实现零宕机部署应用</title>
+      <link>https://fuckcloudnative.io/posts/kubernetes-zero-downtime-deployment/</link>
+      <pubDate>Fri, 26 Apr 2019 22:27:56 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubernetes-zero-downtime-deployment/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>当 kube-proxy 遇到连接重置</title>
+      <link>https://fuckcloudnative.io/posts/kube-proxy-subtleties-debugging-an-intermittent-connection-reset/</link>
+      <pubDate>Thu, 04 Apr 2019 13:18:03 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kube-proxy-subtleties-debugging-an-intermittent-connection-reset/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Macvlan 网络方案实践</title>
+      <link>https://fuckcloudnative.io/posts/macvlan-in-action/</link>
+      <pubDate>Mon, 01 Apr 2019 10:20:04 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/macvlan-in-action/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linux 虚拟网卡技术：Macvlan</title>
+      <link>https://fuckcloudnative.io/posts/netwnetwork-virtualization-macvlan/</link>
+      <pubDate>Mon, 25 Mar 2019 17:29:43 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/netwnetwork-virtualization-macvlan/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 控制器的工作原理解读</title>
+      <link>https://fuckcloudnative.io/posts/a-deep-dive-into-kubernetes-controllers/</link>
+      <pubDate>Mon, 11 Mar 2019 17:36:27 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/a-deep-dive-into-kubernetes-controllers/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>理解矩阵乘法</title>
+      <link>https://fuckcloudnative.io/posts/matrix-multiplication/</link>
+      <pubDate>Sat, 09 Mar 2019 19:32:33 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/matrix-multiplication/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>使用 CoreDNS 来应对 DNS 污染</title>
+      <link>https://fuckcloudnative.io/posts/install-coredns-on-macos/</link>
+      <pubDate>Wed, 06 Mar 2019 13:41:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/install-coredns-on-macos/</guid>
+      <description>CoreDNS 是新晋的 CNCF 孵化项目，前几天已经从 CNCF 正式毕业，并正式成为 Kubernetes 的 DNS 服务器。CoreDNS 的目标是成为 cloud-native 环境下的 DNS 服务器和服务发现解决方案，即： Our</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 设计哲学</title>
+      <link>https://fuckcloudnative.io/posts/the-mechanics-of-kubernetes/</link>
+      <pubDate>Sat, 23 Feb 2019 23:35:42 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/the-mechanics-of-kubernetes/</guid>
+      <description>原文地址：The Mechanics of Kubernetes Kubernetes 是一个用于在一组节点（通常称之为集群）上托管容器化应用程序的容器编排引擎。本系列教程旨在通过系统建模的方法帮助大家更</description>
+    </item>
+    
+    <item>
+      <title>Etcd 的分布式一致性详解</title>
+      <link>https://fuckcloudnative.io/posts/etcd-server-learner/</link>
+      <pubDate>Wed, 30 Jan 2019 18:45:42 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/etcd-server-learner/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>etcd 集群大小迷思</title>
+      <link>https://fuckcloudnative.io/posts/etcd-cluster-number/</link>
+      <pubDate>Wed, 30 Jan 2019 13:13:56 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/etcd-cluster-number/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Nginx 流量镜像使用技巧</title>
+      <link>https://fuckcloudnative.io/posts/nginx-mirror/</link>
+      <pubDate>Mon, 28 Jan 2019 16:39:48 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/nginx-mirror/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>熔断与异常检测在 Istio 中的应用</title>
+      <link>https://fuckcloudnative.io/posts/circuit_breaking-and-outlier-detection-in-istio/</link>
+      <pubDate>Fri, 28 Dec 2018 17:23:43 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/circuit_breaking-and-outlier-detection-in-istio/</guid>
+      <description>在微服务领域，各个服务需要在网络上执行大量的调用。而网络是很脆弱的，如果某个服务繁忙或者无法响应请求，将有可能引发集群的大规模级联故障，从而</description>
+    </item>
+    
+    <item>
+      <title>优化生产环境中的 Kubernetes 资源分配</title>
+      <link>https://fuckcloudnative.io/posts/optimizing-kubernetes-resource-allocation-production/</link>
+      <pubDate>Tue, 18 Dec 2018 16:15:12 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/optimizing-kubernetes-resource-allocation-production/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>数据包在 Istio 网格中的生命周期</title>
+      <link>https://fuckcloudnative.io/posts/life-of-a-packet-through-istio/</link>
+      <pubDate>Mon, 17 Dec 2018 16:05:24 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/life-of-a-packet-through-istio/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Istio 中 VirtualService 的注意事项</title>
+      <link>https://fuckcloudnative.io/posts/conflictingvirtualservicehost/</link>
+      <pubDate>Sat, 15 Dec 2018 18:28:30 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/conflictingvirtualservicehost/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：从 Nginx 迁移到 Envoy Proxy</title>
+      <link>https://fuckcloudnative.io/posts/migrating-from-nginx-to-envoy/</link>
+      <pubDate>Fri, 14 Dec 2018 17:39:06 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/migrating-from-nginx-to-envoy/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 设计与开发原则</title>
+      <link>https://fuckcloudnative.io/posts/kubernetes-design-and-development-explained/</link>
+      <pubDate>Tue, 04 Dec 2018 17:35:59 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubernetes-design-and-development-explained/</guid>
+      <description>原文地址：Kubernetes Design and Development Explained 本文是 8 月 29 日至 31 日在温哥华举行的开源峰会上作者演讲内容的一部分，详细内容请查看下文。 Kubernetes 正迅速成为在分</description>
+    </item>
+    
+    <item>
+      <title>CPU 使用率 100% 的解决办法</title>
+      <link>https://fuckcloudnative.io/posts/how-to-deal-with-increasing-of-cpu-usage/</link>
+      <pubDate>Fri, 30 Nov 2018 17:45:57 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/how-to-deal-with-increasing-of-cpu-usage/</guid>
+      <description>本文经作者许可，转载自 极客时间 你好，我是倪朋飞。 通过前两节对平均负载和 CPU 上下文切换的学习，我相信你对 CPU 的性能已经有了初步了解。不过我还是想问</description>
+    </item>
+    
+    <item>
+      <title>Istio 的高级边缘流量控制（二）</title>
+      <link>https://fuckcloudnative.io/posts/egress-gateway-2/</link>
+      <pubDate>Wed, 28 Nov 2018 18:19:56 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/egress-gateway-2/</guid>
+      <description>上一节我演示了如何通过 Egress Gateway 引导 Istio 的出口 HTTP 流量，但到 443 端口的 HTTPS 流量没有通过 Egress Gateway，而是直接转到 edition.cnn.com 。Istio 出口流量的 TLS 演示了如何在</description>
+    </item>
+    
+    <item>
+      <title>KubeRBS 助力 Kubernetes 自动回滚，让你晚上睡得更香</title>
+      <link>https://fuckcloudnative.io/posts/kuberbs-for-automatic-kubernetes-rollbacks-so-you-can-sleep-better-at-night/</link>
+      <pubDate>Wed, 28 Nov 2018 11:43:54 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kuberbs-for-automatic-kubernetes-rollbacks-so-you-can-sleep-better-at-night/</guid>
+      <description>随着越来越多的企业开始大量使用 Kubernetes，持续交付越来越趋向于标准化，软件版本的更新也越来越趋向于自动化。但你有没有想过，如果新发</description>
+    </item>
+    
+    <item>
+      <title>Istio 的高级边缘流量控制（一）</title>
+      <link>https://fuckcloudnative.io/posts/egress-gateway-1/</link>
+      <pubDate>Mon, 26 Nov 2018 14:43:51 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/egress-gateway-1/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>在服务网格内部调用外部 TCP 服务</title>
+      <link>https://fuckcloudnative.io/posts/egress-tcp/</link>
+      <pubDate>Fri, 23 Nov 2018 14:18:48 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/egress-tcp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>在服务网格内部调用外部 Web 服务</title>
+      <link>https://fuckcloudnative.io/posts/egress-https/</link>
+      <pubDate>Wed, 21 Nov 2018 17:09:25 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/egress-https/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>深入理解 Kubernetes API Server（一）</title>
+      <link>https://fuckcloudnative.io/posts/kubernetes-api-server-part-1/</link>
+      <pubDate>Mon, 19 Nov 2018 13:42:03 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubernetes-api-server-part-1/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Istio 出口流量的 TLS</title>
+      <link>https://fuckcloudnative.io/posts/egress-tls-origination/</link>
+      <pubDate>Fri, 16 Nov 2018 15:56:49 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/egress-tls-origination/</guid>
+      <description>本文主要内容来自 Istio 官方文档，并对其进行了大量扩展和补充。 控制出口流量任务演示了如何从网格内部的应用程序访问 Kubernetes 集群外部的 HTTP 和 HTTPS 服务, 如该主题中</description>
+    </item>
+    
+    <item>
+      <title>Hugo 添加站点统计信息</title>
+      <link>https://fuckcloudnative.io/posts/hugo-add-busuanzi/</link>
+      <pubDate>Mon, 12 Nov 2018 15:30:35 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/hugo-add-busuanzi/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>了解如何在服务网格中进行性能测试</title>
+      <link>https://fuckcloudnative.io/posts/service-mesh-performance-testing/</link>
+      <pubDate>Sun, 11 Nov 2018 18:10:14 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/service-mesh-performance-testing/</guid>
+      <description>原文地址：Understanding How the Service Mesh Fits with Performance Testing 作者：Bob Reselman 译者：杨传胜 现代 IT 企业的数字基础设施极其复杂，通过手动配置防火墙来保护一台</description>
+    </item>
+    
+    <item>
+      <title>深入理解 Kubernetes 资源限制：CPU</title>
+      <link>https://fuckcloudnative.io/posts/understanding-resource-limits-in-kubernetes-cpu-time/</link>
+      <pubDate>Sat, 10 Nov 2018 13:32:30 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-resource-limits-in-kubernetes-cpu-time/</guid>
+      <description>原文地址：Understanding resource limits in kubernetes: cpu time 作者：Mark Betz 译者：杨传胜 建议先阅读下面的系列文章： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：C</description>
+    </item>
+    
+    <item>
+      <title>Hugo 集成社交分享插件</title>
+      <link>https://fuckcloudnative.io/posts/hugo-social-share-plugin/</link>
+      <pubDate>Wed, 07 Nov 2018 01:22:31 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/hugo-social-share-plugin/</guid>
+      <description>很多站长开发网站时为了推广页面，或者获得更多的回访和流量，会在网站页面添加 “分享到” 插件，用来发布到某些社交网站。因此社会化分享是很多网站常</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：对应用进行速率限制</title>
+      <link>https://fuckcloudnative.io/posts/sre-resiliency-bolt-on-sidecar-rate-limiting-with-envoy-sidecar/</link>
+      <pubDate>Thu, 01 Nov 2018 17:55:47 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/sre-resiliency-bolt-on-sidecar-rate-limiting-with-envoy-sidecar/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：扩展 Envoy 的管理界面</title>
+      <link>https://fuckcloudnative.io/posts/extending-the-envoy-admin-interface/</link>
+      <pubDate>Thu, 25 Oct 2018 16:34:20 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/extending-the-envoy-admin-interface/</guid>
+      <description>原文地址：Extending the Envoy Admin Interface 译者：杨传胜 Envoy 是一个动态可配置的高性能现代化代理工具，现在几乎所有的 IT 潮男都用它来构建服务网格。Envo</description>
+    </item>
+    
+    <item>
+      <title>在 Istio 中调试 503 错误</title>
+      <link>https://fuckcloudnative.io/posts/istio-mtls-debugging-a-503-error/</link>
+      <pubDate>Thu, 11 Oct 2018 15:59:54 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/istio-mtls-debugging-a-503-error/</guid>
+      <description>原文链接：Istio, mTLS, debugging a 503 error 译者：杨传胜 大家好，本文我将与你们分享我在 Istio 官方文档中尝试熔断教程时遇到的问题。我会记录下解决此问题的所有步</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：xDS REST 和 gRPC 协议详解</title>
+      <link>https://fuckcloudnative.io/posts/envoy-xds-protocol/</link>
+      <pubDate>Wed, 10 Oct 2018 22:23:51 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/envoy-xds-protocol/</guid>
+      <description>转载自：Envoy 中的 xDS REST 和 gRPC 协议详解 原文地址：https://github.com/envoyproxy/data-plane-api/b</description>
+    </item>
+    
+    <item>
+      <title>Istio 流量管理实现机制深度解析</title>
+      <link>https://fuckcloudnative.io/posts/istio-traffic-management-impl-intro/</link>
+      <pubDate>Tue, 09 Oct 2018 20:00:17 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/istio-traffic-management-impl-intro/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：开启 TLS 验证实战</title>
+      <link>https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy-practice/</link>
+      <pubDate>Wed, 26 Sep 2018 17:43:00 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy-practice/</guid>
+      <description>我的博客之前是使用 Nginx 来反代的，由于 Nginx 性能优异，目前有很多国内网站采用 Nginx 作为 Web 服务器，而且参考文档比较丰富，无论是对于其部署，配置还是调优都更</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 准入控制介绍</title>
+      <link>https://fuckcloudnative.io/posts/kubernetes-extensible-admission/</link>
+      <pubDate>Sat, 22 Sep 2018 11:17:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubernetes-extensible-admission/</guid>
+      <description>1. 什么是准入控制 准入控制（Admission Controller）是 Kubernetes API Server 用于拦截请求的一种手段。Admission 可以做到对请求的资源对象</description>
+    </item>
+    
+    <item>
+      <title>通过消除对特权容器的需求来提高 Istio Deployment 的安全性</title>
+      <link>https://fuckcloudnative.io/posts/increasing-security-of-istio-deployments/</link>
+      <pubDate>Fri, 21 Sep 2018 13:10:18 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/increasing-security-of-istio-deployments/</guid>
+      <description>原文链接：Increasing Security of Istio Deployments by Removing the Need for Privileged Containers 随着 1.0 版本的发布，Istio 正在为开发云原生应用并希望采用服务网格解决方案的公司准备黄金</description>
+    </item>
+    
+    <item>
+      <title>暴露 Istio Service Mesh 中的 Gateway</title>
+      <link>https://fuckcloudnative.io/posts/expose-gateway-of-istio/</link>
+      <pubDate>Mon, 17 Sep 2018 13:14:55 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/expose-gateway-of-istio/</guid>
+      <description>在之前的文章 Istio 服务网格中的网关 中，我已经介绍了简单的暴露 Ingress Gateway 的方案。当时的方案只是用于临时测试，不适合在大规模场景下使用，本文将探讨更加优化</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes DNS 高阶指南</title>
+      <link>https://fuckcloudnative.io/posts/kubernetes-dns/</link>
+      <pubDate>Mon, 27 Aug 2018 18:11:52 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubernetes-dns/</guid>
+      <description>DNS 是 Kubernetes 的核心功能之一，Kubernetes 通过 kube-dns 或 CoreDNS 作为集群的必备扩展来提供命名服务，通过 DNS 扩展，每一个 Service 都会产生一个独一无二的 FQDN（F</description>
+    </item>
+    
+    <item>
+      <title>控制 Egress 流量</title>
+      <link>https://fuckcloudnative.io/posts/control-egress-traffic/</link>
+      <pubDate>Thu, 16 Aug 2018 13:40:27 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/control-egress-traffic/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>数据包在 Istio 网格中的生命周期（下）</title>
+      <link>https://fuckcloudnative.io/posts/where-is-the-request-2/</link>
+      <pubDate>Mon, 13 Aug 2018 16:30:30 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/where-is-the-request-2/</guid>
+      <description>书接前文，上文我们通过跟踪集群外通过 ingressgateway 发起的请求来探寻流量在 Istio 服务网格之间的流动方向，先部署 bookinfo 示例应用，然后创建一个监听在 ingressgateway 上的 GateWay 和 Virt</description>
+    </item>
+    
+    <item>
+      <title>数据包在 Istio 网格中的生命周期（上）</title>
+      <link>https://fuckcloudnative.io/posts/where-is-the-request-1/</link>
+      <pubDate>Wed, 08 Aug 2018 16:56:31 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/where-is-the-request-1/</guid>
+      <description>通过前几篇文章的学习与实践，我们对 Gateway、VirtualService 和 Destinationrule 的概念和原理有了初步的认知，本篇将对这几个对象资源的配置文</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 资源管理概述</title>
+      <link>https://fuckcloudnative.io/posts/kubernetes-resource-management/</link>
+      <pubDate>Fri, 03 Aug 2018 17:34:19 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubernetes-resource-management/</guid>
+      <description>本文转载自 Cizixs 的博客。 1. 什么是资源？ 在 kubernetes 中，有两个基础但是非常重要的概念：node 和 pod。node 翻译成节点，是对集群资源的抽象；pod 是对</description>
+    </item>
+    
+    <item>
+      <title>Vistio—使用 Netflix 的 Vizceral 可视化 Istio service mesh</title>
+      <link>https://fuckcloudnative.io/posts/vistio-visualize-your-istio-mesh-using-netflixs-vizceral/</link>
+      <pubDate>Fri, 03 Aug 2018 15:29:37 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/vistio-visualize-your-istio-mesh-using-netflixs-vizceral/</guid>
+      <description>本文转载自 Jimmy Song 的博客，并且有很多改动。 Vizceral 是 Netflix 发布的一个开源项目，用于近乎实时地监控应用程序和集群之间的网络流量。Vistio 是使用 Vizceral 对 Istio 和网</description>
+    </item>
+    
+    <item>
+      <title>Istio 服务网格中的网关</title>
+      <link>https://fuckcloudnative.io/posts/istio-ingress/</link>
+      <pubDate>Thu, 02 Aug 2018 13:29:08 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/istio-ingress/</guid>
+      <description>在一个典型的网格中，通常有一个或多个用于终结外部 TLS 链接，将流量引入网格的负载均衡器（我们称之为 gateway）。 然后流量通过边车网关（sid</description>
+    </item>
+    
+    <item>
+      <title>Istio 流量管理</title>
+      <link>https://fuckcloudnative.io/posts/istio-traffic-management/</link>
+      <pubDate>Wed, 01 Aug 2018 20:59:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/istio-traffic-management/</guid>
+      <description>Istio 从 0.8 版本开始出现了一个新的 API 组：networking.istio.io/v1alpha3，应该会替代现有的 config.istio.io/v1alpha2 API。新的 API 不管是结构上还是</description>
+    </item>
+    
+    <item>
+      <title>Istio 1.0 部署</title>
+      <link>https://fuckcloudnative.io/posts/istio-1.0-deploy/</link>
+      <pubDate>Wed, 01 Aug 2018 15:33:46 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/istio-1.0-deploy/</guid>
+      <description>北京时间 2018 年 8 月 1 日（建军节）凌晨 0 点，Istio 宣布推出 1.0 正式版本，并表示已可用于生产环境。这距离最初的 0.1 版本发布已过去一年多的时间。这个</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：熔断器的原理和使用</title>
+      <link>https://fuckcloudnative.io/posts/circuit-breaking/</link>
+      <pubDate>Fri, 13 Jul 2018 09:22:49 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/circuit-breaking/</guid>
+      <description>在微服务领域，各个服务之间经常会相互调用。如果某个服务繁忙或者无法响应请求，将有可能引发集群的大规模级联故障，从而造成整个系统不可用，通常把</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：通过控制平面提供路由</title>
+      <link>https://fuckcloudnative.io/posts/routing-with-a-control-plane/</link>
+      <pubDate>Fri, 06 Jul 2018 06:16:02 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/routing-with-a-control-plane/</guid>
+      <description>当微服务集群规模非常庞大时，控制平面包含了大量的 Envoy 配置项和基础设施状态，这时最好将数据平面与控制平面分离。控制平面最主要的功能包括自动重试和</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：集成服务发现</title>
+      <link>https://fuckcloudnative.io/posts/integrating-service-discovery-with-envoy/</link>
+      <pubDate>Wed, 04 Jul 2018 10:12:43 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/integrating-service-discovery-with-envoy/</guid>
+      <description>在微服务中使用 Envoy，需要明确两个核心概念：数据平面和控制平面。 数据平面 由一组 Envoy 实例组成，用来调解和控制微服务之间的所有网络通信。 控制平</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：启用证书验证</title>
+      <link>https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy/</link>
+      <pubDate>Tue, 03 Jul 2018 06:43:33 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/setting-up-ssl-in-envoy/</guid>
+      <description>如果你准备将服务暴露在互联网上，最好启用 SSL/TLS 加密协议。当使用 Envoy 作为前端代理或者服务网格代理时，可以通过 SSL/TLS 协议来加密客户端和代理之间的所有通信流</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：实现增量部署</title>
+      <link>https://fuckcloudnative.io/posts/incremental-deploys/</link>
+      <pubDate>Mon, 02 Jul 2018 05:37:37 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/incremental-deploys/</guid>
+      <description>微服务最常见的工作流程之一就是版本更新。不同于基础架构更新，通过流量管理可以优雅地实现微服务的版本更新。当新发布的版本有缺陷时，这种方法就可</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：HTTP 路由解析</title>
+      <link>https://fuckcloudnative.io/posts/routing-basics/</link>
+      <pubDate>Fri, 29 Jun 2018 09:57:33 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/routing-basics/</guid>
+      <description>本文将更详细地讨论 Envoy 的 HTTP 路由，如果你已经看过了我的上篇文章：在你的笔记本上运行 Envoy，现在就可以更深入地了解如何在静态文件中配置路由（R</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：入门篇</title>
+      <link>https://fuckcloudnative.io/posts/run-envoy-on-your-laptop/</link>
+      <pubDate>Thu, 28 Jun 2018 08:54:18 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/run-envoy-on-your-laptop/</guid>
+      <description>1. 前言 过去一年中，Kubernetes 已经赢得了容器编排大战，如果说 2017 年是 Kubernetes 的元年，那么 2018 将会是 Service Mesh（服务网格） 的元年，在未来两年中，</description>
+    </item>
+    
+    <item>
+      <title>使用 envoy-docker-shim 替代 docker-proxy</title>
+      <link>https://fuckcloudnative.io/posts/envoy-docker-shim/</link>
+      <pubDate>Fri, 22 Jun 2018 08:22:07 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/envoy-docker-shim/</guid>
+      <description>在过去一年中，服务网格技术的崛起引发了吃瓜群众对 Istio 的持续关注，而 Istio 的核心组件 Envoy 是一款由 Lyft 开源的，使用 C++ 编写的 L7 代理和通信总线，目前是 CNCF 旗下的</description>
+    </item>
+    
+    <item>
+      <title>使用自定义指标进行弹性伸缩</title>
+      <link>https://fuckcloudnative.io/posts/custom-metrics-hpa/</link>
+      <pubDate>Tue, 19 Jun 2018 09:02:52 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/custom-metrics-hpa/</guid>
+      <description>从 Kubernetes 1.8 开始，资源使用指标（如容器 CPU 和内存使用率）可以通过 Metrics API 在 Kubernetes 中获取。 这些指标可以直接被用户访问(例如通过使用 kubectl top 命令)，或由集群中的控制</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes API 扩展</title>
+      <link>https://fuckcloudnative.io/posts/api-aggregation/</link>
+      <pubDate>Tue, 19 Jun 2018 06:15:06 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/api-aggregation/</guid>
+      <description>Aggregated（聚合的）API server 是为了将原来的 API server 这个巨石（monolithic）应用给拆分开，为了方便用户开发自己的 API server 集成进来，而</description>
+    </item>
+    
+    <item>
+      <title> 修复 Service Endpoint 更新的延迟</title>
+      <link>https://fuckcloudnative.io/posts/kubernetes-fixing-delayed-service-endpoint-updates/</link>
+      <pubDate>Fri, 15 Jun 2018 14:02:11 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubernetes-fixing-delayed-service-endpoint-updates/</guid>
+      <description>几个月前，我在更新 Kubernetes 集群中的 Deployment 时发现了一个很奇怪的连接超时现象，在更新 Deployment 之后的 30 秒到两分钟左右，所有与以该 Deployment 作为服务后端的 Service 的连接都会超时或</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 的奇技淫巧</title>
+      <link>https://fuckcloudnative.io/posts/kubernetes-fucking-trick/</link>
+      <pubDate>Mon, 11 Jun 2018 04:35:48 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kubernetes-fucking-trick/</guid>
+      <description>Kubernetes 作为云原生时代的“操作系统”，熟悉和使用它是每名用户（User）的必备技能。如果你正在 Kubernetes 上工作，你需要正确的工具和技巧来确保 Kubernetes 集群的高可用</description>
+    </item>
+    
+    <item>
+      <title>Descheduler 使用指南</title>
+      <link>https://fuckcloudnative.io/posts/introduce-kubernetes-descheduler/</link>
+      <pubDate>Wed, 23 May 2018 10:23:29 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/introduce-kubernetes-descheduler/</guid>
+      <description>kube-scheduler 是 Kubernetes 中负责调度的组件，它本身的调度功能已经很强大了。但由于 Kubernetes 集群非常活跃，它的状态会随时间而改变，由于各种原因，你可能需要将已经运行的 Pod 移</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 中 Pod 的生命周期管理</title>
+      <link>https://fuckcloudnative.io/posts/pods-life/</link>
+      <pubDate>Thu, 03 May 2018 12:08:01 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/pods-life/</guid>
+      <description>本文我们将从实践者的角度仔细研究整个pod生命周期，包括如何影响启动和关闭行为，并通过实践来理解对应用程序健康状况的检查。 1. Pod 的生命周期 Pod phase</description>
+    </item>
+    
+    <item>
+      <title>Kube-router 使用指南</title>
+      <link>https://fuckcloudnative.io/posts/kube-router/</link>
+      <pubDate>Fri, 20 Apr 2018 04:36:40 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kube-router/</guid>
+      <description>Kube-router 是一个挺有想法的项目，兼备了 calico 和 kube-proxy 的功能，是基于 Kubernetes 网络设计的一个集负载均衡器、防火墙和容器网络的综合方案。 1. 体系架构 Kube-router 是围绕 观察者 和 控制器</description>
+    </item>
+    
+    <item>
+      <title>LVS负载均衡之持久性连接介绍</title>
+      <link>https://fuckcloudnative.io/posts/lvs-persistent-connection/</link>
+      <pubDate>Wed, 18 Apr 2018 11:18:06 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/lvs-persistent-connection/</guid>
+      <description>1. 前言 在实际生产环境中，往往需要根据业务应用场景来设置 lvs 的会话超时时间以及防止 session 连接丢失的问题，如在业务支付环节，如若 session 丢失会导致重复扣款问</description>
+    </item>
+    
+    <item>
+      <title>CRI-O 简介</title>
+      <link>https://fuckcloudnative.io/posts/cri-o/</link>
+      <pubDate>Tue, 03 Apr 2018 08:11:38 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/cri-o/</guid>
+      <description>上一篇 https://www.yangcs.net/posts/container-runtime/ 介绍了什么是容器运行时，并列出了不同的容器运行时。本篇重点介绍其中的一种容器运行时 CRI-O。 1. CRI-O 的诞生 当容器运行时（Contain</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 中的容器运行时</title>
+      <link>https://fuckcloudnative.io/posts/container-runtime/</link>
+      <pubDate>Tue, 03 Apr 2018 06:50:43 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/container-runtime/</guid>
+      <description>容器运行时（Container Runtime）是 Kubernetes 最重要的组件之一，负责真正管理镜像和容器的生命周期。Kubelet 通过 Container Runtime Interface (CRI) 与容器运行时</description>
+    </item>
+    
+    <item>
+      <title>docker 在本地如何管理 image（镜像）?</title>
+      <link>https://fuckcloudnative.io/posts/how-manage-image/</link>
+      <pubDate>Mon, 02 Apr 2018 05:12:18 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/how-manage-image/</guid>
+      <description>docker 里面可以通过 docker pull、docker build、docker commit、docker load、docker import 等方式得到一个 image，得</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 使用集群联邦实现多集群管理</title>
+      <link>https://fuckcloudnative.io/posts/federation/</link>
+      <pubDate>Thu, 22 Mar 2018 09:36:27 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/federation/</guid>
+      <description>在云计算环境中，服务的作用距离范围从近到远一般可以有： 同主机（Host，Node） 跨主机同可用区（Available Zone） 跨可用区同地区</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 网络扩展</title>
+      <link>https://fuckcloudnative.io/posts/k8s-network-expand/</link>
+      <pubDate>Sun, 11 Feb 2018 10:40:33 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/k8s-network-expand/</guid>
+      <description>1. Kubernetes 中服务暴露的方式 k8s 的服务暴露分为以下几种情况： hostNetwork hostPort NodePort LoadBalancer Ingress 说是暴露 Pod 其实跟暴露 Service 是一回事，因为 Pod 就是 Service 的 backend。 HostNetwork 这是一种直接定义</description>
+    </item>
+    
+    <item>
+      <title>calico Router reflection(RR) 模式介绍及部署</title>
+      <link>https://fuckcloudnative.io/posts/calico-rr/</link>
+      <pubDate>Thu, 01 Feb 2018 11:03:49 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/calico-rr/</guid>
+      <description>1. 名词解释 endpoint：接入到网络中的设备称为 endpoint ❤ AS：网络自治系统，一个完全自治的网络，通过 BGP 协议与其它 AS 交换路由信息 ibgp：AS 内</description>
+    </item>
+    
+    <item>
+      <title>Device Mapper基础教程：Docker 中使用 devicemapper 存储驱动</title>
+      <link>https://fuckcloudnative.io/posts/use-devicemapper/</link>
+      <pubDate>Mon, 22 Jan 2018 16:17:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/use-devicemapper/</guid>
+      <description>1. 准备条件 devicemapper 存储驱动是 RHEL, CentOS 和 Oracle Linux 系统上唯一一个支持 Docker EE 和 Commercially Supported Docker Engine (CS-Engine) 的存储驱动，具体参考 Product compatibility matrix. devicemapper 在 CentOS, Fedora, Ubuntu 和 Debian 上也支持 Docker CE。 如果你更改了 Docker 的存</description>
+    </item>
+    
+    <item>
+      <title>Device Mapper系列基础教程：Thin Provisioning 实践</title>
+      <link>https://fuckcloudnative.io/posts/thin-provisioning/</link>
+      <pubDate>Mon, 22 Jan 2018 16:00:22 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/thin-provisioning/</guid>
+      <description>1. Thin Provisioning Snapshot 演示 上一篇我们介绍了 Device Mapper 框架的技术原理及其核心概念，下面，我们用一系列的命令来演示一下 Device Mapper 的 Thin Provisioning Snapshot 是怎么玩的。 首先，我们需要先建两个</description>
+    </item>
+    
+    <item>
+      <title>Device Mapper系列基础教程：Device Mapper 的原理</title>
+      <link>https://fuckcloudnative.io/posts/devicemapper-theory/</link>
+      <pubDate>Sun, 21 Jan 2018 09:28:41 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/devicemapper-theory/</guid>
+      <description>1. Device Mapper 简介 注意 Device Mapper 是 linux 的内核用来将块设备映射到虚拟块设备的 framework，它支持许多高级卷管理技术。docker 的 devicemapper 存储驱动程序利用此框</description>
+    </item>
+    
+    <item>
+      <title>Photoswipe Gallery Sample</title>
+      <link>https://fuckcloudnative.io/post/2017-03-20-photoswipe-gallery-sample/</link>
+      <pubDate>Mon, 20 Mar 2017 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2017-03-20-photoswipe-gallery-sample/</guid>
+      <description>&lt;p&gt;Beautiful Hugo adds a few custom shortcodes created by &lt;a href=&#34;https://www.liwen.id.au/heg/&#34; target=&#34;_blank&#34;&gt;Li-Wen Yip&lt;/a&gt; and &lt;a href=&#34;https://github.com/GjjvdBurg/HugoPhotoSwipe&#34; target=&#34;_blank&#34;&gt;Gert-Jan van den Berg&lt;/a&gt; for making galleries with &lt;a href=&#34;http://photoswipe.com&#34; target=&#34;_blank&#34;&gt;PhotoSwipe&lt;/a&gt; .&lt;/p&gt;
+
+
+
+
+&lt;div class=&#34;gallery caption-position-bottom caption-effect-fade hover-effect-zoom hover-transition&#34; itemscope itemtype=&#34;http://schema.org/ImageGallery&#34;&gt;
+	  
+  
+
+&lt;div class=&#34;box&#34; &gt;
+  &lt;figure  itemprop=&#34;associatedMedia&#34; itemscope itemtype=&#34;http://schema.org/ImageObject&#34;&gt;
+    &lt;div class=&#34;img&#34; style=&#34;background-image: url(&#39;https://fuckcloudnative.io/img/hexagon-thumb.jpg&#39;);&#34;&gt;
+      &lt;img itemprop=&#34;thumbnail&#34; src=&#34;https://fuckcloudnative.io/img/hexagon-thumb.jpg&#34; alt=&#34;/img/hexagon-thumb.jpg&#34;/&gt;
+    &lt;/div&gt;
+    &lt;a href=&#34;https://fuckcloudnative.io/img/hexagon.jpg&#34; itemprop=&#34;contentUrl&#34;&gt;&lt;/a&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+
+  
+
+&lt;div class=&#34;box&#34; &gt;
+  &lt;figure  itemprop=&#34;associatedMedia&#34; itemscope itemtype=&#34;http://schema.org/ImageObject&#34;&gt;
+    &lt;div class=&#34;img&#34; style=&#34;background-image: url(&#39;https://fuckcloudnative.io/img/sphere-thumb.jpg&#39;);&#34;&gt;
+      &lt;img itemprop=&#34;thumbnail&#34; src=&#34;https://fuckcloudnative.io/img/sphere-thumb.jpg&#34; alt=&#34;Sphere&#34;/&gt;
+    &lt;/div&gt;
+    &lt;a href=&#34;https://fuckcloudnative.io/img/sphere.jpg&#34; itemprop=&#34;contentUrl&#34;&gt;&lt;/a&gt;
+      &lt;figcaption&gt;
+          &lt;p&gt;Sphere&lt;/p&gt;
+      &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+
+  
+
+&lt;div class=&#34;box&#34; &gt;
+  &lt;figure  itemprop=&#34;associatedMedia&#34; itemscope itemtype=&#34;http://schema.org/ImageObject&#34;&gt;
+    &lt;div class=&#34;img&#34; style=&#34;background-image: url(&#39;https://fuckcloudnative.io/img/triangle-thumb.jpg&#39;);&#34;&gt;
+      &lt;img itemprop=&#34;thumbnail&#34; src=&#34;https://fuckcloudnative.io/img/triangle-thumb.jpg&#34; alt=&#34;This is a long comment about a triangle&#34;/&gt;
+    &lt;/div&gt;
+    &lt;a href=&#34;https://fuckcloudnative.io/img/triangle.jpg&#34; itemprop=&#34;contentUrl&#34;&gt;&lt;/a&gt;
+      &lt;figcaption&gt;
+          &lt;p&gt;Triangle&lt;/p&gt;
+      &lt;/figcaption&gt;
+  &lt;/figure&gt;
+&lt;/div&gt;
+
+
+&lt;/div&gt;</description>
+    </item>
+    
+    <item>
+      <title>Big Image Sample</title>
+      <link>https://fuckcloudnative.io/post/2017-03-07-bigimg-sample/</link>
+      <pubDate>Tue, 07 Mar 2017 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2017-03-07-bigimg-sample/</guid>
+      <description>&lt;p&gt;The image banners at the top of the page are refered to as &amp;ldquo;bigimg&amp;rdquo; in this theme. They are optional, and one more more can be specified. If more than one is specified, the images rotate every 10 seconds. In the front matter, bigimgs are specified using an array of hashes.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Math Sample</title>
+      <link>https://fuckcloudnative.io/post/2017-03-05-math-sample/</link>
+      <pubDate>Sun, 05 Mar 2017 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2017-03-05-math-sample/</guid>
+      <description>&lt;p&gt;KaTeX can be used to generate complex math formulas server-side.&lt;/p&gt;
+
+&lt;p&gt;
+$$
+\phi = \frac{(1+\sqrt{5})}{2} = 1.6180339887\cdots
+$$
+&lt;/p&gt;
+
+&lt;p&gt;Additional details can be found on &lt;a href=&#34;https://github.com/Khan/KaTeX&#34; target=&#34;_blank&#34;&gt;GitHub&lt;/a&gt; or on the &lt;a href=&#34;http://tiddlywiki.com/plugins/tiddlywiki/katex/&#34; target=&#34;_blank&#34;&gt;Wiki&lt;/a&gt;.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>向量的叉乘与行列式</title>
+      <link>https://fuckcloudnative.io/posts/%E5%90%91%E9%87%8F%E7%9A%84%E5%8F%89%E4%B9%98%E4%B8%8E%E8%A1%8C%E5%88%97%E5%BC%8F/</link>
+      <pubDate>Sat, 03 Dec 2016 23:59:48 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/%E5%90%91%E9%87%8F%E7%9A%84%E5%8F%89%E4%B9%98%E4%B8%8E%E8%A1%8C%E5%88%97%E5%BC%8F/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>最小二乘法的本质</title>
+      <link>https://fuckcloudnative.io/posts/%E5%8D%81%E5%88%86%E9%92%9F%E5%91%8A%E8%AF%89%E4%BD%A0%E4%BB%80%E4%B9%88%E6%98%AF%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95/</link>
+      <pubDate>Sat, 04 Jun 2016 13:28:25 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/%E5%8D%81%E5%88%86%E9%92%9F%E5%91%8A%E8%AF%89%E4%BD%A0%E4%BB%80%E4%B9%88%E6%98%AF%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E6%B3%95/</guid>
+      <description>曾经看过国内各种关于讲解最小二乘法的教科书，但都是一大堆枯燥的推导公式，看起来很高深的样子，其实根本不知道它在说些什么！传授知识本来就应该告</description>
+    </item>
+    
+    <item>
+      <title>Flake it till you make it</title>
+      <link>https://fuckcloudnative.io/post/2015-02-26-flake-it-till-you-make-it/</link>
+      <pubDate>Thu, 26 Feb 2015 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2015-02-26-flake-it-till-you-make-it/</guid>
+      <description>Under what circumstances should we step off a path? When is it essential that we finish what we start? If I bought a bag of peanuts and had an allergic reaction, no one would fault me if I threw it out. If I ended a relationship with a woman who hit me, no one would say that I had a commitment problem. But if I walk away from a seemingly secure route because my soul has other ideas, I am a flake?</description>
+    </item>
+    
+    <item>
+      <title>Test markdown</title>
+      <link>https://fuckcloudnative.io/post/2015-02-20-test-markdown/</link>
+      <pubDate>Fri, 20 Feb 2015 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2015-02-20-test-markdown/</guid>
+      <description>You can write regular markdown here and Hugo will automatically convert it to a nice webpage. I strongly encourage you to take 5 minutes to learn how to write in markdown - it&amp;rsquo;ll teach you how to transform regular text into bold/italics/headings/tables/etc.
+Here is some bold text
+Here is a secondary heading Here&amp;rsquo;s a useless table:
+   Number Next number Previous number     Five Six Four   Ten Eleven Nine   Seven Eight Six   Two Three One    How about a yummy crepe?</description>
+    </item>
+    
+    <item>
+      <title>To be</title>
+      <link>https://fuckcloudnative.io/post/2015-02-13-hamlet-monologue/</link>
+      <pubDate>Fri, 13 Feb 2015 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2015-02-13-hamlet-monologue/</guid>
+      <description>To be, or not to be&amp;ndash;that is the question: Whether &amp;lsquo;tis nobler in the mind to suffer The slings and arrows of outrageous fortune Or to take arms against a sea of troubles And by opposing end them. To die, to sleep&amp;ndash; No more&amp;ndash;and by a sleep to say we end The heartache, and the thousand natural shocks That flesh is heir to. &amp;lsquo;Tis a consummation Devoutly to be wished. To die, to sleep&amp;ndash; To sleep&amp;ndash;perchance to dream: ay, there&amp;rsquo;s the rub, For in that sleep of death what dreams may come When we have shuffled off this mortal coil, Must give us pause.</description>
+    </item>
+    
+    <item>
+      <title>Dear diary</title>
+      <link>https://fuckcloudnative.io/post/2015-01-27-dear-diary/</link>
+      <pubDate>Tue, 27 Jan 2015 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2015-01-27-dear-diary/</guid>
+      <description>What is it with that Mary girl? Dragging me to school every day. As if I had a choice. What you don&amp;rsquo;t hear in those nursery rhymes is that she starves me if I don&amp;rsquo;t go to school with her; it&amp;rsquo;s the only way I can stay alive! I&amp;rsquo;m thinking about being adopted by Little Bo Peep, sure I may get lost, but anything is better than being with Mary and those little brats at school (shudder, shudder).</description>
+    </item>
+    
+    <item>
+      <title>Soccer</title>
+      <link>https://fuckcloudnative.io/post/2015-01-19-soccer/</link>
+      <pubDate>Mon, 19 Jan 2015 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2015-01-19-soccer/</guid>
+      <description>From Wikipedia:
+Association football, more commonly known as football or soccer,[2] is a sport played between two teams of eleven players with a spherical ball. It is played by 250 million players in over 200 countries, making it the world&amp;rsquo;s most popular sport.[3][4][5][6] The game is played on a rectangular field with a goal at each end. The object of the game is to score by getting the ball into the opposing goal.</description>
+    </item>
+    
+    <item>
+      <title>Pirates arrrr</title>
+      <link>https://fuckcloudnative.io/post/2015-01-15-pirates/</link>
+      <pubDate>Thu, 15 Jan 2015 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2015-01-15-pirates/</guid>
+      <description>Piracy is typically an act of robbery or criminal violence at sea. The term can include acts committed on land, in the air, or in other major bodies of water or on a shore. It does not normally include crimes committed against persons traveling on the same vessel as the perpetrator (e.g. one passenger stealing from others on the same vessel). The term has been used throughout history to refer to raids across land borders by non-state agents.</description>
+    </item>
+    
+    <item>
+      <title>First post!</title>
+      <link>https://fuckcloudnative.io/post/2015-01-04-first-post/</link>
+      <pubDate>Mon, 05 Jan 2015 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/post/2015-01-04-first-post/</guid>
+      <description>This is my first post, how exciting!</description>
+    </item>
+    
+    <item>
+      <title>About me</title>
+      <link>https://fuckcloudnative.io/page/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/page/about/</guid>
+      <description>My name is Inigo Montoya. I have the following qualities:
+ I rock a great mustache I&amp;rsquo;m extremely loyal to my family  What else do you need?
+my history To be honest, I&amp;rsquo;m having some trouble remembering right now, so why don&amp;rsquo;t you just watch my movie and it will answer all your questions.</description>
+    </item>
+    
+  </channel>
+</rss>

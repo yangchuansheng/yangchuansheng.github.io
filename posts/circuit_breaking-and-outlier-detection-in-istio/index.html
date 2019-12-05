@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>熔断与异常检测在 Istio 中的应用 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="circuit breaking, outlier detection, istio, envoy" name="keywords">
+
+  <meta name="description" content="本文将会告诉你什么是熔断以及如何在 Istio 中使用熔断和异常检测来保障系统的可用性。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/circuit_breaking-and-outlier-detection-in-istio\/",
+          "name": "熔断与异常检测在 istio 中的应用"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "熔断与异常检测在 Istio 中的应用",
+  "description" : "本文将会告诉你什么是熔断以及如何在 Istio 中使用熔断和异常检测来保障系统的可用性。",
+  "inLanguage" : "zh",
+  "wordCount":  4722 ,
+  "datePublished" : "2018-12-28T17:23:43",
+  "dateModified" : "2018-12-28T17:23:43",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "istio, service mesh, kubernetes" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/circuit_breaking-and-outlier-detection-in-istio\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="熔断与异常检测在 Istio 中的应用" />
+<meta property="og:description" content="本文将会告诉你什么是熔断以及如何在 Istio 中使用熔断和异常检测来保障系统的可用性。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/circuit_breaking-and-outlier-detection-in-istio/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="熔断与异常检测在 Istio 中的应用" />
+  <meta name="twitter:description" content="本文将会告诉你什么是熔断以及如何在 Istio 中使用熔断和异常检测来保障系统的可用性。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">熔断与异常检测在 Istio 中的应用</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">通过 Istio 来窥探 Envoy 的熔断与异常检测机制</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 12 月 28 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;10&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4722&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>熔断与异常检测在 Istio 中的应用</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">通过 Istio 来窥探 Envoy 的熔断与异常检测机制</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 12 月 28 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;10&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4722&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-什么是熔断"><span id="inline-toc">1.</span> 什么是熔断？</a></li>
+<li><a href="#span-id-inline-toc-2-span-istio-中的熔断"><span id="inline-toc">2.</span> Istio 中的熔断</a>
+<ul>
+<li><a href="#部署示例">部署示例</a></li>
+<li><a href="#最大连接数">最大连接数</a></li>
+<li><a href="#待处理请求队列">待处理请求队列</a></li>
+<li><a href="#如果服务完全崩溃怎么办">如果服务完全崩溃怎么办？</a>
+<ul>
+<li><a href="#异常检测的隔离算法">异常检测的隔离算法</a></li>
+<li><a href="#异常检测类型">异常检测类型</a></li>
+<li><a href="#异常检测示例">异常检测示例</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-3-span-参考资料"><span id="inline-toc">3.</span> 参考资料</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<p>在微服务领域，各个服务需要在网络上执行大量的调用。而网络是很脆弱的，如果某个服务繁忙或者无法响应请求，将有可能引发集群的大规模级联故障，从而造成整个系统不可用，通常把这种现象称为 <span id="inline-purple">服务雪崩效应</span>。为了使服务有一定的冗余，以便在系统故障期间能够保持服务能力，我们可以使用熔断机制。</p>
+
+<h2 id="span-id-inline-toc-1-span-什么是熔断"><span id="inline-toc">1.</span> 什么是熔断？</h2>
+
+<hr />
+
+<p>熔断（Circuit Breaking）这一概念来源于电子工程中的<strong>断路器</strong>（Circuit Breaker）。在互联网系统中，当下游服务因访问压力过大而响应变慢或失败，上游服务为了保护系统整体的可用性，可以暂时切断对下游服务的调用。这种牺牲局部，保全整体的措施就叫做<strong>熔断</strong>。</p>
+
+<p>如果不采取熔断措施，我们的系统会怎样呢？我们来看一个栗子。</p>
+
+<p>当前系统中有 A、B、C 三个服务，服务 A 是上游，服务 B 是中游，服务 C 是下游。它们的调用链如下：</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/circuit-breaking.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/circuit-breaking.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/circuit-breaking.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>一旦下游服务 C 因某些原因变得不可用，积压了大量请求，服务 B 的请求线程也随之阻塞。线程资源逐渐耗尽，使得服务 B 也变得不可用。紧接着，服务 A 也变为不可用，整个调用链路被拖垮。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/circuit-breaking1.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/circuit-breaking1.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/circuit-breaking1.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>像这种调用链路的连锁故障，就是上文所说的服务雪崩效应。</p>
+
+<p>正所谓刮骨疗毒，壮士断腕。在这种时候，就需要我们的熔断机制来挽救整个系统。熔断机制的大体流程如下：</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/circuit-breaking3.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/circuit-breaking3.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/circuit-breaking3.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>这里需要解释两点：</p>
+
+<ul>
+<li>开启熔断：在固定时间窗口内，接口调用超时比率达到一个阈值，会开启熔断。进入熔断状态后，后续对该服务接口的调用不再经过网络，直接执行本地的默认方法，达到服务降级的效果。</li>
+<li>熔断恢复：熔断不可能是永久的，当经过了规定时间之后，服务将从熔断状态恢复过来，再次接受调用方的远程调用。</li>
+</ul>
+
+<h2 id="span-id-inline-toc-2-span-istio-中的熔断"><span id="inline-toc">2.</span> Istio 中的熔断</h2>
+
+<hr />
+
+<p>Istio 是通过 Envoy Proxy 来实现熔断机制的，Envoy 强制在网络层面配置熔断策略，这样就不必为每个应用程序单独配置或重新编程。下面就通过一个示例来演示如何为 Istio 网格中的服务配置熔断的连接数、请求数和异常检测。</p>
+
+<p>该示例的架构如图所示：</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/istio-circuit-break2.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/istio-circuit-break2.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/istio-circuit-break2.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>该示例由客户端和服务端组成，其中客户端是一个 Java HTTP 应用程序，被打包在镜像 <code>docker.io/ceposta/http-envoy-client-standalone:latest</code> 中，它用来模拟对后端服务 <code>httpbin</code> 发起 http 调用，所有的调用首先都会被 Envoy Proxy 拦截。</p>
+
+<style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:"Font Awesome 5 Free",FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:'\f071'}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:'\f05a'}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:'\f06a'}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:'\f058'}.notice.tip{background:#e6f9e6}</style><div class="notice note" >
+<p class="first notice-title">注意</p><p>假设你的集群中已经部署了 Istio，没有启用 Sidecar 的自动注入，并且没有启用双向 TLS 身份验证。</p></div>
+
+
+<h3 id="部署示例">部署示例</h3>
+
+<p>部署 <a href="https://github.com/istio/istio/tree/master/samples/httpbin" target="_blank">httpbin</a> 应用，该应用将会作为本示例的后端服务：</p>
+
+<pre><code class="language-bash"># 进入 istio 根目录
+$ kubectl apply -f &lt;(istioctl kube-inject -f samples/httpbin/httpbin.yaml)
+</code></pre>
+
+<p>创建一个 <code>DestinationRule</code>，针对 <code>httpbin</code> 服务设置熔断策略：</p>
+
+<pre><code class="language-yaml">$ kubectl apply -f - &lt;&lt;EOF
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: httpbin
+spec:
+  host: httpbin
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 1
+      http:
+        http1MaxPendingRequests: 1
+        maxRequestsPerConnection: 1
+    outlierDetection:
+      consecutiveErrors: 2
+      interval: 1s
+      baseEjectionTime: 3m
+      maxEjectionPercent: 100
+EOF
+</code></pre>
+
+<p>查看该策略在 Envoy 中对应的 <code>Cluster</code> 配置：</p>
+
+<pre><code class="language-bash">$ kubectl get pod -l app=httpbin
+
+NAME                      READY     STATUS    RESTARTS   AGE
+httpbin-d6d68fb97-cswzc   2/2       Running   0          2m
+</code></pre>
+
+<pre><code class="language-json">$ istioctl pc cluster httpbin-d6d68fb97-cswzc --fqdn httpbin.default.svc.cluster.local --direction outbound -o json
+
+[
+    {
+        &quot;name&quot;: &quot;outbound|8000||httpbin.default.svc.cluster.local&quot;,
+        &quot;type&quot;: &quot;EDS&quot;,
+        &quot;edsClusterConfig&quot;: {
+            &quot;edsConfig&quot;: {
+                &quot;ads&quot;: {}
+            },
+            &quot;serviceName&quot;: &quot;outbound|8000||httpbin.default.svc.cluster.local&quot;
+        },
+        &quot;connectTimeout&quot;: &quot;1.000s&quot;,
+        &quot;maxRequestsPerConnection&quot;: 1,
+        &quot;circuitBreakers&quot;: {
+            &quot;thresholds&quot;: [
+                {
+                    &quot;maxConnections&quot;: 1,
+                    &quot;maxPendingRequests&quot;: 1
+                }
+            ]
+        },
+        &quot;outlierDetection&quot;: {
+            &quot;interval&quot;: &quot;1.000s&quot;,
+            &quot;baseEjectionTime&quot;: &quot;180.000s&quot;,
+            &quot;maxEjectionPercent&quot;: 100,
+            &quot;enforcingConsecutive5xx&quot;: 0,
+            &quot;consecutiveGatewayFailure&quot;: 2,
+            &quot;enforcingConsecutiveGatewayFailure&quot;: 100
+        }
+    }
+]
+</code></pre>
+
+<p>上面的配置告诉我们：</p>
+
+<ul>
+<li><strong>maxConnections</strong> : 限制对后端服务发起的 <code>HTTP/1.1</code> 连接数，如果超过了这个限制，就会开启熔断。</li>
+<li><strong>maxPendingRequests</strong> : 限制待处理请求列表的长度， 如果超过了这个限制，就会开启熔断。</li>
+<li><strong>maxRequestsPerConnection</strong> : 在任何给定时间内限制对后端服务发起的 <code>HTTP/2</code> 请求数，如果超过了这个限制，就会开启熔断。</li>
+</ul>
+
+<p>下面分别对这几个参数做详细解释。</p>
+
+<ul>
+<li><span id="inline-purple">maxConnections</span> : 表示在任何给定时间内， Envoy 与上游集群（这里指的是 httpbin 服务）建立的最大连接数。该配置仅适用于 <code>HTTP/1.1</code> 协议，因为 <code>HTTP/2</code> 协议可以在同一个 TCP 连接中发送多个请求，而 <code>HTTP/1.1</code> 协议在同一个连接中只能处理一个请求。如果超过了这个限制（即断路器溢出），集群的<a href="https://www.envoyproxy.io/docs/envoy/latest/configuration/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats" target="_blank">upstream_cx_overflow</a> 计数器就会递增。</li>
+<li><span id="inline-purple">maxPendingRequests</span> : 表示待处理请求队列的长度。因为 <code>HTTP/2</code> 是通过单个连接并发处理多个请求的，因此该熔断策略仅在创建初始 <code>HTTP/2</code> 连接时有用，之后的请求将会在同一个 TCP 连接上多路复用。对于 <code>HTTP/1.1</code> 协议，只要没有足够的上游连接可用于立即分派请求，就会将请求添加到待处理请求队列中，因此该断路器将在该进程的生命周期内保持有效。如果该断路器溢出，集群的 <a href="https://www.envoyproxy.io/docs/envoy/latest/configuration/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats" target="_blank">upstream_rq_pending_overflow</a> 计数器就会递增。</li>
+<li><span id="inline-purple">maxRequestsPerConnection</span> : 表示在任何给定时间内，上游集群中所有主机（这里指的是 httpbin 服务）可以处理的最大请求数。实际上，这适用于仅 <code>HTTP/2</code> 集群，因为 <code>HTTP/1.1</code> 集群由最大连接数断路器控制。如果该断路器溢出，集群的 <a href="https://www.envoyproxy.io/docs/envoy/latest/configuration/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats" target="_blank">upstream_rq_pending_overflow</a> 计数器就会递增。</li>
+</ul>
+
+<p>Istio DestinationRule 与 Envoy 的熔断参数对照表如下所示：</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">Envoy paramether</th>
+<th align="center">Envoy upon object</th>
+<th align="center">Istio parameter</th>
+<th align="center">Istio upon ojbect</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="center">max_connections</td>
+<td align="center">cluster.circuit_breakers</td>
+<td align="center">maxConnections</td>
+<td align="center">TCPSettings</td>
+</tr>
+
+<tr>
+<td align="center">max_pending_requests</td>
+<td align="center">cluster.circuit_breakers</td>
+<td align="center">http1MaxPendingRequests</td>
+<td align="center">HTTPSettings</td>
+</tr>
+
+<tr>
+<td align="center">max_requests</td>
+<td align="center">cluster.circuit_breakers</td>
+<td align="center">http2MaxRequests</td>
+<td align="center">HTTPSettings</td>
+</tr>
+
+<tr>
+<td align="center">max_retries</td>
+<td align="center">cluster.circuit_breakers</td>
+<td align="center">maxRetries</td>
+<td align="center">HTTPSettings</td>
+</tr>
+
+<tr>
+<td align="center">connect_timeout_ms</td>
+<td align="center">cluster</td>
+<td align="center">connectTimeout</td>
+<td align="center">TCPSettings</td>
+</tr>
+
+<tr>
+<td align="center">max_requests_per_connection</td>
+<td align="center">cluster</td>
+<td align="center">maxRequestsPerConnection</td>
+<td align="center">HTTPSettings</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="最大连接数">最大连接数</h3>
+
+<p>现在我们已经为 <code>httpbin</code> 服务设置了熔断策略，接下来创建一个 Java 客户端，用来向后端服务发送请求，观察是否会触发熔断策略。这个客户端可以控制连接数量、并发数、待处理请求队列，使用这一客户端，能够有效的触发前面在目标规则中设置的熔断策略。该客户端的 deployment yaml 内容如下：</p>
+
+<pre><code class="language-yaml"># httpbin-client-deploy.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: httpbin-client-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpbin-client
+        version: v1
+    spec:
+      containers:
+      - image: ceposta/http-envoy-client-standalone:latest
+        imagePullPolicy: IfNotPresent
+        name: httpbin-client
+        command: [&quot;/bin/sleep&quot;,&quot;infinity&quot;]
+</code></pre>
+
+<p>这里我们会把给客户端也进行 Sidecar 的注入，以此保证 Istio 对网络交互的控制：</p>
+
+<pre><code class="language-bash">$ kubectl apply -f &lt;(istioctl kube-inject -f httpbin-client-deploy.yaml)
+</code></pre>
+
+<p>下面来观察一下当客户端试图使用太多线程与上游集群建立并发连接时，Envoy 会如何应对。</p>
+
+<p>在上面的熔断设置中指定了 <code>maxConnections: 1</code> 以及 <code>http1MaxPendingRequests: 1</code>。这意味着如果超过了一个连接同时发起请求，Istio 就会熔断，阻止后续的请求或连接。</p>
+
+<p>先尝试通过单线程（<code>NUM_THREADS=1</code>）创建一个连接，并进行 5 次调用（默认值：<code>NUM_CALLS_PER_CLIENT=5</code>）：</p>
+
+<pre><code class="language-bash">$ CLIENT_POD=$(kubectl get pod | grep httpbin-client | awk '{ print $1 }')
+$ kubectl exec -it $CLIENT_POD -c httpbin-client -- sh -c 'export URL_UNDER_TEST=http://httpbin:8000/get export NUM_THREADS=1 &amp;&amp; java -jar http-client.jar'
+
+using num threads: 1
+Starting pool-1-thread-1 with numCalls=5 delayBetweenCalls=0 url=http://localhost:15001/get mixedRespTimes=false
+pool-1-thread-1: successes=[5], failures=[0], duration=[545ms]
+</code></pre>
+
+<p>可以看到所有请求都通过了：</p>
+
+<pre><code class="language-bash">successes=[5]
+</code></pre>
+
+<p>我们可以查询 istio-proxy 的状态，获取更多相关信息：</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $CLIENT_POD  -c istio-proxy  -- sh -c 'curl localhost:15000/stats' | grep httpbin
+
+...
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_cx_http1_total: 5
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_cx_overflow: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_total: 5
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_200: 5
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_2xx: 5
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_pending_overflow: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_retry: 0
+...
+</code></pre>
+
+<p>可以看出总共发送了 5 个 <code>HTTP/1.1</code> 连接，也就是 5 个请求，响应码均为 <code>200</code>。</p>
+
+<p>下面尝试把线程数提高到 2：</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $CLIENT_POD -c httpbin-client -- sh -c 'export URL_UNDER_TEST=http://httpbin:8000/get export NUM_THREADS=2 &amp;&amp; java -jar http-client.jar'
+
+using num threads: 2
+Starting pool-1-thread-1 with numCalls=5 parallelSends=false delayBetweenCalls=0 url=http://httpbin:8000/get mixedRespTimes=false
+Starting pool-1-thread-2 with numCalls=5 parallelSends=false delayBetweenCalls=0 url=http://httpbin:8000/get mixedRespTimes=false
+pool-1-thread-1: successes=[3], failures=[2], duration=[96ms]
+pool-1-thread-2: successes=[4], failures=[1], duration=[87ms]
+</code></pre>
+
+<p>再次查看 istio-proxy 的状态：</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $CLIENT_POD  -c istio-proxy  -- sh -c 'curl localhost:15000/stats' | grep httpbin
+
+...
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_cx_http1_total: 7
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_cx_overflow: 3
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_total: 10
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_200: 7
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_2xx: 7
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_503: 3
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_5xx: 3
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_pending_overflow: 3
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_retry: 0
+...
+</code></pre>
+
+<p>总共发送了 10 个 <code>HTTP/1</code> 连接，只有 7 个 被允许通过，剩余请求被断路器拦截了。其中 <code>upstream_cx_overflow</code> 的值为 3，表明 <code>maxConnections</code> 断路器起作用了。<code>Istio-proxy</code> 允许一定的冗余，你可以将线程数提高到 3，熔断的效果会更明显。</p>
+
+<h3 id="待处理请求队列">待处理请求队列</h3>
+
+<p>测试完 <code>maxConnections</code> 断路器之后，我们再来测试一下 <code>maxPendingRequests</code> 断路器。前面已经将 <code>maxPendingRequests</code> 的值设置为 1，现在按照预想，我们只需要模拟在单个 <code>HTTP/1.1</code> 连接中同时发送多个请求，就可以触发该断路器开启熔断。由于 <code>HTTP/1.1</code> 同一个连接只能处理一个请求，剩下的请求只能放到待处理请求队列中。通过限制待处理请求队列的长度，可以对恶意请求、DoS 和系统中的级联错误起到一定的缓解作用。</p>
+
+<p>现在尝试通过单线程（<code>NUM_THREADS=1</code>）创建一个连接，并同时发送 20 个请求（<code>PARALLEL_SENDS=true</code>，<code>NUM_CALLS_PER_CLIENT=20</code>）：</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $CLIENT_POD -c httpbin-client -- sh -c 'export URL_UNDER_TEST=http://httpbin:8000/get export NUM_THREADS=1 export PARALLEL_SENDS=true export NUM_CALLS_PER_CLIENT=20 &amp;&amp; java -jar http-client.jar'
+
+using num threads: 1
+Starting pool-1-thread-1 with numCalls=20 parallelSends=true delayBetweenCalls=0 url=http://httpbin:8000/get mixedRespTimes=false
+finished batch 0
+finished batch 5
+finished batch 10
+finished batch 15
+pool-1-thread-1: successes=[16], failures=[4], duration=[116ms]
+</code></pre>
+
+<p>查询 istio-proxy 的状态：</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $CLIENT_POD  -c istio-proxy  -- sh -c 'curl localhost:15000/stats' | grep httpbin | grep pending
+
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_pending_active: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_pending_failure_eject: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_pending_overflow: 4
+cluster.outbound|8000||httpbin.default.svc.cluster.local.upstream_rq_pending_total: 16
+</code></pre>
+
+<p><code>upstream_rq_pending_overflow</code> 的值是 <code>4</code>，说明有 <code>4</code> 次调用触发了 <code>maxPendingRequests</code> 断路器的熔断策略，被标记为熔断。</p>
+
+<h3 id="如果服务完全崩溃怎么办">如果服务完全崩溃怎么办？</h3>
+
+<p>现在我们知道 Envoy 的熔断策略对集群中压力过大的上游服务起到一定的保护作用，但还有一种极端的情况需要我们考虑，如果集群中的某些节点完全崩溃（或者即将完全崩溃）该怎么办？</p>
+
+<p>为了专门应对这种情况，Envoy 中引入了<strong>异常检测</strong>的功能，通过周期性的异常检测来动态确定上游集群中的某些主机是否异常，如果发现异常，就将该主机从连接池中隔离出去。异常检测是<strong>被动</strong>健康检查的一种形式，Envoy 同时支持<a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/health_checking#arch-overview-health-checking" target="_blank">主动健康检查</a>和被动健康检查，它们可以同时启用，联合决定上游主机的健康状况。</p>
+
+<h4 id="异常检测的隔离算法">异常检测的隔离算法</h4>
+
+<p>根据异常检测的类型，对主机的隔离可以连续执行（例如连续返回 <code>5xx</code> 状态码），也可以周期性执行（例如配置了周期性成功率检测）。隔离算法的工作流程如下：</p>
+
+<ol>
+<li>检测到了某个主机异常。</li>
+<li>如果到目前为止负载均衡池中还没有主机被隔离出去，Envoy 将会立即隔离该异常主机；如果已经有主机被隔离出去，就会检查当前隔离的主机数是否低于设定的阈值（通过 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cluster/outlier_detection.proto#envoy-api-field-cluster-outlierdetection-max-ejection-percent" target="_blank">outlier_detection.max_ejection_percent</a> 指定），如果当前被隔离的主机数量不超过该阈值，就将该主机隔离出去，否则不隔离。</li>
+<li>隔离不是永久的，会有一个时间限制。当主机被隔离后，该主机就会被标记为不健康，并且不会被加入到负载均衡池中，除非负载均衡处于<a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/load_balancing/panic_threshold#arch-overview-load-balancing-panic-threshold" target="_blank">恐慌</a>模式。隔离时间等于 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cluster/outlier_detection.proto#envoy-api-field-cluster-outlierdetection-base-ejection-time" target="_blank">outlier_detection.base_ejection_time_ms</a> 的值乘以主机被隔离的次数。所以如果某个主机连续出现故障，会导致它被隔离的时间越来越长。</li>
+<li>经过了规定的隔离时间之后，被隔离的主机将会自动恢复过来，重新接受调用方的远程调用。通常异常检测会与主动健康检查一起用于全面的健康检查解决方案。</li>
+</ol>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>恐慌模式指的是：在这种情况下，代理服务器会无视负载均衡池的健康标记，重新向所有主机发送数据。这是一个非常棒的机制。在分布式系统中，必须了解到的一点是，有时候“理论上”的东西可能不是正常情况，最好能降低一点要求来防止扩大故障影响。另外一方面，可以对这一比例进行控制（缺省情况下超过 50% 的驱逐就会进入恐慌状态），可以提高，也可以禁止这一阈值。</p></div>
+
+
+<h4 id="异常检测类型">异常检测类型</h4>
+
+<p>Envoy 支持一下几种异常检测类型：</p>
+
+<ul>
+<li><strong>连续 <code>5xx</code> 响应</strong>：如果上游主机连续返回一定数量的 <code>5xx</code> 响应（包括 <code>500</code>），该主机就会被驱逐。注意，这里的 <code>5xx</code> 响应不仅包括返回的 <code>5xx</code> 状态码，也包括 HTTP 路由返回的一个事件（如连接超时和连接错误）。隔离主机所需的 <code>5xx</code> 响应数量由 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cluster/outlier_detection.proto#envoy-api-field-cluster-outlierdetection-consecutive-5xx" target="_blank">outlier_detection.consecutive_5xx</a> 的值控制。</li>
+<li><strong>连续网关故障</strong>：如果上游主机连续返回一定数量的 <code>&quot;gateway errors&quot;</code>（<code>502</code>，<code>503</code> 或 <code>504</code> 状态码，但不包括 <code>500</code>），该主机就会被驱逐。这里同样也包括 HTTP 路由返回的一个事件（如连接超时和连接错误）。隔离主机所需的连续网关故障数量由 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cluster/outlier_detection.proto#envoy-api-field-cluster-outlierdetection-consecutive-gateway-failure" target="_blank">outlier_detection.consecutive_gateway_failure</a> 的值控制。</li>
+<li><strong>调用成功率</strong>：基于调用成功率的异常检测类型会聚合集群中每个主机的调用成功率，然后根据统计的数据以给定的周期来隔离主机。如果该主机的请求数量小于 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cluster/outlier_detection.proto#envoy-api-field-cluster-outlierdetection-success-rate-request-volume" target="_blank">outlier_detection.success_rate_request_volume</a> 指定的值，则不会为该主机计算调用成功率，因此聚合的统计数据中不会包括该主机的调用成功率。如果在给定的周期内具有最小所需请求量的主机数小于 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cluster/outlier_detection.proto#envoy-api-field-cluster-outlierdetection-success-rate-minimum-hosts" target="_blank">outlier_detection.success_rate_minimum_hosts</a> 指定的值，则不会对该集群执行调用成功率检测。</li>
+</ul>
+
+<p>Istio DestinationRule 与 Envoy 的异常检测参数对照表如下所示：</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">Envoy paramether</th>
+<th align="center">Envoy upon object</th>
+<th align="center">Istio parameter</th>
+<th align="center">Istio upon ojbect</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="center">consecutive_gateway_failure</td>
+<td align="center">cluster.outlier_detection</td>
+<td align="center">consecutiveErrors</td>
+<td align="center">outlierDetection</td>
+</tr>
+
+<tr>
+<td align="center">interval</td>
+<td align="center">cluster.outlier_detection</td>
+<td align="center">interval</td>
+<td align="center">outlierDetection</td>
+</tr>
+
+<tr>
+<td align="center">baseEjectionTime</td>
+<td align="center">cluster.outlier_detection</td>
+<td align="center">baseEjectionTime</td>
+<td align="center">outlierDetection</td>
+</tr>
+
+<tr>
+<td align="center">maxEjectionPercent</td>
+<td align="center">cluster.outlier_detection</td>
+<td align="center">maxEjectionPercent</td>
+<td align="center">outlierDetection</td>
+</tr>
+</tbody>
+</table>
+
+<p>Envoy 中还有一些其他参数在 Istio 中暂时是不支持的，具体参考 Envoy 官方文档 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/cluster/outlier_detection.proto#cluster-outlierdetection" target="_blank">Outlier detection</a>。</p>
+
+<p>现在我们回头再来看一下本文最初创建的 DestinationRule 中关于异常检测的配置：</p>
+
+<pre><code class="language-yaml">    outlierDetection:
+      consecutiveErrors: 2
+      interval: 1s
+      baseEjectionTime: 3m
+      maxEjectionPercent: 100
+</code></pre>
+
+<p>该配置表示每秒钟扫描一次上游主机，连续失败 <code>2</code> 次返回 5xx 错误码的所有主机会被移出连接池 3 分钟。</p>
+
+<h4 id="异常检测示例">异常检测示例</h4>
+
+<p>下面我们通过调用一个 URL 来指定 httpbin 服务返回 <code>502</code> 状态码，以此来触发连续网关故障异常检测。总共发起 3 次调用，因为 DestinationRule 中的配置要求 Envoy 的异常检测机制必须检测到两个连续的网关故障才会将 httpbin 服务移除负载均衡池。</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $CLIENT_POD -c httpbin-client -- sh -c 'export URL_UNDER_TEST=http://httpbin:8000/status/502 export NUM_CALLS_PER_CLIENT=3 &amp;&amp; java -jar http-client.jar'
+
+using num threads: 1
+Starting pool-1-thread-1 with numCalls=3 parallelSends=false delayBetweenCalls=0 url=http://httpbin:8000/status/502 mixedRespTimes=false
+pool-1-thread-1: successes=[0], failures=[3], duration=[99ms]
+</code></pre>
+
+<p>查看 istio-proxy 的状态：</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $CLIENT_POD  -c istio-proxy  -- sh -c 'curl localhost:15000/stats' | grep httpbin | grep outlier
+
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_active: 1
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_consecutive_5xx: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_detected_consecutive_5xx: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_detected_consecutive_gateway_failure: 1
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_detected_success_rate: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_enforced_consecutive_5xx: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_enforced_consecutive_gateway_failure: 1
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_enforced_success_rate: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_enforced_total: 1
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_overflow: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_success_rate: 0
+cluster.outbound|8000||httpbin.default.svc.cluster.local.outlier_detection.ejections_total: 0
+</code></pre>
+
+<p>确实检测到了连续网关故障，<code>consecutive_gateway_failure</code> 的值为 1。但是我通过查看 EDS，发现 Envoy 并没有将 httpbin 服务移出负载均衡池：</p>
+
+<pre><code class="language-bash">$ export PILOT_SVC_IP=$(kubectl -n istio-system get svc istio-pilot -o go-template='{{.spec.clusterIP}}')
+$ curl -s http://$PILOT_SVC_IP:8080/debug/edsz|grep &quot;outbound|8000||httpbin.default.svc.cluster.local&quot; -B 1 -A 15
+</code></pre>
+
+<pre><code class="language-json">{
+  &quot;clusterName&quot;: &quot;outbound|8000||httpbin.default.svc.cluster.local&quot;,
+  &quot;endpoints&quot;: [
+    {
+      &quot;locality&quot;: {
+
+      },
+      &quot;lbEndpoints&quot;: [
+        {
+          &quot;endpoint&quot;: {
+            &quot;address&quot;: {
+              &quot;socketAddress&quot;: {
+                &quot;address&quot;: &quot;172.30.104.27&quot;,
+                &quot;portValue&quot;: 8000
+              }
+            }
+          },
+</code></pre>
+
+<p>回去重新看了一下 Envoy 的配置，<code>enforcingConsecutiveGatewayFailure</code> 的值为 100，理论上 outlierDetection 应该是生效的。但这里我疏忽了 Envoy 的恐慌模式，Envoy 默认的恐慌阈值是 <code>50%</code>，而 httpbin 应用只有一个 upstream，所以没有被移除。当然这只是个人猜测，暂时也没时间验证，大家可以自己验证一下。</p>
+
+<h2 id="span-id-inline-toc-3-span-参考资料"><span id="inline-toc">3.</span> 参考资料</h2>
+
+<hr />
+
+<ul>
+<li><a href="https://preliminary.istio.io/zh/docs/reference/config/istio.networking.v1alpha3/#outlierdetection" target="_blank">istio.networking.v1alpha3 OutlierDetection</a></li>
+<li><a href="https://preliminary.istio.io/zh/docs/tasks/traffic-management/circuit-breaking/" target="_blank">Istio 流量管理之熔断</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/33490531" target="_blank">Envoy Proxy和Netflix Hystrix，究竟谁才是熔断王者？</a></li>
+<li><a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/outlier#arch-overview-outlier-detection" target="_blank">Envoy Outlier detection</a></li>
+<li><a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/load_balancing/panic_threshold#" target="_blank">Envoy Panic threshold</a></li>
+<li><a href="https://blog.christianposta.com/microservices/01-microservices-patterns-with-envoy-proxy-part-i-circuit-breaking/" target="_blank">Microservices Patterns With Envoy Sidecar Proxy, Part I: Circuit Breaking</a></li>
+</ul>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/istio/"><i class="fa fa-tags"></i>istio</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/service-mesh/"><i class="fa fa-tags"></i>service mesh</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/kubernetes/"><i class="fa fa-tags"></i>kubernetes</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcircuit_breaking-and-outlier-detection-in-istio%2f&amp;title=%e7%86%94%e6%96%ad%e4%b8%8e%e5%bc%82%e5%b8%b8%e6%a3%80%e6%b5%8b%e5%9c%a8%20Istio%20%e4%b8%ad%e7%9a%84%e5%ba%94%e7%94%a8&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2fEKjSX26WsAU3Y9T.jpeg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcircuit_breaking-and-outlier-detection-in-istio%2f&amp;title=%e7%86%94%e6%96%ad%e4%b8%8e%e5%bc%82%e5%b8%b8%e6%a3%80%e6%b5%8b%e5%9c%a8%20Istio%20%e4%b8%ad%e7%9a%84%e5%ba%94%e7%94%a8&amp;source=%e7%86%94%e6%96%ad%e4%b8%8e%e5%bc%82%e5%b8%b8%e6%a3%80%e6%b5%8b%e5%9c%a8%20Istio%20%e4%b8%ad%e7%9a%84%e5%ba%94%e7%94%a8&amp;desc=%e6%9c%ac%e6%96%87%e5%b0%86%e4%bc%9a%e5%91%8a%e8%af%89%e4%bd%a0%e4%bb%80%e4%b9%88%e6%98%af%e7%86%94%e6%96%ad%e4%bb%a5%e5%8f%8a%e5%a6%82%e4%bd%95%e5%9c%a8%20Istio%20%e4%b8%ad%e4%bd%bf%e7%94%a8%e7%86%94%e6%96%ad%e5%92%8c%e5%bc%82%e5%b8%b8%e6%a3%80%e6%b5%8b%e6%9d%a5%e4%bf%9d%e9%9a%9c%e7%b3%bb%e7%bb%9f%e7%9a%84%e5%8f%af%e7%94%a8%e6%80%a7%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2fEKjSX26WsAU3Y9T.jpeg&amp;summary=%e6%9c%ac%e6%96%87%e5%b0%86%e4%bc%9a%e5%91%8a%e8%af%89%e4%bd%a0%e4%bb%80%e4%b9%88%e6%98%af%e7%86%94%e6%96%ad%e4%bb%a5%e5%8f%8a%e5%a6%82%e4%bd%95%e5%9c%a8%20Istio%20%e4%b8%ad%e4%bd%bf%e7%94%a8%e7%86%94%e6%96%ad%e5%92%8c%e5%bc%82%e5%b8%b8%e6%a3%80%e6%b5%8b%e6%9d%a5%e4%bf%9d%e9%9a%9c%e7%b3%bb%e7%bb%9f%e7%9a%84%e5%8f%af%e7%94%a8%e6%80%a7%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcircuit_breaking-and-outlier-detection-in-istio%2f&amp;text=%e7%86%94%e6%96%ad%e4%b8%8e%e5%bc%82%e5%b8%b8%e6%a3%80%e6%b5%8b%e5%9c%a8%20Istio%20%e4%b8%ad%e7%9a%84%e5%ba%94%e7%94%a8&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcircuit_breaking-and-outlier-detection-in-istio%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcircuit_breaking-and-outlier-detection-in-istio%2f&amp;title=%e7%86%94%e6%96%ad%e4%b8%8e%e5%bc%82%e5%b8%b8%e6%a3%80%e6%b5%8b%e5%9c%a8%20Istio%20%e4%b8%ad%e7%9a%84%e5%ba%94%e7%94%a8" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/sealos/">kubernetes 高可用部署工具：sealos</a></li>
+                
+                    <li><a href="/posts/what-happens-when-k8s/">kubectl 创建 Pod 背后到底发生了什么？</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/kubesphere/">KubeSphere 安装教程</a></li>
+                
+                    <li><a href="/posts/istio-1.3/">Istio 1.3 发布，HTTP 遥测不再需要 Mixer</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/optimizing-kubernetes-resource-allocation-production/" data-toggle="tooltip" data-placement="top" title="优化生产环境中的 Kubernetes 资源分配">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/nginx-mirror/" data-toggle="tooltip" data-placement="top" title="Nginx 流量镜像使用技巧">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

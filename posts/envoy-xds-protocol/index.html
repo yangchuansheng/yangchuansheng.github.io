@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Envoy 基础教程：xDS REST 和 gRPC 协议详解 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="" name="keywords">
+
+  <meta name="description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/envoy-xds-protocol\/",
+          "name": "Envoy 基础教程：x d s r e s t 和 g r p c 协议详解"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "Envoy 基础教程：xDS REST 和 gRPC 协议详解",
+  "description" : "转载自：Envoy 中的 xDS REST 和 gRPC 协议详解 原文地址：https:\/\/github.com\/envoyproxy\/data-plane-api\/b",
+  "inLanguage" : "zh",
+  "wordCount":  4841 ,
+  "datePublished" : "2018-10-10T22:23:51",
+  "dateModified" : "2018-10-10T22:23:51",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "envoy, service mesh" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/envoy-xds-protocol\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Envoy 基础教程：xDS REST 和 gRPC 协议详解" />
+<meta property="og:description" content="通过示例详解 Envoy 的 xDS REST 和 gRPC 协议">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/envoy-xds-protocol/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="Envoy 基础教程：xDS REST 和 gRPC 协议详解" />
+  <meta name="twitter:description" content="通过示例详解 Envoy 的 xDS REST 和 gRPC 协议">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">Envoy 基础教程：xDS REST 和 gRPC 协议详解</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">通过示例详解 Envoy 的 xDS REST 和 gRPC 协议</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 10 月 10 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;10&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4841&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Envoy 基础教程：xDS REST 和 gRPC 协议详解</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">通过示例详解 Envoy 的 xDS REST 和 gRPC 协议</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 10 月 10 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;10&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4841&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-文件订阅"><span id="inline-toc">1.</span> 文件订阅</a></li>
+<li><a href="#span-id-inline-toc-2-span-grpc-流式订阅"><span id="inline-toc">2.</span> gRPC 流式订阅</a>
+<ul>
+<li><a href="#单例资源类型发现">单例资源类型发现</a>
+<ul>
+<li><a href="#类型-url">类型 URL</a></li>
+<li><a href="#ack-nack-和版本">ACK/NACK 和版本</a></li>
+<li><a href="#何时发送更新">何时发送更新</a></li>
+<li><a href="#资源提示">资源提示</a></li>
+<li><a href="#资源更新">资源更新</a></li>
+<li><a href="#最终一致性考虑">最终一致性考虑</a></li>
+</ul></li>
+<li><a href="#聚合服务发现-ads">聚合服务发现（ADS）</a></li>
+<li><a href="#增量-xds">增量 xDS</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-3-span-rest-json-轮询订阅"><span id="inline-toc">3.</span> REST-JSON 轮询订阅</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<p id="div-border-left-red">
+<strong>转载自：</strong><a href="http://www.servicemesher.com/blog/envoy-xds-protocol/" target="_blank">Envoy 中的 xDS REST 和 gRPC 协议详解</a>
+<br />
+<strong>原文地址：</strong><a href="https://github.com/envoyproxy/data-plane-api/blob/master/XDS_PROTOCOL.md" target="_blank">https://github.com/envoyproxy/data-plane-api/blob/master/XDS_PROTOCOL.md</a>
+<br />
+<strong>作者：</strong>狄卫华
+<br />
+<strong>修订：</strong>杨传胜
+</p>
+
+<p>Envoy 通过查询文件或管理服务器来动态发现资源。这些发现服务及其相应的 API 被统称为 <code>xDS</code>。Envoy 通过订阅（<code>subscription</code>）方式来获取资源，如监控指定路径下的文件、启动 gRPC 流（streaming）或轮询 REST-JSON URL。后两种方式会发送 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#discoveryrequest" target="_blank">DiscoveryRequest</a> 请求消息，发现的对应资源则包含在响应消息 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#discoveryrequest" target="_blank">DiscoveryResponse</a> 中。下面，我们将具体讨论每种订阅类型。</p>
+
+<h2 id="span-id-inline-toc-1-span-文件订阅"><span id="inline-toc">1.</span> 文件订阅</h2>
+
+<hr />
+
+<p>发现动态资源的最简单方式就是将其保存于文件，并将路径配置在 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/config_source.proto#core-configsource" target="_blank">ConfigSource</a> 中的 <code>path</code> 参数中。Envoy 使用 <code>inotify</code>（Mac OS X 上为 <code>kqueue</code>）来监控文件的变化，在文件被更新时，Envoy 读取保存的 <code>DiscoveryResponse</code> 数据进行解析，数据格式可以为二进制 protobuf、JSON、YAML 和协议文本等。</p>
+
+<p id=blockquote>译者注：core.ConfigSource 配置格式如下：</p>
+
+<pre><code class="language-json">{
+  &quot;path&quot;: &quot;...&quot;,
+  &quot;api_config_source&quot;: &quot;{...}&quot;,
+  &quot;ads&quot;: &quot;{...}&quot;
+}
+</code></pre>
+
+<p>文件订阅方式可提供统计数据和日志信息，但是缺少 ACK/NACK 更新的机制。如果更新的配置被拒绝，xDS API 则继续使用最后一个有效配置。</p>
+
+<style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:"Font Awesome 5 Free",FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:'\f071'}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:'\f05a'}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:'\f06a'}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:'\f058'}.notice.tip{background:#e6f9e6}</style><div class="notice note" >
+<p class="first notice-title">注意</p><li><code>ACK</code> 在 TCP 连接中是数据包确认消息，在 TCP 连接中，数据接收端在接收到一个数据包的时候会立即发送一个 ACK 消息给发送端，通知已经接收到此数据包，然后发送端再继续发送下一个数据包。</li>
+<li>NACK 与 ACK 刚好相反，在 UDP 通信中，数据接收端接收到数据包后是不需要通知发送端的，发送端始终不断的发送数据包而不关心对方是否正确收到，亦不关心所发生的数据包是否有序到达。只有在接收端意识到有某个或某几个数据包没有接收到的情况下才会构造一个 <code>NACK</code> 消息包发送给发送端。请求发送端重发丢失包。 </li>
+比如接收端收到数据包 100， 101， 103，105，然后发现 102， 104 丢了，会构造一个 NACK 包发送给发送端。</div>
+
+
+<h2 id="span-id-inline-toc-2-span-grpc-流式订阅"><span id="inline-toc">2.</span> gRPC 流式订阅</h2>
+
+<hr />
+
+<h3 id="单例资源类型发现">单例资源类型发现</h3>
+
+<p>每个 xDS API 可以单独配置 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/core/config_source.proto#core-apiconfigsource" target="_blank">ApiConfigSource</a>，指向对应的上游管理服务器的集群地址。每个 xDS 资源类型会启动一个独立的双向 gRPC 流（每个 xDS 资源类型对应的管理服务器可能不同）。API 交付方式采用最终一致性。可以参考后续聚合服务发现（ADS） 章节来了解必要的显式控制序列。</p>
+
+<p id=blockquote>译者注：core.ApiConfigSource 配置格式如下：</p>
+
+<pre><code class="language-json">{
+  &quot;api_type&quot;: &quot;...&quot;,
+  &quot;cluster_names&quot;: [],
+  &quot;grpc_services&quot;: [],
+  &quot;refresh_delay&quot;: &quot;{...}&quot;,
+  &quot;request_timeout&quot;: &quot;{...}&quot;
+}
+</code></pre>
+
+<h4 id="类型-url">类型 URL</h4>
+
+<p>每个 xDS API 都与给定的资源类型一一对应。关系如下：</p>
+
+<ul>
+<li><a href="https://github.com/envoyproxy/data-plane-api/blob/master/envoy/api/v2/lds.proto" target="_blank">LDS</a> ： <code>envoy.api.v2.Listener</code></li>
+<li><a href="https://github.com/envoyproxy/data-plane-api/blob/master/envoy/api/v2/rds.proto" target="_blank">RDS</a> : <code>envoy.api.v2.RouteConfiguration</code></li>
+<li><a href="https://github.com/envoyproxy/data-plane-api/blob/master/envoy/api/v2/cds.proto" target="_blank">CDS</a> : <code>envoy.api.v2.Cluster</code></li>
+<li><a href="https://github.com/envoyproxy/data-plane-api/blob/master/envoy/api/v2/eds.proto" target="_blank">EDS</a> ： <code>envoy.api.v2.ClusterLoadAssignment</code></li>
+<li><a href="https://github.com/envoyproxy/data-plane-api/blob/master/envoy/api/v2/auth/cert.proto" target="_blank">SDS</a> ：<code>envoy.api.v2.Auth.Secret</code></li>
+</ul>
+
+<p><a href="https://developers.google.com/protocol-buffers/docs/proto3#any" target="_blank">类型 URL</a> 的概念如下所示，其采用 <code>type.googleapis.com/&lt;resource type&gt;</code> 的形式，例如 CDS 对应于 <code>type.googleapis.com/envoy.api.v2.Cluster</code>。在 Envoy 发起的发现请求和管理服务器返回的发现响应中，都包括了资源类型 URL。</p>
+
+<h4 id="ack-nack-和版本">ACK/NACK 和版本</h4>
+
+<p>每个 Envoy 流以发送一个 <code>DiscoveryRequest</code> 开始，包括了列表订阅的资源、订阅资源对应的类型 URL、节点标识符和空的 <code>version_info</code>。EDS 请求示例如下：</p>
+
+<pre><code class="language-yaml">version_info:
+node: { id: envoy }
+resource_names:
+- foo
+- bar
+type_url: type.googleapis.com/envoy.api.v2.ClusterLoadAssignment
+response_nonce:
+</code></pre>
+
+<p>管理服务器可立刻或等待资源就绪时发送 <code>DiscoveryResponse</code> 作为响应，示例如下：</p>
+
+<pre><code class="language-yaml">version_info: X
+resources:
+- foo ClusterLoadAssignment proto encoding
+- bar ClusterLoadAssignment proto encoding
+type_url: type.googleapis.com/envoy.api.v2.ClusterLoadAssignment
+nonce: A
+</code></pre>
+
+<p>Envoy 在处理 <code>DiscoveryResponse</code> 响应后，将通过流发送一个新的请求，请求包含应用成功的最后一个版本号和管理服务器提供的 <code>nonce</code>。如果本次更新已成功应用，则 <code>version_info</code>的值设置为 X，如下序列图所示：</p>
+
+<p><center>
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/simple-ack.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/simple-ack.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/simple-ack.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<p><center><em>ack 更新</em></center></p>
+
+<p>在此序列图及后续章节中，将统一使用以下缩写格式：</p>
+
+<ul>
+<li><code>DiscoveryRequest</code> ：(V=<code>version_info</code>，R=<code>resource_names</code>，N=<code>response_nonce</code>，T=<code>type_url</code>)</li>
+<li><code>DiscoveryResponse</code> ： (V=<code>version_info</code>，R=<code>resources</code>，N=<code>nonce</code>，T=<code>type_url</code>)</li>
+</ul>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>在<a href="https://zh.wikipedia.org/wiki/%E8%B3%87%E8%A8%8A%E5%AE%89%E5%85%A8">信息安全</a>中，<strong>Nonce</strong> 是一个在加密通信只能使用一次的数字。在认证协议中，它往往是一个<a href="https://zh.wikipedia.org/wiki/%E9%9A%8F%E6%9C%BA">随机</a>或<a href="https://zh.wikipedia.org/wiki/%E4%BC%AA%E9%9A%8F%E6%9C%BA">伪随机</a>数，以避免<a href="https://zh.wikipedia.org/wiki/%E9%87%8D%E6%94%BE%E6%94%BB%E5%87%BB">重放攻击</a>。Nonce 也用于<a href="https://zh.wikipedia.org/wiki/%E6%B5%81%E5%AF%86%E7%A0%81">流密码</a>以确保安全。如果需要使用相同的密钥加密一个以上的消息，就需要 Nonce 来确保不同的消息与该密钥加密的密钥流不同。（引用自<a href="https://zh.wikipedia.org/wiki/Nonce">维基百科</a>）在本文中 <code>nonce</code> 是每次更新的数据包的唯一标识。</p></div>
+
+
+<p>有了版本（<code>version_info</code>）这个概念，就可以为 Envoy 和管理服务器共享当前应用配置，以及提供了通过 ACK/NACK 来进行配置更新的机制。如果 Envoy 拒绝了配置更新 X，则回复 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#envoy-api-field-discoveryrequest-error-detail" target="_blank">error_detail</a> 及前一个版本号，在本例中为空的初始版本号，<code>error_detail</code> 包含了有关错误的更加详细的信息：</p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/simple-nack.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/simple-nack.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/simple-nack.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center>
+<center><em>nack 更新</em></center></p>
+
+<p>重新发送 DiscoveryRequest 后，API 更新可能会在新版本 Y 上成功应用：</p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/later-ack.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/later-ack.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/later-ack.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<p>每个流都有自己的版本概念，但不同的资源类型不能共享资源版本。在不使用 ADS 的情况下，每个资源类型可能具有不同的版本，因为 Envoy API 允许不同的 EDS/RDS 资源配置指向不同的 <code>ConfigSources</code>。</p>
+
+<h4 id="何时发送更新">何时发送更新</h4>
+
+<p>管理服务器应该只向 Envoy 客户端发送上次 <code>DiscoveryResponse</code> 后更新过的资源。Envoy 则会根据接受或拒绝 <code>DiscoveryResponse</code> 的情况，立即回复包含 ACK/NACK 的 <code>DiscoveryRequest</code> 请求。如果管理服务器不等待更新完成，每次返回相同的资源结果集合，则会导致 Envoy 和管理服务器通讯效率大打折扣。</p>
+
+<p>在同一个流中，新的 <code>DiscoveryRequests</code> 将取代此前具有相同资源类型的 <code>DiscoveryRequest</code> 请求。<strong>这意味着管理服务器只需要响应给定资源类型最新的 <code>DiscoveryRequest</code> 请求即可。</strong></p>
+
+<h4 id="资源提示">资源提示</h4>
+
+<p><code>DiscoveryRequest</code> 中的 <code>resource_names</code> 信息作为资源提示出现。一些资源类型，例如 <code>Cluster</code> 和 <code>Listener</code> 将使用一个空的 <code>resource_names</code>，因为 Envoy 需要获取对应节点标识的管理服务器的所有 <code>Cluster</code>（CDS）和 <code>Listener</code>（LDS）。对于其他资源类型，如 <code>RouteConfigurations</code>（RDS）和 <code>ClusterLoadAssignments</code>（EDS），则遵循此前的 CDS/LDS 更新，Envoy 能够通过枚举这些资源找到明确的资源。</p>
+
+<p>LDS/CDS 资源提示信息将始终为空，并且期望管理服务器的每个响应都提供 <code>LDS/CDS</code> 资源的完整状态。不存在的 <code>Listener</code> 或 <code>Cluster</code> 将被删除。如果 RDS 或 EDS 更新中缺少请求的资源，Envoy 将保留此资源的最后已知值。管理服务器能够从 <code>DiscoveryRequest</code> 中的节点标识（<code>node.id</code>）推断出所有所需的 EDS/RDS 资源，在这种情况下，该提示信息可能被丢弃。从 Envoy 的资源角度来看，空的 EDS/RDS <code>DiscoveryResponse</code> 响应实际上表示一个空的资源。</p>
+
+<p>当 <code>Listener</code> 或 <code>Cluster</code> 被删除时，其对应的 EDS 和 RDS 资源也会在 Envoy 实例中被删除。为使 EDS 资源能被 Envoy 获取或跟踪，就必须存在已经应用过的 <code>Cluster</code> 定义（如通过 CDS 获取）。RDS 和 <code>Listeners</code> 之间存在类似的关系（如通过 LDS 获取）。</p>
+
+<p>对于 EDS/RDS ，Envoy 可以为每个给定类型的资源生成不同的流（如每个 <code>ConfigSource</code> 都有自己的上游管理服务器集群）或当指定资源类型的请求发送到同一个管理服务器的时候，允许将多个资源请求组合在一起发送。虽然可以单个实现，但管理服务器应具备为每个请求中的给定资源类型处理一个或多个 <code>resource_names</code> 的能力。下面的两个序列图都可用于获取两个 EDS 资源 <code>{foo，bar}</code>：</p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/eds-same-stream.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/eds-same-stream.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/eds-same-stream.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/eds-distinct-stream.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/eds-distinct-stream.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/eds-distinct-stream.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<h4 id="资源更新">资源更新</h4>
+
+<p>如上所述，Envoy 可能会更新 <code>DiscoveryRequest</code> 中出现的 <code>resource_names</code> 列表，其中 <code>DiscoveryRequest</code> 是用来 ACK/NACK 管理服务器的特定的 <code>DiscoveryResponse</code> 。此外，Envoy 后续可能会在给定的 <code>version_info</code> 上发送额外的 <code>DiscoveryRequests</code> ，以使用新的资源提示来更新管理服务器。</p>
+
+<p>例如，如果 Envoy 在 EDS 版本 <strong>X</strong> 时仅知道集群 <code>foo</code>，但在随后收到的 CDS 更新时额外获取了集群 <code>bar</code> ，它可能会为版本 <strong>X</strong> 发出额外的 <code>DiscoveryRequest</code> 请求，并将 <code>{foo，bar}</code> 作为请求的 <code>resource_names</code>。</p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/cds-eds-resources.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/cds-eds-resources.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/cds-eds-resources.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<p>这里可能会出现竞争状况；如果 Envoy 在版本 <strong>X</strong> 上发布了资源提示更新请求，但在管理服务器处理该请求之前发送了新的版本号为 <strong>Y</strong> 的响应，针对 <code>version_info</code> 为 <strong>X</strong> 的版本，资源提示更新可能会被解释为拒绝 <strong>Y</strong> 。为避免这种情况，通过使用管理服务器提供的 <code>nonce</code>，Envoy 可用来保证每个 <code>DiscoveryRequest</code> 对应到相应的 <code>DiscoveryResponse</code>：</p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/update-race.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/update-race.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/update-race.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<p>管理服务器不应该为含有过期 <code>nonce</code> 的 <code>DiscoveryRequest</code> 发送 <code>DiscoveryResponse</code> 响应。如果向 Envoy 发送的 <code>DiscoveryResponse</code> 中包含了的新 <code>nonce</code>，则此前的 <code>nonce</code> 将过期。在确定新版本可用之前，管理服务器不需要向 Envoy 发送更新。同版本的早期请求将会过期。在新版本就绪时，管理服务器可能会处理同一个版本号的多个 <code>DiscoveryRequests</code> 请求。</p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/stale-requests.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/stale-requests.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/stale-requests.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<p>上述资源更新序列表明 Envoy 并不能期待其发出的每个 <code>DiscoveryRequest</code> 都得到 <code>DiscoveryResponse</code> 响应。</p>
+
+<h4 id="最终一致性考虑">最终一致性考虑</h4>
+
+<p>由于 Envoy 的 xDS API 采用最终一致性，因此在更新期间可能导致流量被丢弃。例如，如果通过 CDS/EDS 仅获取到了集群 <strong>X</strong>，而且 <code>RouteConfiguration</code> 引用了集群 <strong>X</strong>；在 CDS/EDS 更新集群 <strong>Y</strong> 配置之前，如果将 <code>RouteConfiguration</code> 将引用的集群调整为 <strong>Y</strong> ，那么流量将被吸入黑洞而丢弃，直至集群 <strong>Y</strong> 被 Envoy 实例获取。</p>
+
+<p>对某些应用程序，可接受临时的流量丢弃，客户端或其他 Envoy sidecar 的重试可以解决该问题，并不影响业务逻辑。那些对流量丢弃不能容忍的场景，可以通过以下方式避免流量丢失，CDS/EDS 更新同时携带 <strong>X</strong> 和 <strong>Y</strong> ，然后发送 RDS 更新从 <strong>X</strong> 切换到 <strong>Y</strong> ，此后发送丢弃 <strong>X</strong> 的 CDS/EDS 更新。</p>
+
+<p>一般来说，为避免流量丢弃，更新的顺序应该遵循 <code>make before break</code> 模型，其中：</p>
+
+<ul>
+<li><code>CDS</code> 首先更新 <code>Cluster</code> 数据（如果有变化）</li>
+<li><code>EDS</code> 更新相应 Cluster 的 <code>Endpoint</code> 信息（如果有变化）</li>
+<li><code>LDS</code> 更新 CDS/EDS 相应的 <code>Listener</code></li>
+<li><code>RDS</code> 最后更新新增 Listener 相关的 <code>Route</code> 配置</li>
+<li>删除不再使用的 CDS cluster 和 EDS endpoints（不再被引用的 endpoint）</li>
+</ul>
+
+<p>如果没有添加新的集群/路由/监听器，或者在更新期间暂时丢弃流量，则可以独立推送 xDS 更新。请注意，在 LDS 更新的情况下，监听器须在接收流量之前被预热，例如如其配置了依赖的路由，则需要先从 RDS 中获取。添加/删除/更新集群信息时，集群也需要进行预热。另一方面，如果管理平面确保路由更新时所引用的集群已经准备就绪，则路由可以不用预热。</p>
+
+<h3 id="聚合服务发现-ads">聚合服务发现（ADS）</h3>
+
+<p>当管理服务器进行资源分发时，通过上述保证交互顺序的方式来避免流量被丢弃是一项很有挑战的工作。ADS 允许单一管理服务器通过单个 gRPC 流来提供所有的 API 更新。配合仔细规划的更新顺序，ADS 可规避更新过程中的流量丢失。使用 ADS，在单个流上可通过类型 URL 来进行复用多个独立的 <code>DiscoveryRequest</code>/<code>DiscoveryResponse</code> 序列。对于任何给定类型的 URL，以上 <code>DiscoveryRequest</code> 和 <code>DiscoveryResponse</code> 消息序列都适用。 更新序列可能如下所示：</p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/ads.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/ads.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/ads.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<p>每个 Envoy 实例可使用单独的 ADS 流。</p>
+
+<p>最小化 ADS 配置的 <code>bootstrap.yaml</code> 片段示例如下：</p>
+
+<pre><code class="language-yaml">node:
+  id: &lt;node identifier&gt;
+dynamic_resources:
+  cds_config: {ads: {}}
+  lds_config: {ads: {}}
+  ads_config:
+    api_type: GRPC
+    grpc_services:
+      envoy_grpc:
+        cluster_name: ads_cluster
+static_resources:
+  clusters:
+  - name: ads_cluster
+    connect_timeout: { seconds: 5 }
+    type: STATIC
+    hosts:
+    - socket_address:
+        address: &lt;ADS management server IP address&gt;
+        port_value: &lt;ADS management server port&gt;
+    lb_policy: ROUND_ROBIN
+    http2_protocol_options: {}
+admin:
+  ...
+</code></pre>
+
+<h3 id="增量-xds">增量 xDS</h3>
+
+<p>增量 xDS 是可用于 ADS、CDS 和 RDS 的单独 xDS 端点，允许以下操作：</p>
+
+<ul>
+<li>xDS 客户端对跟踪资源列表进行增量更新。这支持 Envoy 按需/惰性地请求额外资源（例如，当与未知集群相对应的请求到达时）。</li>
+<li>xDS 服务器可以增量更新客户端上的资源。这可以实现 xDS 资源可伸缩性的目标。管理服务器只需交付更改的单个集群，而不是在修改单个集群时交付所有上万个集群。</li>
+</ul>
+
+<p>xDS 增量 <code>session</code> 始终位于 gRPC 双向流的上下文中。这允许 xDS 服务器能够跟踪到连接的 xDS 客户端的状态。xDS REST 版本（v1）不支持增量。在增量 xDS 中，nonce 字段是必需的，用于将 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#incrementaldiscoveryresponse" target="_blank">IncrementalDiscoveryResponse</a> 与关联的 ACK 或 NACK <a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#incrementaldiscoveryrequest" target="_blank">IncrementalDiscoveryRequest</a> 进行匹配。IncrementalDiscoveryResponse 中的响应消息级别（system_version_info）仅用于调试目的。</p>
+
+<p><code>IncrementalDiscoveryRequest</code> 可在以下 3 种情况下发送：</p>
+
+<ol>
+<li>xDS 双向 gRPC 流的初始消息。</li>
+<li>作为对先前的 <code>IncrementalDiscoveryResponse</code> 的 ACK 或 NACK 响应。在这种情况下，<code>response_nonce</code> 被设置为响应中的 nonce 值。到底是 ACK 还是 NACK 可由 <code>error_detail</code> 字段是否出现来区分。</li>
+<li>客户端自发的 <code>IncrementalDiscoveryRequest</code>。此场景下可以从跟踪的 resource_names 集合中动态添加或删除元素。此时必须忽略 <code>response_nonce</code>。</li>
+</ol>
+
+<p>在下面的示例中，客户端连接并接收它的第一个更新并 ACK。第二次更新失败，客户端发送 NACK 拒绝更新。xDS客户端后续会自发地请求 <code>wc</code> 相关资源。</p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/incremental.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/incremental.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/incremental.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<p>在下面的示例中，当 xDS 客户端断开重新连接时，支持增量的 xDS 客户端可能会告诉服务器其已经获取的资源从而避免服务端通过网络重新发送它们。</p>
+
+<p><center>
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/incremental-reconnect.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/incremental-reconnect.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/incremental-reconnect.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+</center></p>
+
+<h2 id="span-id-inline-toc-3-span-rest-json-轮询订阅"><span id="inline-toc">3.</span> REST-JSON 轮询订阅</h2>
+
+<hr />
+
+<p>单个 xDS API 可以通过 REST 端点进行同步（长）轮询。除了无持久流与管理服务器交互外，消息交互顺序与上述两个订阅方式相似。在任何时间点，只存在一个未完成的请求，因此响应消息中的 <code>nonce</code> 在 REST-JSON 中是可选的。<code>DiscoveryRequest</code> 和 <code>DiscoveryResponse</code> 的消息编码遵循 <a href="https://developers.google.com/protocol-buffers/docs/proto3#json" target="_blank">JSON 变换 proto3</a> 规范。ADS 不支持 REST-JSON 轮询订阅。</p>
+
+<p>当轮询周期设置为较小的值时，为了进行长轮询，这时要求避免发送 <code>DiscoveryResponse</code>，<a href="https://github.com/envoyproxy/data-plane-api/blob/master/XDS_PROTOCOL.md#when-to-send-an-update" target="_blank">除非发生了对请求的资源的更改</a>。</p>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/envoy/"><i class="fa fa-tags"></i>envoy</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/service-mesh/"><i class="fa fa-tags"></i>service mesh</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fenvoy-xds-protocol%2f&amp;title=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9axDS%20REST%20%e5%92%8c%20gRPC%20%e5%8d%8f%e8%ae%ae%e8%af%a6%e8%a7%a3&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2ff7a4a7fb-envoy.png" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fenvoy-xds-protocol%2f&amp;title=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9axDS%20REST%20%e5%92%8c%20gRPC%20%e5%8d%8f%e8%ae%ae%e8%af%a6%e8%a7%a3&amp;source=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9axDS%20REST%20%e5%92%8c%20gRPC%20%e5%8d%8f%e8%ae%ae%e8%af%a6%e8%a7%a3&amp;desc=&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2ff7a4a7fb-envoy.png&amp;summary=" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fenvoy-xds-protocol%2f&amp;text=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9axDS%20REST%20%e5%92%8c%20gRPC%20%e5%8d%8f%e8%ae%ae%e8%af%a6%e8%a7%a3&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fenvoy-xds-protocol%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fenvoy-xds-protocol%2f&amp;title=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9axDS%20REST%20%e5%92%8c%20gRPC%20%e5%8d%8f%e8%ae%ae%e8%af%a6%e8%a7%a3" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/podman-sidecar/">Podman 使用指南</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/adguard-home/">AdGuard Home 安装使用教程</a></li>
+                
+                    <li><a href="/posts/istio-1.3/">Istio 1.3 发布，HTTP 遥测不再需要 Mixer</a></li>
+                
+                    <li><a href="/posts/blue-green-deployments-contours-ingressroute/">Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/istio-traffic-management-impl-intro/" data-toggle="tooltip" data-placement="top" title="Istio 流量管理实现机制深度解析">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/istio-mtls-debugging-a-503-error/" data-toggle="tooltip" data-placement="top" title="在 Istio 中调试 503 错误">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

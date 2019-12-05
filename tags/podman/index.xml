@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>podman on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/podman/</link>
+    <description>Recent content in podman on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Fri, 18 Oct 2019 00:16:16 -0400</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/podman/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Podman 使用指南</title>
+      <link>https://fuckcloudnative.io/posts/podman-sidecar/</link>
+      <pubDate>Fri, 18 Oct 2019 00:16:16 -0400</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/podman-sidecar/</guid>
+      <description>郑重声明：本文不是 Podman 的入门篇，入门请阅读这篇文章：再见 Docker，是时候拥抱下一代容器工具了 Podman 原来是 CRI-O 项目的一部分，后来被分离成一个单独的</description>
+    </item>
+    
+  </channel>
+</rss>

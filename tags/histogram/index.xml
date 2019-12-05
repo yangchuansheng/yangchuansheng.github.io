@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>histogram on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/histogram/</link>
+    <description>Recent content in histogram on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Tue, 06 Aug 2019 14:25:12 +0800</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/histogram/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>一文搞懂 Prometheus 的直方图</title>
+      <link>https://fuckcloudnative.io/posts/prometheus-histograms/</link>
+      <pubDate>Tue, 06 Aug 2019 14:25:12 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/prometheus-histograms/</guid>
+      <description>Prometheus 中提供了四种指标类型（参考：Prometheus 的指标类型），其中直方图（Histogram）和摘要（Summary）是最复杂和难以理解的</description>
+    </item>
+    
+  </channel>
+</rss>

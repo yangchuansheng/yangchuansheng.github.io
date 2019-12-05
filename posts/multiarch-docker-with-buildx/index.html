@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>使用 buildx 构建多平台 Docker 镜像 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨, docker, buildx, multiarch, qemu, binfmt_misc" name="keywords">
+
+  <meta name="description" content="本文带大家了解了在不同的 CPU 架构上运行软件的挑战性，以及 buildx 如何帮助我们解决了其中的一些挑战。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/multiarch-docker-with-buildx\/",
+          "name": "使用 buildx 构建多平台 docker 镜像"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "使用 buildx 构建多平台 Docker 镜像",
+  "description" : "本文带大家了解了在不同的 CPU 架构上运行软件的挑战性，以及 buildx 如何帮助我们解决了其中的一些挑战。",
+  "inLanguage" : "zh",
+  "wordCount":  3197 ,
+  "datePublished" : "2019-11-17T13:54:43",
+  "dateModified" : "2019-11-17T13:54:43",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "docker" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/multiarch-docker-with-buildx\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="使用 buildx 构建多平台 Docker 镜像" />
+<meta property="og:description" content="本文带大家了解了在不同的 CPU 架构上运行软件的挑战性，以及 buildx 如何帮助我们解决了其中的一些挑战。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/multiarch-docker-with-buildx/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="使用 buildx 构建多平台 Docker 镜像" />
+  <meta name="twitter:description" content="本文带大家了解了在不同的 CPU 架构上运行软件的挑战性，以及 buildx 如何帮助我们解决了其中的一些挑战。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">使用 buildx 构建多平台 Docker 镜像</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">跨平台构建 Docker 镜像的新姿势</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 11 月 17 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;7&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3197&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>使用 buildx 构建多平台 Docker 镜像</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">跨平台构建 Docker 镜像的新姿势</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 11 月 17 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;7&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3197&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-跨-cpu-架构编译程序的方法"><span id="inline-toc">1.</span> 跨 CPU 架构编译程序的方法</a>
+<ul>
+<li><a href="#方法一-直接在目标硬件上编译">方法一：直接在目标硬件上编译</a></li>
+<li><a href="#方法二-模拟目标硬件">方法二：模拟目标硬件</a></li>
+<li><a href="#方法三-通过-binfmt-misc-模拟目标硬件的用户空间">方法三：通过 binfmt_misc 模拟目标硬件的用户空间</a></li>
+<li><a href="#方法四-使用交叉编译器">方法四：使用交叉编译器</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-2-span-构建多平台-docker-镜像"><span id="inline-toc">2.</span> 构建多平台 Docker 镜像</a>
+<ul>
+<li><a href="#启用-buildx-插件">启用 buildx 插件</a></li>
+<li><a href="#启用-binfmt-misc">启用 binfmt_misc</a></li>
+<li><a href="#从默认的构建器切换到多平台构建器">从默认的构建器切换到多平台构建器</a></li>
+<li><a href="#构建多平台镜像">构建多平台镜像</a></li>
+<li><a href="#测试多平台镜像">测试多平台镜像</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-3-span-总结"><span id="inline-toc">3.</span> 总结</a></li>
+<li><a href="#span-id-inline-toc-4-span-参考资料"><span id="inline-toc">4.</span> 参考资料</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<p>在工作和生活中，我们可能经常需要将某个程序跑在不同的 CPU 架构上，比如让某些不可描述的软件运行在树莓派或嵌入式路由器设备上。特别是 Docker 席卷全球之后，我们可以轻松地在 ARM 设备上通过容器部署各种好玩的应用，而不用在意各种系统的差异性。</p>
+
+<p>但是想要跨平台构建 Docker 镜像可不是一件轻松的活，要么到不同 CPU 架构的系统上全部构建一遍，要么就得在当前系统上通过虚拟化技术模拟不同的 CPU 架构，最后可能还要想办法合并镜像，费力不讨好。</p>
+
+<p>不过值得庆幸的是，<code>Docker 19.03</code> 引入了一个新的实验性插件，该插件使得跨平台构建 Docker 镜像比以往更加容易了。在介绍这个新特性之前，我们先来了解一下跨 CPU 架构构建程序的基础知识。</p>
+
+<h2 id="span-id-inline-toc-1-span-跨-cpu-架构编译程序的方法"><span id="inline-toc">1.</span> 跨 CPU 架构编译程序的方法</h2>
+
+<hr />
+
+<p>先来快速回顾一下当前跨 CPU 架构编译程序的不同方法。</p>
+
+<h3 id="方法一-直接在目标硬件上编译">方法一：直接在目标硬件上编译</h3>
+
+<p>如果你能够访问目标 CPU 架构的系统，并且该操作系统支持运行构建所需的各种工具，那么你可以直接在目标系统上编译程序。</p>
+
+<p>以构建 Docker 镜像为例，你可以在树莓派上安装 Docker，然后在树莓派上通过 <code>Dockerfile</code> 直接构建 arm 平台的镜像。</p>
+
+<p>如果无法访问目标 CPU 架构的系统该怎么办？有没有办法通过某种方式直接在当前系统上构建目标 CPU 架构的程序？请看下文&hellip;</p>
+
+<h3 id="方法二-模拟目标硬件">方法二：模拟目标硬件</h3>
+
+<p>还记得我们小时候在各种网吧台球室之类的场合玩的街机游戏吗？放张图给你们回忆一下：</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/v2-f0fd26b77b954be7bdfb0a1bca845972_1200x500.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/v2-f0fd26b77b954be7bdfb0a1bca845972_1200x500.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/v2-f0fd26b77b954be7bdfb0a1bca845972_1200x500.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>如果现在我们想重新体验以前玩过的街机游戏该怎么办？这时候就需要用到模拟器（Emulator）了。借助模拟器，我们可以让时光倒流，体验经典游戏的乐趣。</p>
+
+<p>模拟器除了可以用来玩游戏之外，还可以用来跨 CPU 架构构建程序。最常用的模拟器是开源的 <a href="https://www.wikiwand.com/zh-hans/QEMU" target="_blank">QEMU</a>，QEMU 支持许多常见的 CPU 架构，包括 <code>ARM</code>、<code>Power-PC</code> 和 <code>RISC-V</code> 等。通过模拟一个完整的操作系统，可以创建通用的 ARM 虚拟机，该虚拟机可以引导 Linux，设置开发环境，也可以在虚拟机内编译程序。</p>
+
+<p>然而，模拟整个操作系统还是有点浪费，因为在这种模式下，QEMU 将会模拟整个系统，包括计时器、内存控制器、总线控制器等硬件。但编译程序根本不需要关心这些，还可以再精简些。</p>
+
+<h3 id="方法三-通过-binfmt-misc-模拟目标硬件的用户空间">方法三：通过 binfmt_misc 模拟目标硬件的用户空间</h3>
+
+<p>在 Linux 上，<code>QEMU</code> 除了可以模拟完整的操作系统之外，还有另外一种模式叫<code>用户态模式</code>（User mod）。该模式下 QEMU 将通过 <a href="https://en.wikipedia.org/wiki/Binfmt_misc" target="_blank">binfmt_misc</a> 在 Linux 内核中注册一个二进制转换处理程序，并在程序运行时动态翻译二进制文件，根据需要将系统调用从目标 CPU 架构转换为当前系统的 CPU 架构。最终的效果看起来就像在本地运行目标 CPU 架构的二进制文件。</p>
+
+<p>通过 QEMU 的用户态模式，我们可以创建轻量级的虚拟机（<a href="https://en.wikipedia.org/wiki/Chroot" target="_blank">chroot</a> 或容器），然后在虚拟机系统中编译程序，和本地编译一样简单轻松。后面我们就会看到，跨平台构建 Docker 镜像用的就是这个方法。</p>
+
+<h3 id="方法四-使用交叉编译器">方法四：使用交叉编译器</h3>
+
+<p>最后介绍一种嵌入式系统社区常用的方法：交叉编译（cross-compilation）。</p>
+
+<p>交叉编译器是专门为在给定的系统平台上运行而设计的编译器，但是可以编译出另一个系统平台的可执行文件。例如，<code>amd64</code> 架构的 Linux 系统上的 C++ 交叉编译器可以编译出运行在 <code>aarch64</code>(64-bit ARM) 架构的嵌入式设备上的可执行文件。再举个真实的例子，安卓设备的 APP 基本上都是通过这种方法来编译的。</p>
+
+<p>从性能角度来看，该方法与方法一没什么区别，因为不需要模拟器的参与，几乎没有性能损耗。但交叉编译不具有通用性，它的复杂度取决于程序使用的语言，如果使用 Golang 的话，那就超级容易了。</p>
+
+<p>在全民容器时代，我们讨论构建时不仅包括构建单个可执行文件，还包括构建容器镜像。而且构建容器镜像比上面说的方法更复杂，再加上 Docker 本身的复杂性，这几乎是一个老大难的问题。</p>
+
+<p>但引入了新的实验性插件之后，构建多平台架构的 Docker 镜像就比以前容易多了，至于这个插件到底是啥，下文会详细介绍。</p>
+
+<h2 id="span-id-inline-toc-2-span-构建多平台-docker-镜像"><span id="inline-toc">2.</span> 构建多平台 Docker 镜像</h2>
+
+<hr />
+
+<p>利用 Docker 19.03 引入的插件 <a href="https://github.com/docker/buildx" target="_blank">buildx</a>，可以很轻松地构建多平台 Docker 镜像。buildx 是 <code>docker build ...</code> 命令的下一代替代品，它利用 <a href="https://github.com/moby/buildkit" target="_blank">BuildKit</a> 的全部功能扩展了 <code>docker build</code> 的功能。</p>
+
+<p>下面就来演示一下如何在短短几分钟内使用 <code>buildx</code> 构建出不同平台的 Docker 镜像。步骤如下：</p>
+
+<h3 id="启用-buildx-插件">启用 buildx 插件</h3>
+
+<p>要想使用 <code>buildx</code>，首先要确保 Docker 版本不低于 <code>19.03</code>，同时还要通过设置环境变量 <code>DOCKER_CLI_EXPERIMENTAL</code> 来启用。可以通过下面的命令来为当前终端启用 buildx 插件：</p>
+
+<pre><code class="language-bash">🐳  → export DOCKER_CLI_EXPERIMENTAL=enabled
+</code></pre>
+
+<p>验证是否开启：</p>
+
+<pre><code class="language-bash">🐳 → docker buildx version
+github.com/docker/buildx v0.3.1-tp-docker 6db68d029599c6710a32aa7adcba8e5a344795a7
+</code></pre>
+
+<p>如果在某些系统上设置环境变量 <code>DOCKER_CLI_EXPERIMENTAL</code> 不生效（比如 <strong>Arch Linux</strong>）,你可以选择从源代码编译：</p>
+
+<pre><code class="language-bash">🐳 → export DOCKER_BUILDKIT=1
+🐳 → docker build --platform=local -o . git://github.com/docker/buildx
+🐳 → mkdir -p ~/.docker/cli-plugins &amp;&amp; mv buildx ~/.docker/cli-plugins/docker-buildx
+</code></pre>
+
+<h3 id="启用-binfmt-misc">启用 binfmt_misc</h3>
+
+<style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:"Font Awesome 5 Free",FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:'\f071'}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:'\f05a'}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:'\f06a'}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:'\f058'}.notice.tip{background:#e6f9e6}</style><div class="notice note" >
+<p class="first notice-title">注意</p><p>如果你使用的是 Docker 桌面版（MacOS 和 Windows），默认已经启用了 <code>binfmt_misc</code>，可以跳过这一步。</p></div>
+
+
+<p>如果你使用的是 Linux，需要手动启用 <code>binfmt_misc</code>。大多数 Linux 发行版都很容易启用，不过还有一个更容易的办法，直接运行一个特权容器，容器里面写好了设置脚本：</p>
+
+<pre><code class="language-bash">🐳 → docker run --rm --privileged docker/binfmt:66f9012c56a8316f9244ffd7622d7c21c1f6f28d
+</code></pre>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>建议将 Linux 内核版本升级到 4.x 以上，特别是 CentOS 用户，你可能会遇到错误。</p></div>
+
+
+<p>验证是 binfmt_misc 否开启：</p>
+
+<pre><code class="language-bash">🐳 → ls -al /proc/sys/fs/binfmt_misc/
+总用量 0
+总用量 0
+-rw-r--r-- 1 root root 0 11月 18 00:12 qemu-aarch64
+-rw-r--r-- 1 root root 0 11月 18 00:12 qemu-arm
+-rw-r--r-- 1 root root 0 11月 18 00:12 qemu-ppc64le
+-rw-r--r-- 1 root root 0 11月 18 00:12 qemu-s390x
+--w------- 1 root root 0 11月 18 00:09 register
+-rw-r--r-- 1 root root 0 11月 18 00:12 status
+</code></pre>
+
+<p>验证是否启用了相应的处理器：</p>
+
+<pre><code class="language-bash">🐳 → cat /proc/sys/fs/binfmt_misc/qemu-aarch64
+enabled
+interpreter /usr/bin/qemu-aarch64
+flags: OCF
+offset 0
+magic 7f454c460201010000000000000000000200b7
+mask ffffffffffffff00fffffffffffffffffeffff
+</code></pre>
+
+<h3 id="从默认的构建器切换到多平台构建器">从默认的构建器切换到多平台构建器</h3>
+
+<p>Docker 默认会使用不支持多 CPU 架构的构建器，我们需要手动切换。</p>
+
+<p>先创建一个新的构建器：</p>
+
+<pre><code class="language-bash">🐳 → docker buildx create --use --name mybuilder
+</code></pre>
+
+<p>启动构建器：</p>
+
+<pre><code class="language-bash">🐳 → docker buildx inspect mybuilder --bootstrap
+
+[+] Building 5.0s (1/1) FINISHED
+ =&gt; [internal] booting buildkit                                                                                                                          5.0s
+ =&gt; =&gt; pulling image moby/buildkit:buildx-stable-1                                                                                                       4.4s
+ =&gt; =&gt; creating container buildx_buildkit_mybuilder0                                                                                                     0.6s
+Name:   mybuilder
+Driver: docker-container
+
+Nodes:
+Name:      mybuilder0
+Endpoint:  unix:///var/run/docker.sock
+Status:    running
+Platforms: linux/amd64, linux/arm64, linux/ppc64le, linux/s390x, linux/386, linux/arm/v7, linux/arm/v6
+</code></pre>
+
+<p>查看当前使用的构建器及构建器支持的 CPU 架构，可以看到支持很多 CPU 架构：</p>
+
+<pre><code class="language-bash">🐳 → docker buildx ls
+
+NAME/NODE    DRIVER/ENDPOINT             STATUS  PLATFORMS
+mybuilder *  docker-container
+  mybuilder0 unix:///var/run/docker.sock running linux/amd64, linux/arm64, linux/ppc64le, linux/s390x, linux/386, linux/arm/v7, linux/arm/v6
+default      docker
+  default    default                     running linux/amd64, linux/386
+</code></pre>
+
+<h3 id="构建多平台镜像">构建多平台镜像</h3>
+
+<p>现在我们就可以构建支持多 CPU 架构的镜像了！假设有一个简单的 golang 程序源码：</p>
+
+<pre><code class="language-bash">🐳 → cat hello.go
+package main
+
+import (
+        &quot;fmt&quot;
+        &quot;runtime&quot;
+)
+
+func main() {
+        fmt.Printf(&quot;Hello, %s!\n&quot;, runtime.GOARCH)
+}
+</code></pre>
+
+<p>创建一个 Dockerfile 将该应用容器化：</p>
+
+<pre><code class="language-dockerfile">🐳 → cat Dockerfile
+FROM golang:alpine AS builder
+RUN mkdir /app
+ADD . /app/
+WORKDIR /app
+RUN go build -o hello .
+
+FROM alpine
+RUN mkdir /app
+WORKDIR /app
+COPY --from=builder /app/hello .
+CMD [&quot;./hello&quot;]
+</code></pre>
+
+<p>这是一个多阶段构建 Dockerfile，使用 Go 编译器来构建应用，并将构建好的二进制文件拷贝到 alpine 镜像中。</p>
+
+<p>现在就可以使用 buildx 构建一个支持 arm、arm64 和 amd64 多架构的 Docker 镜像了，同时将其推送到 <a href="https://hub.docker.com/" target="_blank">Docker Hub</a>：</p>
+
+<pre><code class="language-bash">🐳 → docker buildx build -t yangchuansheng/hello-arch --platform=linux/arm,linux/arm64,linux/amd64 . --push
+</code></pre>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>需要提前通过 <code>docker login</code> 命令登录认证 Docker Hub。</p></div>
+
+
+<p>现在就可以通过 <code>docker pull mirailabs/hello-arch</code> 拉取刚刚创建的镜像了，Docker 将会根据你的 CPU 架构拉取匹配的镜像。</p>
+
+<p>背后的原理也很简单，之前已经提到过了，buildx 会通过 <code>QEMU</code> 和 <code>binfmt_misc</code> 分别为 3 个不同的 CPU 架构（arm，arm64 和 amd64）构建 3 个不同的镜像。构建完成后，就会创建一个 <a href="https://docs.docker.com/engine/reference/commandline/manifest/" target="_blank">manifest list</a>，其中包含了指向这 3 个镜像的指针。</p>
+
+<p>如果想将构建好的镜像保存在本地，可以将 <code>type</code> 指定为 <code>docker</code>，但必须分别为不同的 CPU 架构构建不同的镜像，不能合并成一个镜像，即：</p>
+
+<pre><code class="language-bash">🐳 → docker buildx build -t yangchuansheng/hello-arch --platform=linux/arm -o type=docker .
+🐳 → docker buildx build -t yangchuansheng/hello-arch --platform=linux/arm64 -o type=docker .
+🐳 → docker buildx build -t yangchuansheng/hello-arch --platform=linux/amd64 -o type=docker .
+</code></pre>
+
+<h3 id="测试多平台镜像">测试多平台镜像</h3>
+
+<p>由于之前已经启用了 <code>binfmt_misc</code>，现在我们就可以运行任何 CPU 架构的 Docker 镜像了，因此可以在本地系统上测试之前生成的 3 个镜像是否有问题。</p>
+
+<p>首先列出每个镜像的 <code>digests</code>：</p>
+
+<pre><code class="language-bash">🐳 → docker buildx imagetools inspect yangchuansheng/hello-arch
+
+Name:      docker.io/yangchuansheng/hello-arch:latest
+MediaType: application/vnd.docker.distribution.manifest.list.v2+json
+Digest:    sha256:ec55f5ece9a12db0c6c367acda8fd1214f50ee502902f97b72f7bff268ebc35a
+
+Manifests:
+  Name:      docker.io/yangchuansheng/hello-arch:latest@sha256:38e083870044cfde7f23a2eec91e307ec645282e76fd0356a29b32122b11c639
+  MediaType: application/vnd.docker.distribution.manifest.v2+json
+  Platform:  linux/arm/v7
+
+  Name:      docker.io/yangchuansheng/hello-arch:latest@sha256:de273a2a3ce92a5dc1e6f2d796bb85a81fe1a61f82c4caaf08efed9cf05af66d
+  MediaType: application/vnd.docker.distribution.manifest.v2+json
+  Platform:  linux/arm64
+
+  Name:      docker.io/yangchuansheng/hello-arch:latest@sha256:8b735708d7d30e9cd6eb993449b1047b7229e53fbcebe940217cb36194e9e3a2
+  MediaType: application/vnd.docker.distribution.manifest.v2+json
+  Platform:  linux/amd64
+</code></pre>
+
+<p>运行每一个镜像并观察输出结果：</p>
+
+<pre><code class="language-bash">🐳 → docker run --rm docker.io/yangchuansheng/hello-arch:latest@sha256:38e083870044cfde7f23a2eec91e307ec645282e76fd0356a29b32122b11c639
+Hello, arm!
+
+🐳 → docker run --rm docker.io/yangchuansheng/hello-arch:latest@sha256:de273a2a3ce92a5dc1e6f2d796bb85a81fe1a61f82c4caaf08efed9cf05af66d
+Hello, arm64!
+
+🐳 → docker run --rm docker.io/yangchuansheng/hello-arch:latest@sha256:8b735708d7d30e9cd6eb993449b1047b7229e53fbcebe940217cb36194e9e3a2
+Hello, amd64!
+</code></pre>
+
+<p>So cool！</p>
+
+<h2 id="span-id-inline-toc-3-span-总结"><span id="inline-toc">3.</span> 总结</h2>
+
+<hr />
+
+<p>回顾一下，本文带大家了解了在不同的 CPU 架构上运行软件的挑战性，以及 <code>buildx</code> 如何帮助我们解决了其中的一些挑战。使用 <code>buildx</code>，我们无需对 Dockerfile 进行任何修改，就可以创建支持多种 CPU 架构的 Docker 镜像，然后将其推送到 Docker Hub。任何安装了 Docker 的系统都可以拉取到与它的 CPU 架构相对应的镜像。</p>
+
+<p>未来 buildx 可能会成为 <code>docker build</code> 命令的一部分，最终所有上面提到的功能都会变成默认的功能，下沉到基础设施中交叉编译程序的做法将会变成远古时代的愚蠢行为。</p>
+
+<h2 id="span-id-inline-toc-4-span-参考资料"><span id="inline-toc">4.</span> 参考资料</h2>
+
+<hr />
+
+<ul>
+<li><a href="https://engineering.docker.com/2019/04/multi-arch-images/" target="_blank">Building Multi-Arch Images for Arm and x86 with Docker Desktop</a></li>
+<li><a href="https://engineering.docker.com/2019/06/getting-started-with-docker-for-arm-on-linux/" target="_blank">Getting started with Docker for Arm on Linux</a></li>
+<li><a href="https://docs.docker.com/docker-for-mac/multi-arch/" target="_blank">Leverage multi-CPU architecture support</a></li>
+</ul>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/docker/"><i class="fa fa-tags"></i>docker</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fmultiarch-docker-with-buildx%2f&amp;title=%e4%bd%bf%e7%94%a8%20buildx%20%e6%9e%84%e5%bb%ba%e5%a4%9a%e5%b9%b3%e5%8f%b0%20Docker%20%e9%95%9c%e5%83%8f&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fblog%2f2019-07-09-1_ItqXfSouNVV3yoePD4pCug.png" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fmultiarch-docker-with-buildx%2f&amp;title=%e4%bd%bf%e7%94%a8%20buildx%20%e6%9e%84%e5%bb%ba%e5%a4%9a%e5%b9%b3%e5%8f%b0%20Docker%20%e9%95%9c%e5%83%8f&amp;source=%e4%bd%bf%e7%94%a8%20buildx%20%e6%9e%84%e5%bb%ba%e5%a4%9a%e5%b9%b3%e5%8f%b0%20Docker%20%e9%95%9c%e5%83%8f&amp;desc=%e6%9c%ac%e6%96%87%e5%b8%a6%e5%a4%a7%e5%ae%b6%e4%ba%86%e8%a7%a3%e4%ba%86%e5%9c%a8%e4%b8%8d%e5%90%8c%e7%9a%84%20CPU%20%e6%9e%b6%e6%9e%84%e4%b8%8a%e8%bf%90%e8%a1%8c%e8%bd%af%e4%bb%b6%e7%9a%84%e6%8c%91%e6%88%98%e6%80%a7%ef%bc%8c%e4%bb%a5%e5%8f%8a%20buildx%20%e5%a6%82%e4%bd%95%e5%b8%ae%e5%8a%a9%e6%88%91%e4%bb%ac%e8%a7%a3%e5%86%b3%e4%ba%86%e5%85%b6%e4%b8%ad%e7%9a%84%e4%b8%80%e4%ba%9b%e6%8c%91%e6%88%98%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fblog%2f2019-07-09-1_ItqXfSouNVV3yoePD4pCug.png&amp;summary=%e6%9c%ac%e6%96%87%e5%b8%a6%e5%a4%a7%e5%ae%b6%e4%ba%86%e8%a7%a3%e4%ba%86%e5%9c%a8%e4%b8%8d%e5%90%8c%e7%9a%84%20CPU%20%e6%9e%b6%e6%9e%84%e4%b8%8a%e8%bf%90%e8%a1%8c%e8%bd%af%e4%bb%b6%e7%9a%84%e6%8c%91%e6%88%98%e6%80%a7%ef%bc%8c%e4%bb%a5%e5%8f%8a%20buildx%20%e5%a6%82%e4%bd%95%e5%b8%ae%e5%8a%a9%e6%88%91%e4%bb%ac%e8%a7%a3%e5%86%b3%e4%ba%86%e5%85%b6%e4%b8%ad%e7%9a%84%e4%b8%80%e4%ba%9b%e6%8c%91%e6%88%98%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fmultiarch-docker-with-buildx%2f&amp;text=%e4%bd%bf%e7%94%a8%20buildx%20%e6%9e%84%e5%bb%ba%e5%a4%9a%e5%b9%b3%e5%8f%b0%20Docker%20%e9%95%9c%e5%83%8f&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fmultiarch-docker-with-buildx%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fmultiarch-docker-with-buildx%2f&amp;title=%e4%bd%bf%e7%94%a8%20buildx%20%e6%9e%84%e5%bb%ba%e5%a4%9a%e5%b9%b3%e5%8f%b0%20Docker%20%e9%95%9c%e5%83%8f" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/intro-guide-to-dockerfile-best-practices/">你确定你会写 Dockerfile 吗？</a></li>
+                
+                    <li><a href="/posts/envoy-docker-shim/">使用 envoy-docker-shim 替代 docker-proxy</a></li>
+                
+                    <li><a href="/posts/cri-o/">CRI-O 简介</a></li>
+                
+                    <li><a href="/posts/container-runtime/">Kubernetes 中的容器运行时</a></li>
+                
+                    <li><a href="/posts/how-manage-image/">docker 在本地如何管理 image（镜像）?</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/concurrency-is-not-parallelism/" data-toggle="tooltip" data-placement="top" title="并发与并行的区别">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/linux-circumvent/" data-toggle="tooltip" data-placement="top" title="Linux全局智能分流方案">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

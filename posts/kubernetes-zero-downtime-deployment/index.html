@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>在 Kubernetes 中实现零宕机部署应用 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨, kubernetes, deployment, rollout" name="keywords">
+
+  <meta name="description" content="本文将会告诉你在 Kubernetes 中更新或回滚应用时如何保持数据库的向前向后兼容。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/kubernetes-zero-downtime-deployment\/",
+          "name": "在 kubernetes 中实现零宕机部署应用"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "在 Kubernetes 中实现零宕机部署应用",
+  "description" : "本文将会告诉你在 Kubernetes 中更新或回滚应用时如何保持数据库的向前向后兼容。",
+  "inLanguage" : "zh",
+  "wordCount":  3929 ,
+  "datePublished" : "2019-04-26T22:27:56",
+  "dateModified" : "2019-04-26T22:27:56",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "kubernetes" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/kubernetes-zero-downtime-deployment\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="在 Kubernetes 中实现零宕机部署应用" />
+<meta property="og:description" content="本文将会告诉你在 Kubernetes 中更新或回滚应用时如何保持数据库的向前向后兼容。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/kubernetes-zero-downtime-deployment/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="在 Kubernetes 中实现零宕机部署应用" />
+  <meta name="twitter:description" content="本文将会告诉你在 Kubernetes 中更新或回滚应用时如何保持数据库的向前向后兼容。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">在 Kubernetes 中实现零宕机部署应用</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">在应用升级过程中平滑迁移数据库</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 4 月 26 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3929&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>在 Kubernetes 中实现零宕机部署应用</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">在应用升级过程中平滑迁移数据库</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 4 月 26 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3929&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-先驱-蓝绿部署"><span id="inline-toc">1.</span> 先驱：蓝绿部署</a></li>
+<li><a href="#span-id-inline-toc-2-span-kubernetes-的滚动更新"><span id="inline-toc">2.</span> Kubernetes 的滚动更新</a></li>
+<li><a href="#span-id-inline-toc-3-span-kubernetes-滚动更新实践"><span id="inline-toc">3.</span> Kubernetes 滚动更新实践</a>
+<ul>
+<li><a href="#先创建一个新-pod-再删除一个旧-pod">先创建一个新 Pod，再删除一个旧 Pod</a></li>
+<li><a href="#先删除一个旧-pod-再创建一个新-pod">先删除一个旧 Pod，再创建一个新 Pod</a></li>
+<li><a href="#尽快更新所有-pod">尽快更新所有 Pod</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-4-span-考虑应用启动耗时"><span id="inline-toc">4.</span> 考虑应用启动耗时</a></li>
+<li><a href="#span-id-inline-toc-5-span-滚动更新与数据结构的兼容性"><span id="inline-toc">5.</span> 滚动更新与数据结构的兼容性</a></li>
+<li><a href="#span-id-inline-toc-6-span-总结"><span id="inline-toc">6.</span> 总结</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           <p id="div-border-left-red">
+原文链接：<a href="https://www.exoscale.com/syslog/kubernetes-zero-downtime-deployment/" target="_blank">Kubernetes zero downtime deployment: when theory meets the database</a>
+</p>
+
+<p>如果你使用像 Gmail 这样的在线服务或者大型社交媒介和电子商务平台，你可能从来都没有遇到过哪个页面会提示你“请等待我们的应用更新完成”。</p>
+
+<p>事实上，现如今越来越多的服务需要始终保持启用和可访问的状态，主要有以下几个原因：</p>
+
+<ul>
+<li>如果你竞争对手的应用可以保持不宕机，那你可能会失去竞争优势；换句话说，如果你的竞争对手没法保持不宕机，而你的应用可以始终保持服务可用，那你就具有竞争优势。</li>
+<li>在全球范围内，用户体验质量在不断提高，用户希望随着时间的推移能够提高应用的可用性。</li>
+<li>如果你的应用会直接影响到你的收入，例如，以电子商务应用的形式进行销售。那么你应该能意识到宕机可能导致的业务影响。</li>
+</ul>
+
+<p>虽然意外宕机不能完全避免，但在更新应用时保持零宕机还是有可能的。</p>
+
+<h2 id="span-id-inline-toc-1-span-先驱-蓝绿部署"><span id="inline-toc">1.</span> 先驱：蓝绿部署</h2>
+
+<hr />
+
+<p>最早用来实现零宕机更新的方法是<a href="https://martinfowler.com/bliki/BlueGreenDeployment.html" target="_blank">蓝绿部署</a>，简而言之，蓝绿部署规定应该有两个完全相似的环境，一个代表绿，一个代表蓝。无论任何时候，都有一个环境运行生产级别的应用，另一个环境运行预生产级别的应用。在集群的流量入口处有一个调度器，用来将请求路由到相应的环境：生产或预生产。当某个应用需要更新时，首先将它部署到预生产环境，进行一系列测试，然后将流量切换到该环境，使之暂时成为新的生产环境，反之亦然。</p>
+
+<p>在使用蓝绿部署的过程中，会遇到下面几个问题：</p>
+
+<ol>
+<li><p>用来路由请求的调度器必须是零延迟。</p>
+
+<p>一旦完成流量切换，环境就会发生转换，用户的流量就会被路由到新环境。调度器的实现有很多种方式：路由器、软件代理等，可能很难实现零延迟切换。</p></li>
+
+<li><p>当切换流量时，如果用户和应用已经发生了交互会怎么样？</p>
+
+<p>现代架构的终极目标是实现应用的弹性伸缩和无状态化。但实际情况下有些应用无法完全实现无状态化：比如购物车的无状态化就很难实现，唯一的办法是在购物车状态发生变化时将其从 A 环境迁移到 B 环境。但环境的迁移不是瞬间完成的，用户可能会发现自己处于中间状态，既不是完全处于 A 环境中，也不是完全处于 B 环境中。</p></li>
+
+<li><p>如果应用后端有数据库该如何处理？</p>
+
+<p>和上面讨论的类似，如果有一个 A 环境的数据库和一个 B 环境的数据库，就需要把数据从 A 环境迁移到 B 环境。推荐的做法是在流量切换之前完成数据的迁移，但在生产环境中数据可能会在流量完全切换之前发生变化，因此流量切换完成之后还要再进行一次数据迁移。但数据的迁移也不是瞬间完成的，需要一定的时间，这段时间内用户可能无法使用该服务。</p>
+
+<p>折中的解决方案是将数据库转移到 AB 环境之外的环境，然后将数据共享给 A 和 B 这两个环境。虽然这种架构对隔离性会产生一定的影响，但本文我不会展开详述。</p></li>
+</ol>
+
+<h2 id="span-id-inline-toc-2-span-kubernetes-的滚动更新"><span id="inline-toc">2.</span> Kubernetes 的滚动更新</h2>
+
+<hr />
+
+<p>如果你的应用部署在 Kubernetes 中，完全可以通过 <code>Deployment</code> 来实现应用的无缝升级。</p>
+
+<blockquote>
+<p>Deployment 控制器为 Pod 和 ReplicaSet 提供了声明式更新。关于声明式的详细信息可以参考：<a href="https://www.yangcs.net/posts/kubernetes-design-and-development-explained/" target="_blank">Kubernetes 设计与开发原则</a></p>
+
+<p>你可以在 Deployment 对象中声明期望的状态，Deployment Controller 可以通过不同的策略来不断调整实际状态，直到与期望状态保持一致。你可以选择让 Deployment 创建新的 ReplicaSet 来更新应用，或者删除旧的 Deployment，修改配置后重新创建新的 Deployment。</p>
+</blockquote>
+
+<p>重点在于“通过不同的控制策略”：这意味着 Deployment 中的 Pod 可以一个一个更新，也可以以两个为一组进行更新，或者先删除所有的 Pod，再创建新的 Pod，你可以有多种选择。具体的配置如下：</p>
+
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+spec:
+ replicas: 3
+ strategy:
+   rollingUpdate:
+     maxSurge: 0         # ②
+     maxUnavailable: 1   # ③
+   type: RollingUpdate   # ①
+</code></pre>
+
+<ul>
+<li>① : <code>type</code> 表示新的 Pod 替换旧的 Pod 的策略，可以是 <code>Recreate</code> 或者 <code>RollingUpdate</code>。如果选择了 <code>Recreate</code>，就会在创建出新的 Pod 之前会先杀掉所有已存在的 Pod。这种策略不能实现零宕机升级，所以只能用在开发环境中。如果选择了 <code>RollingUpdate</code>，Deployment 就会使用滚动的方式更新 Pod，你可以指定 <code>maxUnavailable</code> 和 <code>maxSurge</code> 来控制 rolling update 进程。</li>
+<li>② : <code>maxSurge</code> 用来指定可以超过期望的 Pod 数量的最大个数。该值可以是一个绝对值（例如 5）或者是期望的 Pod 数量的百分比（例如 10%）。</li>
+<li>③ : <code>maxUnavailable</code> 用来指定在升级过程中不可用 Pod 的最大数量。该值可以是一个绝对值（例如 5），也可以是期望 Pod 数量的百分比（例如 10%）。</li>
+</ul>
+
+<p>光看理论可能不太好理解，下面我们通过一些示例来理解它的工作原理。</p>
+
+<h2 id="span-id-inline-toc-3-span-kubernetes-滚动更新实践"><span id="inline-toc">3.</span> Kubernetes 滚动更新实践</h2>
+
+<hr />
+
+<p>下文中展示的图表显示了随着时间的推移，不同版本的 Pod 数量的变化：</p>
+
+<ul>
+<li>竖轴表示 Pod 的数量</li>
+<li>蓝色代表 v1 版本的 Pod</li>
+<li>深蓝色代表 v2 版本的 Pod</li>
+<li>横轴表示时间</li>
+</ul>
+
+<h3 id="先创建一个新-pod-再删除一个旧-pod">先创建一个新 Pod，再删除一个旧 Pod</h3>
+
+<p>上面的示例 yaml 表示更新过程中最多允许比期望的 Pod 数量多一个 Pod（<code>maxSurge</code> = 1），且最多允许比期望的 Pod 数量少 0 个 Pod（<code>maxUnavailable</code> = 0）。</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc4078e3a213b0417146775.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc4078e3a213b0417146775.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc4078e3a213b0417146775.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>通过该配置，Kubernetes 会创建一个新 Pod，然后再删除一个旧 Pod，不断迭代下去。如果有其他计算节点可以运行新的 Pod，调度系统就会将新 Pod 调度到其他节点，否则就会调度到已有的计算节点，和节点上的其他 Pod 共同竞争计算资源。</p>
+
+<h3 id="先删除一个旧-pod-再创建一个新-pod">先删除一个旧 Pod，再创建一个新 Pod</h3>
+
+<p>如果想在更新过程中最多允许比期望的 Pod 数量多 0 个 Pod，且最多允许比期望的 Pod 数量少 1 个 Pod，可以令 <code>maxSurge</code> = 0，<code>maxUnavailable</code> = 1。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc407bd3a213b0417146d62.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc407bd3a213b0417146d62.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc407bd3a213b0417146d62.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>通过该配置，Kubernetes 会删除一个旧 Pod，然后再创建一个新 Pod，不断迭代下去。这种方式的好处是当集群的计算资源不足时，可以保持工作负载的数量不会大于现有的数量。</p>
+
+<h3 id="尽快更新所有-pod">尽快更新所有 Pod</h3>
+
+<p>如果想在更新过程中最多允许比期望的 Pod 数量多 1 个 Pod，且最多允许比期望的 Pod 数量少 1 个 Pod，可以令 <code>maxSurge</code> = 1，<code>maxUnavailable</code> = 1。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc408253a213b041714778f.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc408253a213b041714778f.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc408253a213b041714778f.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>这种配置会尽快更新所有 Pod，大大减少了在应用版本之间切换所需的时间，但包含了前两种方式的所有缺点。</p>
+
+<h2 id="span-id-inline-toc-4-span-考虑应用启动耗时"><span id="inline-toc">4.</span> 考虑应用启动耗时</h2>
+
+<hr />
+
+<p>Pod 从启动到能对外提供服务所用的时间是不容忽视的，为了确保容器在部署后确实处在正常运行状态，Kubernetes 提供了两种探针（Probe）来探测容器的状态：</p>
+
+<ul>
+<li><code>LivenessProbe</code>：探测应用是否处于健康状态，如果不健康则删除并重新创建容器。</li>
+<li><code>ReadinessProbe</code>：探测应用是否启动完成并且处于正常服务状态，如果不正常则不会接收来自 Kubernetes Service 的流量。</li>
+</ul>
+
+<p>默认情况下，这两种探针的成功返回值都是 <code>Success</code>，这就有可能会出现问题，因为 Pod 启动成功后，服务不一定会立即可用，这时如果 Service 将流量转发到该 Pod，不会有正确的响应。</p>
+
+<p>为了解决这个问题，应用需要提供给 Kubernetes 查询并能返回应用状态的端点。例如，假如我们在应用中添加了一个 <code>/ready</code> 端点，如果能处理请求就返回 200 状态码，否则就返回 500 状态码。</p>
+
+<p>通过下面的 yaml 可以将 <code>/ready</code> 端点与 Kubernetes 的就绪探针结合使用：</p>
+
+<pre><code class="language-yaml">spec:
+ containers:
+ - name: foo-app
+   image: zerodowntime:1.0
+   readinessProbe:
+     httpGet:
+       path: /ready            
+       port: 8080              
+     initialDelaySeconds: 10   ①
+     periodSeconds: 2          ②
+</code></pre>
+
+<ul>
+<li>① : 第一次就绪检查前需要等待的时间。</li>
+<li>② : 两次就绪检查间隔的时间。</li>
+</ul>
+
+<p>通过上述配置，只有当 Pod 中的应用能够处理流量时，Service 才会将流量转发到该 Pod。</p>
+
+<p>现在我们已经知道了如何正确处理像 “Hello World” 这种类型的应用，但 Kubernetes 的滚动更新会遇到与蓝绿部署相同的问题：数据库的数据结构变更需要向前向后兼容。</p>
+
+<h2 id="span-id-inline-toc-5-span-滚动更新与数据结构的兼容性"><span id="inline-toc">5.</span> 滚动更新与数据结构的兼容性</h2>
+
+<hr />
+
+<p>上文提到过，数据库结构的更改必须向后兼容。下面用一个简单的示例来说明这个问题。</p>
+
+<p>假设数据库的数据结构如下：</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc408453a213b0417147a70.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc408453a213b0417147a70.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc408453a213b0417147a70.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>使用这种数据结构，<code>PERSON</code> 和 <code>ADDRESS</code> 之间的界限比较模糊，为了划清界限，可以将数据结构改成如下的形式：</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc4085b3a213b0417147c91.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc4085b3a213b0417147c91.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/superbed/2019/04/27/5cc4085b3a213b0417147c91.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>假设原来数据结构界限比较模糊的应用已经在生产环境中开始使用，现在我们的目标是在零宕机的情况下将数据结构更换成上图的最终架构。</p>
+
+<p>为了实现这个目标，我们可以设计一个同时可以处理新数据结构和旧数据结构的新版本应用，这样就可以直接通过滚动更新 Deployment 来更新数据结构。这个方案看起来比较合理，但还有一个问题：Deployment 不能回滚，因为旧版本的应用程序无法处理新的数据结构。因此，我们必须保证应用既能向后兼容，又能向前兼容。看来我们又回到了原点，因为数据结构不可能保证既能向前又能向后兼容。</p>
+
+<p>最好的办法是将数据结构的更新拆分成一系列小的数据结构更新。此外，应用需要以增量的方式进行更新，以便新版本的应用能够处理当前和以后的数据结构更新。具体的数据迁移步骤如下：</p>
+
+<p><span id="blue">1.</span> 将需要更新的应用打上标签 2.1。更新过程中需要在数据库中创建一个 <code>ADDRESS</code> 表，<code>PERSON</code> 表中的每一个变化，都复制一份到 <code>ADDRESS</code> 表中：</p>
+
+<table>
+<thead>
+<tr>
+<th>对 <code>PERSON</code> 表的操作</th>
+<th>复制到 <code>ADDRESS</code> 表</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>INSERT</code></td>
+<td>将相同的数据 <code>INSERT</code> 到 <code>ADDRESS</code> 表中</td>
+</tr>
+
+<tr>
+<td><code>UPDATE</code></td>
+<td>首先检查 <code>ADDRESS</code> 表中是否有该记录，如果没有该记录，就先创建一个新的记录，然后再更新和 <code>PERSON</code> 中相同的记录；如果有该记录，就直接更新。</td>
+</tr>
+
+<tr>
+<td><code>DELETE</code></td>
+<td>首先检查 <code>ADDRESS</code> 表中是否有该记录，如果有该记录，就将其删除。</td>
+</tr>
+</tbody>
+</table>
+
+<p>这种做法肯定是向前兼容的，因为 1.0 版本的应用直接忽略了 <code>ADDRESS</code> 表。</p>
+
+<p>数据复制大致有两种方法：可以通过数据库来触发数据复制，也可以通过应用程序来触发。即使要通过数据库来触发，也要由应用来创建相应的触发器。</p>
+
+<p><span id="blue">2.</span> 继续滚动更新，标签改为 2.2。和上面相反，<code>ADDRESS</code> 表中的每一个变化，都复制一份到 <code>PERSON</code> 表中。这是因为上面一步的更新过程中，旧版本的应用可能还没来得及更新数据库就被杀死了，这一步可以确保数据完全同步。考虑到兼容性，2.1 版本的应用会继续使用 <code>PERSON</code> 表。</p>
+
+<p><span id="blue">3.</span> 继续滚动更新，标签改为 2.3。更新过程中需要从 <code>PERSON</code> 表中删除多余的字段，最终变成上文所述的最终数据结构。从这一步回滚到上一步也是向前兼容的，因为 2.2 版本的应用的所有数据都来自 <code>ADDRESS</code> 表，2.3 版本只是删除了 <code>PERSON</code> 表中的某些字段，所以 2.2 版本的应用完全可以处理 2.3 版本应用的数据结构。</p>
+
+<h2 id="span-id-inline-toc-6-span-总结"><span id="inline-toc">6.</span> 总结</h2>
+
+<hr />
+
+<p>尽管滚动更新背后的原理非常简单，但很少有人能在生产环境中利用好它，因为大多数情况下我们都忘记了 deployment 回滚的兼容性。即使你解决了本文提出的问题，也会有新的问题涌现，这就是实现零宕机架构的成本，无法避免。</p>
+
+<p>关于零宕机的理论部分就讲到这里，想必大家都已经理解了，如果你想通过实际的项目来实践，可以参考下一篇文章：<a href="https://www.exoscale.com/syslog/kubernetes-zero-downtime-with-spring-boot/" target="_blank">在 Kubernetes 中实现零宕机部署 Spring Boot 应用</a>。</p>
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/kubernetes/"><i class="fa fa-tags"></i>kubernetes</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fkubernetes-zero-downtime-deployment%2f&amp;title=%e5%9c%a8%20Kubernetes%20%e4%b8%ad%e5%ae%9e%e7%8e%b0%e9%9b%b6%e5%ae%95%e6%9c%ba%e9%83%a8%e7%bd%b2%e5%ba%94%e7%94%a8&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f1_rhFMKkKdNwKY0-NHR-uDeg.jpeg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fkubernetes-zero-downtime-deployment%2f&amp;title=%e5%9c%a8%20Kubernetes%20%e4%b8%ad%e5%ae%9e%e7%8e%b0%e9%9b%b6%e5%ae%95%e6%9c%ba%e9%83%a8%e7%bd%b2%e5%ba%94%e7%94%a8&amp;source=%e5%9c%a8%20Kubernetes%20%e4%b8%ad%e5%ae%9e%e7%8e%b0%e9%9b%b6%e5%ae%95%e6%9c%ba%e9%83%a8%e7%bd%b2%e5%ba%94%e7%94%a8&amp;desc=%e6%9c%ac%e6%96%87%e5%b0%86%e4%bc%9a%e5%91%8a%e8%af%89%e4%bd%a0%e5%9c%a8%20Kubernetes%20%e4%b8%ad%e6%9b%b4%e6%96%b0%e6%88%96%e5%9b%9e%e6%bb%9a%e5%ba%94%e7%94%a8%e6%97%b6%e5%a6%82%e4%bd%95%e4%bf%9d%e6%8c%81%e6%95%b0%e6%8d%ae%e5%ba%93%e7%9a%84%e5%90%91%e5%89%8d%e5%90%91%e5%90%8e%e5%85%bc%e5%ae%b9%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f1_rhFMKkKdNwKY0-NHR-uDeg.jpeg&amp;summary=%e6%9c%ac%e6%96%87%e5%b0%86%e4%bc%9a%e5%91%8a%e8%af%89%e4%bd%a0%e5%9c%a8%20Kubernetes%20%e4%b8%ad%e6%9b%b4%e6%96%b0%e6%88%96%e5%9b%9e%e6%bb%9a%e5%ba%94%e7%94%a8%e6%97%b6%e5%a6%82%e4%bd%95%e4%bf%9d%e6%8c%81%e6%95%b0%e6%8d%ae%e5%ba%93%e7%9a%84%e5%90%91%e5%89%8d%e5%90%91%e5%90%8e%e5%85%bc%e5%ae%b9%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fkubernetes-zero-downtime-deployment%2f&amp;text=%e5%9c%a8%20Kubernetes%20%e4%b8%ad%e5%ae%9e%e7%8e%b0%e9%9b%b6%e5%ae%95%e6%9c%ba%e9%83%a8%e7%bd%b2%e5%ba%94%e7%94%a8&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fkubernetes-zero-downtime-deployment%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fkubernetes-zero-downtime-deployment%2f&amp;title=%e5%9c%a8%20Kubernetes%20%e4%b8%ad%e5%ae%9e%e7%8e%b0%e9%9b%b6%e5%ae%95%e6%9c%ba%e9%83%a8%e7%bd%b2%e5%ba%94%e7%94%a8" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/sealos/">kubernetes 高可用部署工具：sealos</a></li>
+                
+                    <li><a href="/posts/what-happens-when-k8s/">kubectl 创建 Pod 背后到底发生了什么？</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/kubesphere/">KubeSphere 安装教程</a></li>
+                
+                    <li><a href="/posts/istio-1.3/">Istio 1.3 发布，HTTP 遥测不再需要 Mixer</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/kube-proxy-subtleties-debugging-an-intermittent-connection-reset/" data-toggle="tooltip" data-placement="top" title="当 kube-proxy 遇到连接重置">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/memory-limit-of-pod-and-oom-killer/" data-toggle="tooltip" data-placement="top" title="Kubernetes 内存资源限制实战">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

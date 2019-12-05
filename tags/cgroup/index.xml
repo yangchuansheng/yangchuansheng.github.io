@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>cgroup on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/cgroup/</link>
+    <description>Recent content in cgroup on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Thu, 25 Jul 2019 22:41:11 +0800</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/cgroup/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Linux Cgroup 入门教程：内存</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-3-memory/</link>
+      <pubDate>Thu, 25 Jul 2019 22:41:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-3-memory/</guid>
+      <description>该系列文章总共分为三篇： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 通过上篇文章的学习，我们学会了如何查看当前 cgroup 的信息，如何</description>
+    </item>
+    
+    <item>
+      <title>Linux Cgroup 入门教程：CPU</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-2-cpu/</link>
+      <pubDate>Fri, 31 May 2019 17:21:52 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-2-cpu/</guid>
+      <description>该系列文章总共分为三篇： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 上篇文章主要介绍了 cgroup 的一些基本概念，包括其在 CentOS 系统中的默</description>
+    </item>
+    
+    <item>
+      <title>Linux Cgroup 入门教程：基本概念</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-1-basics/</link>
+      <pubDate>Wed, 22 May 2019 17:13:10 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-1-basics/</guid>
+      <description>该系列文章总共分为三篇： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 Cgroup 是 Linux kernel 的一项功能：它是在一个系统中运行的层级制进程组，</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 内存资源限制实战</title>
+      <link>https://fuckcloudnative.io/posts/memory-limit-of-pod-and-oom-killer/</link>
+      <pubDate>Mon, 29 Apr 2019 11:43:29 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/memory-limit-of-pod-and-oom-killer/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

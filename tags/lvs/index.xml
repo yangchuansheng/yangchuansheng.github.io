@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>lvs on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/lvs/</link>
+    <description>Recent content in lvs on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Fri, 20 Apr 2018 04:36:40 +0000</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/lvs/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Kube-router 使用指南</title>
+      <link>https://fuckcloudnative.io/posts/kube-router/</link>
+      <pubDate>Fri, 20 Apr 2018 04:36:40 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/kube-router/</guid>
+      <description>Kube-router 是一个挺有想法的项目，兼备了 calico 和 kube-proxy 的功能，是基于 Kubernetes 网络设计的一个集负载均衡器、防火墙和容器网络的综合方案。 1. 体系架构 Kube-router 是围绕 观察者 和 控制器</description>
+    </item>
+    
+    <item>
+      <title>LVS负载均衡之持久性连接介绍</title>
+      <link>https://fuckcloudnative.io/posts/lvs-persistent-connection/</link>
+      <pubDate>Wed, 18 Apr 2018 11:18:06 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/lvs-persistent-connection/</guid>
+      <description>1. 前言 在实际生产环境中，往往需要根据业务应用场景来设置 lvs 的会话超时时间以及防止 session 连接丢失的问题，如在业务支付环节，如若 session 丢失会导致重复扣款问</description>
+    </item>
+    
+  </channel>
+</rss>

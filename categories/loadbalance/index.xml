@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>loadbalance on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/categories/loadbalance/</link>
+    <description>Recent content in loadbalance on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Mon, 28 Jan 2019 16:39:48 +0800</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/categories/loadbalance/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Nginx 流量镜像使用技巧</title>
+      <link>https://fuckcloudnative.io/posts/nginx-mirror/</link>
+      <pubDate>Mon, 28 Jan 2019 16:39:48 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/nginx-mirror/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>LVS负载均衡之持久性连接介绍</title>
+      <link>https://fuckcloudnative.io/posts/lvs-persistent-connection/</link>
+      <pubDate>Wed, 18 Apr 2018 11:18:06 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/lvs-persistent-connection/</guid>
+      <description>1. 前言 在实际生产环境中，往往需要根据业务应用场景来设置 lvs 的会话超时时间以及防止 session 连接丢失的问题，如在业务支付环节，如若 session 丢失会导致重复扣款问</description>
+    </item>
+    
+  </channel>
+</rss>

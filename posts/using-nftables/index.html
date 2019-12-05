@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>nftables 使用教程 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨, netfilter, nftables" name="keywords">
+
+  <meta name="description" content="本文带你了解 nftables 的功能和用法，包括集合和字典等高级用法。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/using-nftables\/",
+          "name": "Nftables 使用教程"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "nftables 使用教程",
+  "description" : "本文带你了解 nftables 的功能和用法，包括集合和字典等高级用法。",
+  "inLanguage" : "zh",
+  "wordCount":  4390 ,
+  "datePublished" : "2019-09-29T21:01:14",
+  "dateModified" : "2019-09-29T21:01:14",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "linux, nftables" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/using-nftables\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="nftables 使用教程" />
+<meta property="og:description" content="本文带你了解 nftables 的功能和用法，包括集合和字典等高级用法。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/using-nftables/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="nftables 使用教程" />
+  <meta name="twitter:description" content="本文带你了解 nftables 的功能和用法，包括集合和字典等高级用法。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">nftables 使用教程</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">nftables 命令行工具 nft 的用法</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 9 月 29 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;9&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4390&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>nftables 使用教程</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">nftables 命令行工具 nft 的用法</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 9 月 29 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;9&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4390&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-nftables-vs-iptables"><span id="inline-toc">1.</span> nftables VS iptables</a></li>
+<li><a href="#span-id-inline-toc-2-span-创建表"><span id="inline-toc">2.</span> 创建表</a></li>
+<li><a href="#span-id-inline-toc-3-span-创建链"><span id="inline-toc">3.</span> 创建链</a></li>
+<li><a href="#span-id-inline-toc-4-span-创建规则"><span id="inline-toc">4.</span> 创建规则</a></li>
+<li><a href="#span-id-inline-toc-5-span-删除规则"><span id="inline-toc">5.</span> 删除规则</a></li>
+<li><a href="#span-id-inline-toc-6-span-列出规则"><span id="inline-toc">6.</span> 列出规则</a></li>
+<li><a href="#span-id-inline-toc-7-span-集合"><span id="inline-toc">7.</span> 集合</a>
+<ul>
+<li><a href="#匿名集合">匿名集合</a></li>
+<li><a href="#命名集合">命名集合</a></li>
+<li><a href="#支持区间">支持区间</a></li>
+<li><a href="#级联不同类型">级联不同类型</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-8-span-字典"><span id="inline-toc">8.</span> 字典</a></li>
+<li><a href="#span-id-inline-toc-9-span-表与命名空间"><span id="inline-toc">9.</span> 表与命名空间</a></li>
+<li><a href="#span-id-inline-toc-10-span-备份与恢复"><span id="inline-toc">10.</span> 备份与恢复</a></li>
+<li><a href="#span-id-inline-toc-11-span-总结"><span id="inline-toc">11.</span> 总结</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+
+<p>如果你没有生活在上个世纪，并且是云计算或相关领域的一名搬砖者，那你应该听说最近 CentOS 8 官方正式版已经发布了，<code>CentOS</code> 完全遵守 <code>Red Hat</code> 的再发行政策，并且致力与上游产品在功能上完全兼容。CentOS 8 主要改动和 RedHat Enterprise Linux 8 是一致的，基于 Fedora 28 和内核版本 <code>4.18</code>，其中网络方面的主要改动是<strong>用 <code>nftables</code> 框架替代 <code>iptables</code> 框架作为默认的网络包过滤工具。</strong>如果你还没有听说过 nftables，现在是时候学习一下了。</p>
+
+<p>nftables 是一个 <code>netfilter</code> 项目，旨在替换现有的 {ip,ip6,arp,eb}tables 框架，为 {ip,ip6}tables 提供一个新的包过滤框架、一个新的用户空间实用程序（nft）和一个兼容层。它使用现有的钩子、链接跟踪系统、用户空间排队组件和 <code>netfilter</code> 日志子系统。</p>
+
+<p>nftables 主要由三个组件组成：内核实现、libnl netlink 通信和 nftables 用户空间。 其中内核提供了一个 <code>netlink</code> 配置接口以及运行时规则集评估，<code>libnl</code> 包含了与内核通信的基本函数，用户空间可以通过 <code>nft</code> 和用户进行交互。</p>
+
+<p>本文主要介绍用户空间命令行工具 <code>nft</code> 的用法。</p>
+
+<h2 id="span-id-inline-toc-1-span-nftables-vs-iptables"><span id="inline-toc">1.</span> nftables VS iptables</h2>
+
+<hr />
+
+<p>nftables 和 iptables 一样，由表（table）、链（chain）和规则（rule）组成，其中表包含链，链包含规则，规则是真正的 action。与 iptables 相比，nftables 主要有以下几个变化：</p>
+
+<ul>
+<li><code>iptables</code> 规则的布局是基于连续的大块内存的，即数组式布局；而 <code>nftables</code> 的规则采用链式布局。其实就是数组和链表的区别，好像 Kubernetes 用户对此应该很兴奋？</li>
+<li><code>iptables</code> 大部分工作在内核态完成，如果要添加新功能，只能重新编译内核；而 <code>nftables</code> 的大部分工作是在用户态完成的，添加新功能很 easy，不需要改内核。</li>
+<li><code>iptables</code> 有内置的链，即使你只需要一条链，其他的链也会跟着注册；而 <code>nftables</code> 不存在内置的链，你可以按需注册。由于 <code>iptables</code> 内置了一个数据包计数器，所以即使这些内置的链是空的，也会带来性能损耗。</li>
+<li>简化了 <code>IPv4/IPv6</code> 双栈管理</li>
+<li>原生支持集合、字典和映射</li>
+</ul>
+
+<p>回到 nftables，先来看一下默认的规则集是啥：</p>
+
+<pre><code class="language-bash">$ nft list ruleset
+</code></pre>
+
+<p>啥也没有，果然是没有内置的链啊（如果你关闭了 <code>firewalld</code> 服务）。</p>
+
+<h2 id="span-id-inline-toc-2-span-创建表"><span id="inline-toc">2.</span> 创建表</h2>
+
+<hr />
+
+<p>nftables 的每个表只有一个地址簇，并且只适用于该簇的数据包。表可以指定五个簇中的一个：</p>
+
+<table>
+<thead>
+<tr>
+<th align="center">nftables簇</th>
+<th align="center">iptables命令行工具</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="center">ip</td>
+<td align="center">iptables</td>
+</tr>
+
+<tr>
+<td align="center">ip6</td>
+<td align="center">ip6tables</td>
+</tr>
+
+<tr>
+<td align="center">inet</td>
+<td align="center">iptables和ip6tables</td>
+</tr>
+
+<tr>
+<td align="center">arp</td>
+<td align="center">arptables</td>
+</tr>
+
+<tr>
+<td align="center">bridge</td>
+<td align="center">ebtables</td>
+</tr>
+</tbody>
+</table>
+
+<p><code>inet</code> 同时适用于 IPv4 和 IPv6 的数据包，即统一了 <code>ip</code> 和 <code>ip6</code> 簇，可以更容易地定义规则，下文的示例都将采用 inet 簇。</p>
+
+<p>先创建一个新的表：</p>
+
+<pre><code class="language-bash">$ nft add table inet my_table
+</code></pre>
+
+<p>列出所有的规则：</p>
+
+<pre><code class="language-bash">$ nft list ruleset
+table inet my_table {
+}
+</code></pre>
+
+<p>现在表中还没有任何规则，需要创建一个链来保存规则。</p>
+
+<h2 id="span-id-inline-toc-3-span-创建链"><span id="inline-toc">3.</span> 创建链</h2>
+
+<hr />
+
+<p>链是用来保存规则的，和表一样，链也需要被显示创建，因为 nftables 没有内置的链。链有以下两种类型：</p>
+
+<ul>
+<li><strong>常规链</strong> : 不需要指定钩子类型和优先级，可以用来做跳转，从逻辑上对规则进行分类。</li>
+<li><strong>基本链</strong> : 数据包的入口点，需要指定钩子类型和优先级。</li>
+</ul>
+
+<p>创建常规链：</p>
+
+<pre><code class="language-bash">$ nft add chain inet my_table my_utility_chain
+</code></pre>
+
+<p>创建基本链：</p>
+
+<pre><code class="language-bash">$ nft add chain inet my_table my_filter_chain { type filter hook input priority 0 \; }
+</code></pre>
+
+<ul>
+<li>反斜线（<code>\</code>）用来转义，这样 shell 就不会将分号解释为命令的结尾。</li>
+<li><code>priority</code> 采用整数值，可以是负数，值较小的链优先处理。</li>
+</ul>
+
+<p>列出链中的所有规则：</p>
+
+<pre><code class="language-bash">$ nft list chain inet my_table my_utility_chain
+table inet my_table {
+        chain my_utility_chain {
+        }
+}
+
+$ nft list chain inet my_table my_filter_chain
+table inet my_table {
+        chain my_filter_chain {
+                type filter hook input priority 0; policy accept;
+        }
+}
+</code></pre>
+
+<h2 id="span-id-inline-toc-4-span-创建规则"><span id="inline-toc">4.</span> 创建规则</h2>
+
+<hr />
+
+<p>有了表和链之后，就可以创建规则了，规则由语句或表达式构成，包含在链中。下面添加一条规则允许 SSH 登录：</p>
+
+<pre><code class="language-bash">$ nft add rule inet my_table my_filter_chain tcp dport ssh accept
+</code></pre>
+
+<p><code>add</code> 表示将规则添加到链的末尾，如果想将规则添加到链的开头，可以使用 <code>insert</code>。</p>
+
+<pre><code class="language-bash">$ nft insert rule inet my_table my_filter_chain tcp dport http accept
+</code></pre>
+
+<p>列出所有规则：</p>
+
+<pre><code class="language-bash">$ nft list ruleset
+table inet my_table {
+        chain my_filter_chain {
+                type filter hook input priority 0; policy accept;
+                tcp dport http accept
+                tcp dport ssh accept
+        }
+}
+</code></pre>
+
+<p>注意 http 规则排在 ssh 规则的前面，因为之前使用了 <code>insert</code>。</p>
+
+<p>也可以将规则插入到链的指定位置，有两种方法：</p>
+
+<p>1、 使用 <code>index</code> 来指定规则的索引。<code>add</code> 表示新规则添加在索引位置的规则后面，<code>inser</code> 表示新规则添加在索引位置的规则前面。index 的值从 0 开始增加。</p>
+
+<pre><code class="language-bash">$ nft insert rule inet my_table my_filter_chain index 1 tcp dport nfs accept
+$ nft list ruleset
+table inet my_table {
+     chain my_filter_chain {
+             type filter hook input priority 0; policy accept;
+             tcp dport http accept
+             tcp dport nfs accept
+             tcp dport ssh accept
+     }
+}
+
+$ nft add rule inet my_table my_filter_chain index 0 tcp dport 1234 accept
+$ nft list ruleset
+table inet my_table {
+     chain my_filter_chain {
+             type filter hook input priority 0; policy accept;
+             tcp dport http accept
+             tcp dport 1234 accept
+             tcp dport nfs accept
+             tcp dport ssh accept
+     }
+}
+</code></pre>
+
+<p><code>index</code> 类似于 iptables 的 <code>-I</code> 选项，但有两点需要注意：一是 index 的值是从 0 开始的；二是 index 必须指向一个存在的规则，比如 <code>nft insert rule … index 0</code> 就是非法的。</p>
+
+<p>2、 使用 <code>handle</code> 来指定规则的句柄。<code>add</code> 表示新规则添加在索引位置的规则后面，<code>inser</code> 表示新规则添加在索引位置的规则前面。<code>handle</code> 的值可以通过参数 <code>--handle</code> 获取。</p>
+
+<pre><code class="language-bash">$ nft --handle list ruleset
+table inet my_table { # handle 10
+     chain my_filter_chain { # handle 2
+             type filter hook input priority 0; policy accept;
+             tcp dport http accept # handle 4
+             tcp dport 1234 accept # handle 6
+             tcp dport nfs accept # handle 5
+             tcp dport ssh accept # handle 3
+     }
+}
+
+$ nft add rule inet my_table my_filter_chain handle 4 tcp dport 1234 accept
+$ nft insert rule inet my_table my_filter_chain handle 5 tcp dport nfs accept
+$ nft --handle list ruleset
+table inet my_table { # handle 10
+     chain my_filter_chain { # handle 2
+             type filter hook input priority 0; policy accept;
+             tcp dport http accept # handle 4
+             tcp dport 2345 accept # handle 8
+             tcp dport 1234 accept # handle 6
+             tcp dport 3456 accept # handle 9
+             tcp dport nfs accept # handle 5
+             tcp dport ssh accept # handle 3
+     }
+}
+</code></pre>
+
+<p>在 nftables 中，句柄值是固定不变的，除非规则被删除，这就为规则提供了稳定的索引。而 <code>index</code> 的值是可变的，只要有新规则插入，就有可能发生变化。一般建议使用 <code>handle</code> 来插入新规则。</p>
+
+<p>也可以在创建规则时就获取到规则的句柄值，只需要在创建规则时同时加上参数 <code>--echo</code> 和 <code>--handle</code>。</p>
+
+<pre><code class="language-bash">$ nft --echo --handle add rule inet my_table my_filter_chain udp dport 3333 accept
+add rule inet my_table my_filter_chain udp dport 3333 accept # handle 10
+</code></pre>
+
+<h2 id="span-id-inline-toc-5-span-删除规则"><span id="inline-toc">5.</span> 删除规则</h2>
+
+<hr />
+
+<p>单个规则只能通过其句柄删除，首先需要找到你想删除的规则句柄：</p>
+
+<pre><code class="language-bash">$ nft --handle list ruleset
+table inet my_table { # handle 10
+        chain my_filter_chain { # handle 2
+                type filter hook input priority 0; policy accept;
+                tcp dport http accept # handle 4
+                tcp dport 2345 accept # handle 8
+                tcp dport 1234 accept # handle 6
+                tcp dport 3456 accept # handle 9
+                tcp dport nfs accept # handle 5
+                tcp dport ssh accept # handle 3
+                udp dport 3333 accept # handle 10
+        }
+}
+</code></pre>
+
+<p>然后使用句柄值来删除该规则：</p>
+
+<pre><code class="language-bash">$ nft delete rule inet my_table my_filter_chain handle 8
+$ nft --handle list ruleset
+table inet my_table { # handle 10
+        chain my_filter_chain { # handle 2
+                type filter hook input priority 0; policy accept;
+                tcp dport http accept # handle 4
+                tcp dport 1234 accept # handle 6
+                tcp dport 3456 accept # handle 9
+                tcp dport nfs accept # handle 5
+                tcp dport ssh accept # handle 3
+                udp dport 3333 accept # handle 10
+        }
+}
+</code></pre>
+
+<h2 id="span-id-inline-toc-6-span-列出规则"><span id="inline-toc">6.</span> 列出规则</h2>
+
+<hr />
+
+<p>前面的示例都是列出了所有规则，我们还可以根据自己的需求列出规则的一部分。例如：</p>
+
+<p>列出某个表中的所有规则：</p>
+
+<pre><code class="language-bash">$ nft list table inet my_table
+table inet my_table {
+        chain my_filter_chain {
+                type filter hook input priority 0; policy accept;
+                tcp dport http accept
+                tcp dport 1234 accept
+                tcp dport 3456 accept
+                tcp dport nfs accept
+                tcp dport ssh accept
+                udp dport 3333 accept
+        }
+}
+</code></pre>
+
+<p>列出某条链中的所有规则：</p>
+
+<pre><code class="language-bash">$ nft list chain inet my_table my_other_chain
+table inet my_table {
+    chain my_other_chain {
+        udp dport 12345 log prefix &quot;UDP-12345&quot;
+    }
+}
+</code></pre>
+
+<h2 id="span-id-inline-toc-7-span-集合"><span id="inline-toc">7.</span> 集合</h2>
+
+<hr />
+
+<p><code>nftables</code> 的语法原生支持集合，可以用来匹配多个 IP 地址、端口号、网卡或其他任何条件。</p>
+
+<h3 id="匿名集合">匿名集合</h3>
+
+<p>集合分为<strong>匿名集合</strong>与<strong>命名集合</strong>，匿名集合比较适合用于将来不需要更改的规则。</p>
+
+<p>例如，下面的规则允许来自源 IP 处于 <code>10.10.10.123 ~ 10.10.10.231</code> 这个区间内的主机的流量。</p>
+
+<pre><code class="language-bash">$ nft add rule inet my_table my_filter_chain ip saddr { 10.10.10.123, 10.10.10.231 } accept
+$ nft list ruleset
+table inet my_table {
+        chain my_filter_chain {
+                type filter hook input priority 0; policy accept;
+                tcp dport http accept
+                tcp dport nfs accept
+                tcp dport ssh accept
+                ip saddr { 10.10.10.123, 10.10.10.231 } accept
+        }
+}
+</code></pre>
+
+<p>匿名集合的缺点是，如果需要修改集合，就得替换规则。如果后面需要频繁修改集合，推荐使用命名集合。</p>
+
+<p>之前的示例中添加的规则也可以通过集合来简化：</p>
+
+<pre><code class="language-bash">$ nft add rule inet my_table my_filter_chain tcp dport { http, nfs, ssh } accept
+</code></pre>
+
+<blockquote>
+<p>iptables 可以借助 <code>ipset</code> 来使用集合，而 nftables 原生支持集合，所以不需要借助 <code>ipset</code>。</p>
+</blockquote>
+
+<h3 id="命名集合">命名集合</h3>
+
+<p>nftables 也支持命名集合，命名集合是可以修改的。创建集合需要指定其元素的类型，当前支持的数据类型有：</p>
+
+<ul>
+<li><code>ipv4_addr</code> : IPv4 地址</li>
+<li><code>ipv6_addr</code> : IPv6 地址</li>
+<li><code>ether_addr</code> : 以太网（Ethernet）地址</li>
+<li><code>inet_proto</code> : 网络协议</li>
+<li><code>inet_service</code> : 网络服务</li>
+<li><code>mark</code> : 标记类型</li>
+</ul>
+
+<p>先创建一个空的命名集合：</p>
+
+<pre><code class="language-bash">$ nft add set inet my_table my_set { type ipv4_addr \; }
+$ nft list sets
+table inet my_table {
+        set my_set {
+                type ipv4_addr
+        }
+}
+</code></pre>
+
+<p>要想在添加规则时引用集合，可以使用 <code>@</code> 符号跟上集合的名字。下面的规则表示将集合 <code>my_set</code> 中的 IP 地址添加到黑名单中。</p>
+
+<pre><code class="language-bash">$ nft insert rule inet my_table my_filter_chain ip saddr @my_set drop
+$ nft list chain inet my_table my_filter_chain
+table inet my_table {
+        chain my_filter_chain {
+                type filter hook input priority 0; policy accept;
+                ip saddr @my_set drop
+                tcp dport http accept
+                tcp dport nfs accept
+                tcp dport ssh accept
+                ip saddr { 10.10.10.123, 10.10.10.231 } accept
+        }
+}
+</code></pre>
+
+<p>向集合中添加元素：</p>
+
+<pre><code class="language-bash">$ nft add element inet my_table my_set { 10.10.10.22, 10.10.10.33 }
+$ nft list set inet my_table my_set
+table inet my_table {
+        set my_set {
+                type ipv4_addr
+                elements = { 10.10.10.22, 10.10.10.33 }
+        }
+}
+</code></pre>
+
+<p>如果你向集合中添加一个区间就会报错：</p>
+
+<pre><code class="language-bash">$ nft add element inet my_table my_set { 10.20.20.0-10.20.20.255 }
+
+Error: Set member cannot be range, missing interval flag on declaration
+add element inet my_table my_set { 10.20.20.0-10.20.20.255 }
+                                   ^^^^^^^^^^^^^^^^^^^^^^^
+</code></pre>
+
+<p>要想在集合中使用区间，需要加上一个 flag <code>interval</code>，因为内核必须提前确认该集合存储的数据类型，以便采用适当的数据结构。</p>
+
+<h3 id="支持区间">支持区间</h3>
+
+<p>创建一个支持区间的命名集合：</p>
+
+<pre><code class="language-bash">$ nft add set inet my_table my_range_set { type ipv4_addr \; flags interval
+$ nft add element inet my_table my_range_set { 10.20.20.0/24 }
+$ nft list set inet my_table my_range_set
+table inet my_table {
+        set my_range_set {
+                type ipv4_addr
+                flags interval
+                elements = { 10.20.20.0/24 }
+        }
+}
+</code></pre>
+
+<blockquote>
+<p>子网掩码表示法会被隐式转换为 IP 地址的区间，你也可以直接使用区间 <code>10.20.20.0-10.20.20.255</code> 来获得相同的效果。</p>
+</blockquote>
+
+<h3 id="级联不同类型">级联不同类型</h3>
+
+<p>命名集合也支持对不同类型的元素进行级联，通过级联操作符 <code>.</code> 来分隔。例如，下面的规则可以一次性匹配 IP 地址、协议和端口号。</p>
+
+<pre><code class="language-bash">$ nft add set inet my_table my_concat_set  { type ipv4_addr . inet_proto . inet_service \; }
+
+$ nft list set inet my_table my_concat_set
+table inet my_table {
+        set my_concat_set {
+                type ipv4_addr . inet_proto . inet_service
+        }
+}
+</code></pre>
+
+<p>向集合中添加元素：</p>
+
+<pre><code class="language-bash">$ nft add element inet my_table my_concat_set { 10.30.30.30 . tcp . telnet }
+</code></pre>
+
+<p>在规则中引用级联类型的集合和之前一样，但需要标明集合中每个元素对应到规则中的哪个位置。</p>
+
+<pre><code class="language-bash">$ nft add rule inet my_table my_filter_chain ip saddr . meta l4proto . tcp dport @my_concat_set accept
+</code></pre>
+
+<p>这就表示如果数据包的源 IP、协议类型、目标端口匹配 <code>10.30.30.30、tcp、telnet</code> 时，nftables 就会允许该数据包通过。</p>
+
+<p>匿名集合也可以使用级联元素，例如：</p>
+
+<pre><code class="language-bash">$ nft add rule inet my_table my_filter_chain ip saddr . meta l4proto . udp dport { 10.30.30.30 . udp . bootps } accept
+</code></pre>
+
+<p>现在你应该能体会到 nftables 集合的强大之处了吧。</p>
+
+<blockquote>
+<p>nftables 级联类型的集合类似于 ipset 的聚合类型，例如 <code>hash:ip,port</code>。</p>
+</blockquote>
+
+<h2 id="span-id-inline-toc-8-span-字典"><span id="inline-toc">8.</span> 字典</h2>
+
+<hr />
+
+<p>字典是 nftables 的一个高级特性，它可以使用不同类型的数据并将匹配条件映射到某一个规则上面，并且由于是哈希映射的方式，可以完美的避免链式规则跳转的性能开销。</p>
+
+<p>例如，为了从逻辑上将对 TCP 和 UDP 数据包的处理规则拆分开来，可以使用字典来实现，这样就可以通过一条规则实现上述需求。</p>
+
+<pre><code class="language-bash">$ nft add chain inet my_table my_tcp_chain
+$ nft add chain inet my_table my_udp_chain
+$ nft add rule inet my_table my_filter_chain meta l4proto vmap { tcp : jump my_tcp_chain, udp : jump my_udp_chain }
+$ nft list chain inet my_table my_filter_chain
+table inet my_table {
+    chain my_filter_chain {
+    ...
+    meta nfproto ipv4 ip saddr . meta l4proto . udp dport { 10.30.30.30 . udp . bootps } accept
+    meta l4proto vmap { tcp : jump my_tcp_chain, udp : jump my_udp_chain }
+    }
+}
+</code></pre>
+
+<p>和集合一样，除了匿名字典之外，还可以创建命名字典：</p>
+
+<pre><code class="language-bash">$ nft add map inet my_table my_vmap { type inet_proto : verdict \; }
+</code></pre>
+
+<p>向字典中添加元素：</p>
+
+<pre><code class="language-bash">$ nft add element inet my_table my_vmap { 192.168.0.10 : drop, 192.168.0.11 : accept }
+</code></pre>
+
+<p>后面就可以在规则中引用字典中的元素了：</p>
+
+<pre><code class="language-bash">$ nft add rule inet my_table my_filter_chain ip saddr vmap @my_vmap
+</code></pre>
+
+<h2 id="span-id-inline-toc-9-span-表与命名空间"><span id="inline-toc">9.</span> 表与命名空间</h2>
+
+<hr />
+
+<p>在 nftables 中，每个表都是一个独立的命名空间，这就意味着不同的表中的链、集合、字典等都可以有相同的名字。例如：</p>
+
+<pre><code class="language-bash">$ nft add table inet table_one
+$ nft add chain inet table_one my_chain
+$ nft add table inet table_two
+$ nft add chain inet table_two my_chain
+$ nft list ruleset
+...
+table inet table_one {
+    chain my_chain {
+    }
+}
+table inet table_two {
+    chain my_chain {
+    }
+}
+</code></pre>
+
+<p>有了这个特性，不同的应用就可以在相互不影响的情况下管理自己的表中的规则，而使用 <code>iptables</code> 就无法做到这一点。</p>
+
+<p>当然，这个特性也有缺陷，由于每个表都被视为独立的防火墙，那么某个数据包必须被所有表中的规则放行，才算真正的放行，即使 <code>table_one</code> 允许该数据包通过，该数据包仍然有可能被 <code>table_two</code> 拒绝。为了解决这个问题，nftables 引入了优先级，<code>priority</code> 值越高的链优先级越低，所以 <code>priority</code> 值低的链比 <code>priority</code> 值高的链先执行。如果两条链的优先级相同，就会进入竞争状态。</p>
+
+<h2 id="span-id-inline-toc-10-span-备份与恢复"><span id="inline-toc">10.</span> 备份与恢复</h2>
+
+<hr />
+
+<p>以上所有示例中的规则都是临时的，要想永久生效，我们可以将规则备份，重启后自动加载恢复，其实 nftables 的 <code>systemd</code> 服务就是这么工作的。</p>
+
+<p>备份规则：</p>
+
+<pre><code class="language-bash">$ nft list ruleset &gt; /root/nftables.conf
+</code></pre>
+
+<p>加载恢复：</p>
+
+<pre><code class="language-bash">$ nft -f /root/nftables.conf
+</code></pre>
+
+<p>在 CentOS 8 中，<code>nftables.service</code> 的规则被存储在 <code>/etc/nftables.conf</code> 中，其中 include 一些其他的示例规则，一般位于 <code>/etc/sysconfig/nftables.conf</code> 文件中，但默认会被注释掉。</p>
+
+<h2 id="span-id-inline-toc-11-span-总结"><span id="inline-toc">11.</span> 总结</h2>
+
+<hr />
+
+<p>希望通过本文的讲解，你能对 nftables 的功能和用法有所了解，当然本文只涉及了一些浅显的用法，更高级的用法可以查看 nftables 的官方 <code>wiki</code>，或者坐等我接下来的文章。相信有了本文的知识储备，你应该可以愉快地使用 nftables 实现 Linux 的智能分流了，具体参考这篇文章：<a href="https://www.yangcs.net/posts/linux-circumvent/" target="_blank">Linux全局智能分流方案</a>。</p>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/linux/"><i class="fa fa-tags"></i>linux</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/nftables/"><i class="fa fa-tags"></i>nftables</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fusing-nftables%2f&amp;title=nftables%20%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2f2019-09-29-130811.jpg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fusing-nftables%2f&amp;title=nftables%20%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b&amp;source=nftables%20%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b&amp;desc=%e6%9c%ac%e6%96%87%e5%b8%a6%e4%bd%a0%e4%ba%86%e8%a7%a3%20nftables%20%e7%9a%84%e5%8a%9f%e8%83%bd%e5%92%8c%e7%94%a8%e6%b3%95%ef%bc%8c%e5%8c%85%e6%8b%ac%e9%9b%86%e5%90%88%e5%92%8c%e5%ad%97%e5%85%b8%e7%ad%89%e9%ab%98%e7%ba%a7%e7%94%a8%e6%b3%95%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2f2019-09-29-130811.jpg&amp;summary=%e6%9c%ac%e6%96%87%e5%b8%a6%e4%bd%a0%e4%ba%86%e8%a7%a3%20nftables%20%e7%9a%84%e5%8a%9f%e8%83%bd%e5%92%8c%e7%94%a8%e6%b3%95%ef%bc%8c%e5%8c%85%e6%8b%ac%e9%9b%86%e5%90%88%e5%92%8c%e5%ad%97%e5%85%b8%e7%ad%89%e9%ab%98%e7%ba%a7%e7%94%a8%e6%b3%95%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fusing-nftables%2f&amp;text=nftables%20%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fusing-nftables%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fusing-nftables%2f&amp;title=nftables%20%e4%bd%bf%e7%94%a8%e6%95%99%e7%a8%8b" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/concurrency-is-not-parallelism/">并发与并行的区别</a></li>
+                
+                    <li><a href="/posts/linux-capabilities-in-practice-1/">Linux Capabilities 入门教程：基础实战篇</a></li>
+                
+                    <li><a href="/posts/linux-capabilities-why-they-exist-and-how-they-work/">Linux Capabilities 入门教程：概念篇</a></li>
+                
+                    <li><a href="/posts/understanding-cgroups-part-3-memory/">Linux Cgroup 入门教程：内存</a></li>
+                
+                    <li><a href="/posts/understanding-cgroups-part-2-cpu/">Linux Cgroup 入门教程：CPU</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/istio-1.3-tour/" data-toggle="tooltip" data-placement="top" title="手把手教你部署 Istio 1.3">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/grafana-v6.4-released/" data-toggle="tooltip" data-placement="top" title="Grafana 6.4 正式发布！">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Kubernetes 网络扩展 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="" name="keywords">
+
+  <meta name="description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/k8s-network-expand\/",
+          "name": "Kubernetes 网络扩展"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "Kubernetes 网络扩展",
+  "description" : "1. Kubernetes 中服务暴露的方式 k8s 的服务暴露分为以下几种情况： hostNetwork hostPort NodePort LoadBalancer Ingress 说是暴露 Pod 其实跟暴露 Service 是一回事，因为 Pod 就是 Service 的 backend。 HostNetwork 这是一种直接定义",
+  "inLanguage" : "zh",
+  "wordCount":  3517 ,
+  "datePublished" : "2018-02-11T10:40:33",
+  "dateModified" : "2018-02-11T10:40:33",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "kubernetes, docker" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/k8s-network-expand\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Kubernetes 网络扩展" />
+<meta property="og:description" content="通过边界网关和边界 DNS 直接访问 k8s 中的服务">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/k8s-network-expand/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="Kubernetes 网络扩展" />
+  <meta name="twitter:description" content="通过边界网关和边界 DNS 直接访问 k8s 中的服务">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">Kubernetes 网络扩展</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">通过边界网关和边界 DNS 直接访问 k8s 中的服务</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 2 月 11 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3517&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Kubernetes 网络扩展</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">通过边界网关和边界 DNS 直接访问 k8s 中的服务</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 2 月 11 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3517&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-kubernetes-中服务暴露的方式"><span id="inline-toc">1.</span> Kubernetes 中服务暴露的方式</a>
+<ul>
+<li><a href="#hostnetwork">HostNetwork</a></li>
+<li><a href="#hostport">hostPort</a></li>
+<li><a href="#nodeport">NodePort</a></li>
+<li><a href="#loadbalancer">LoadBalancer</a></li>
+<li><a href="#ingress">Ingress</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-2-span-集群环境"><span id="inline-toc">2.</span> 集群环境</a>
+<ul>
+<li><a href="#架构环境">架构环境</a></li>
+<li><a href="#k8s-集群节点">k8s 集群节点</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-3-span-部署边界-dns-代理服务器"><span id="inline-toc">3.</span> 部署边界 dns 代理服务器</a></li>
+<li><a href="#span-id-inline-toc-4-span-部署-gateway-边界网关节点"><span id="inline-toc">4.</span> 部署 gateway 边界网关节点</a>
+<ul>
+<li><a href="#首先开启内核转发">首先开启内核转发</a></li>
+<li><a href="#运行-calico">运行 calico</a></li>
+<li><a href="#创建边界路由器">创建边界路由器</a></li>
+<li><a href="#部署-kube-proxy">部署 kube-proxy</a>
+<ul>
+<li><a href="#安装-conntrack">安装 conntrack</a></li>
+<li><a href="#创建-kube-proxy-的-service-配置文件">创建 kube-proxy 的 service 配置文件</a></li>
+<li><a href="#启动-kube-proxy">启动 kube-proxy</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-5-span-测试网关和-dns-解析以及服务访问情况"><span id="inline-toc">5.</span> 测试网关和 dns 解析以及服务访问情况</a></li>
+<li><a href="#span-id-inline-toc-6-span-参考"><span id="inline-toc">6.</span> 参考</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+
+<h2 id="span-id-inline-toc-1-span-kubernetes-中服务暴露的方式"><span id="inline-toc">1.</span> Kubernetes 中服务暴露的方式</h2>
+
+<hr />
+
+<p>k8s 的服务暴露分为以下几种情况：</p>
+
+<ul>
+<li>hostNetwork</li>
+<li>hostPort</li>
+<li>NodePort</li>
+<li>LoadBalancer</li>
+<li>Ingress</li>
+</ul>
+
+<p>说是暴露 Pod 其实跟暴露 Service 是一回事，因为 Pod 就是 Service 的 backend。</p>
+
+<h3 id="hostnetwork">HostNetwork</h3>
+
+<p>这是一种直接定义 Pod 网络的方式。</p>
+
+<p>如果在 Pod 中使用 <code>hostNotwork:true</code> 配置的话，在这种 pod 中运行的应用程序可以直接看到 pod 启动的主机的网络接口。在主机的所有网络接口上都可以访问到该应用程序。以下是使用主机网络的 pod 的示例定义：</p>
+
+<pre><code class="language-bash">apiVersion: v1
+kind: Pod
+metadata:
+  name: influxdb
+spec:
+  hostNetwork: true
+  containers:
+    - name: influxdb
+      image: influxdb
+</code></pre>
+
+<p>这种 Pod 的网络模式有一个用处就是可以将网络插件包装在 Pod 中然后部署在每个宿主机上，这样该 Pod 就可以控制该宿主机上的所有网络。</p>
+
+<p id="div-border-top-purple"><font color="red">缺点：</font>每次启动这个Pod的时候都可能被调度到不同的节点上，所有外部访问Pod的IP也是变化的，而且调度Pod的时候还需要考虑是否与宿主机上的端口冲突，因此一般情况下除非您知道需要某个特定应用占用特定宿主机上的特定端口时才使用 <code>hostNetwork: true</code> 的方式。</p>
+
+<h3 id="hostport">hostPort</h3>
+
+<p>这是一种直接定义 Pod 网络的方式。</p>
+
+<p><code>hostPort</code> 是直接将容器的端口与所调度的节点上的端口路由，这样用户就可以通过宿主机的 IP 加上来访问 Pod 了，如:</p>
+
+<pre><code class="language-bash">apiVersion: v1
+kind: Pod
+metadata:
+  name: influxdb
+spec:
+  containers:
+    - name: influxdb
+      image: influxdb
+      ports:
+        - containerPort: 8086
+          hostPort: 8086
+</code></pre>
+
+<p id="div-border-top-purple"><font color="red">缺点：</font>因为 Pod 重新调度的时候该Pod被调度到的宿主机可能会变动，这样就变化了，用户必须自己维护一个 Pod 与所在宿主机的对应关系。</p>
+
+<h3 id="nodeport">NodePort</h3>
+
+<p>NodePort 在 kubenretes 里是一个广泛应用的服务暴露方式。Kubernetes 中的 service 默认情况下都是使用的 ClusterIP 这种类型，这样的 service 会产生一个 ClusterIP，这个 IP 只能在集群内部访问，要想让外部能够直接访问 service，需要将 service type 修改为  <code>nodePort</code>。</p>
+
+<pre><code class="language-bash">apiVersion: v1
+kind: Pod
+metadata:
+  name: influxdb
+  labels:
+    name: influxdb
+spec:
+  containers:
+    - name: influxdb
+      image: influxdb
+      ports:
+        - containerPort: 8086
+</code></pre>
+
+<p>同时还可以给 service 指定一个 <code>nodePort</code> 值，范围是 30000-32767，这个值在 API server 的配置文件中，用&ndash; <code>service-node-port-range</code> 定义。</p>
+
+<pre><code class="language-bash">kind: Service
+apiVersion: v1
+metadata:
+  name: influxdb
+spec:
+  type: NodePort
+  ports:
+    - port: 8086
+      nodePort: 30000
+  selector:
+    name: influxdb
+</code></pre>
+
+<p>集群外就可以使用 kubernetes 任意一个节点的 IP 加上 30000 端口访问该服务了。kube-proxy 会自动将流量以 round-robin 的方式转发给该 service 的每一个 pod。</p>
+
+<p id="div-border-top-purple"><font color="red">缺点：</font>所有 node 上都会开启端口监听，且需要记住端口号。</p>
+
+<h3 id="loadbalancer">LoadBalancer</h3>
+
+<p><code>LoadBalancer</code> 只能在 service 上定义。这是公有云提供的负载均衡器，如 AWS、Azure、CloudStack、GCE 等。</p>
+
+<pre><code class="language-bash">kind: Service
+apiVersion: v1
+metadata:
+  name: influxdb
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8086
+  selector:
+    name: influxdb
+</code></pre>
+
+<p>查看服务：</p>
+
+<pre><code class="language-bash">$ kubectl get svc influxdb
+
+NAME       CLUSTER-IP     EXTERNAL-IP     PORT(S)          AGE
+influxdb   10.97.121.42   10.13.242.236   8086:30051/TCP   39s
+</code></pre>
+
+<p>内部可以使用 ClusterIP 加端口来访问服务，如 19.97.121.42:8086。</p>
+
+<p>外部可以用以下两种方式访问该服务：</p>
+
+<ul>
+<li>使用任一节点的 IP 加 30051 端口访问该服务</li>
+<li>使用 <code>EXTERNAL-IP</code> 来访问，这是一个 VIP，是云供应商提供的负载均衡器 IP，如 <code>10.13.242.236:8086</code>。</li>
+</ul>
+
+<p id="div-border-top-purple"><font color="red">缺点：</font>需要云服务商支持。</p>
+
+<h3 id="ingress">Ingress</h3>
+
+<p><code>Ingress</code> 是自 kubernetes1.1 版本后引入的资源类型。必须要部署 Ingress controller 才能创建 Ingress 资源，Ingress controller 是以一种插件的形式提供。Ingress controller 是部署在 Kubernetes 之上的 Docker 容器。它的 Docker 镜像包含一个像 <code>nginx</code> 或 <code>HAProxy</code> 的负载均衡器和一个控制器守护进程。控制器守护程序从 Kubernetes 接收所需的 Ingress 配置。它会生成一个 nginx 或 HAProxy 配置文件，并重新启动负载平衡器进程以使更改生效。换句话说，Ingress controller 是由 Kubernetes 管理的负载均衡器。</p>
+
+<p>Kubernetes Ingress 提供了负载平衡器的典型特性：HTTP 路由，粘性会话，SSL 终止，SSL 直通，TCP 和 UDP 负载平衡等。目前并不是所有的 Ingress controller 都实现了这些功能，需要查看具体的 Ingress controller 文档。</p>
+
+<pre><code class="language-bash">apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: influxdb
+spec:
+  rules:
+    - host: influxdb.kube.example.com
+      http:
+        paths:
+          - backend:
+              serviceName: influxdb
+              servicePort: 8086
+</code></pre>
+
+<p>外部访问 URL  <a href="http://influxdb.kube.example.com/ping" target="_blank">http://influxdb.kube.example.com/ping</a> 访问该服务，入口就是 80 端口，然后 <code>Ingress controller</code> 直接将流量转发给后端 Pod，不需再经过 kube-proxy 的转发，比 LoadBalancer 方式更高效。</p>
+
+<p id="div-border-top-purple"><font color="red">缺点：</font>80 端口暴露 必需通过域名引入，而且一次只能一条规则，很麻烦。</p>
+
+<p>但是在正常的虚拟机环境下，我们只需要一个 <code>IP 地址+端口</code> 即可访问服务。</p>
+
+<p>为什么我们不能做到像访问虚拟机一样直接访问 k8s 集群服务呢？当然可以，以下架构可以实现：</p>
+
+<ul>
+<li>打通 k8s 网络和物理网络直通</li>
+<li>物理网络的 dns 域名服务直接调用 k8s-dns 域名服务直接互访</li>
+</ul>
+
+<h2 id="span-id-inline-toc-2-span-集群环境"><span id="inline-toc">2.</span> 集群环境</h2>
+
+<hr />
+
+<h3 id="架构环境">架构环境</h3>
+
+<ul>
+<li>k8s 集群网络：<code>172.28.0.0/16</code></li>
+<li>k8s-service 网络：<code>10.96.0.0/12</code></li>
+<li>物理机网络：<code>192.168.0.0/16</code></li>
+</ul>
+
+<h3 id="k8s-集群节点">k8s 集群节点</h3>
+
+<pre><code class="language-bash">$ kubectl get cs
+
+NAME                 STATUS    MESSAGE              ERROR
+scheduler            Healthy   ok                   
+controller-manager   Healthy   ok                   
+etcd-0               Healthy   {&quot;health&quot;: &quot;true&quot;}
+
+$ kubectl get nodes -owide
+
+NAME      STATUS    AGE       VERSION   EXTERNAL-IP   OS-IMAGE                KERNEL-VERSION
+node1     Ready     13d       v1.7.11   &lt;none&gt;        CentOS Linux 7 (Core)   3.10.0-514.el7.x86_64
+node2     Ready     13d       v1.7.11   &lt;none&gt;        CentOS Linux 7 (Core)   3.10.0-514.el7.x86_64
+node3     Ready     13d       v1.7.11   &lt;none&gt;        CentOS Linux 7 (Core)   3.10.0-514.el7.x86_64
+</code></pre>
+
+<p>角色定义：</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">角色名称</th>
+<th align="left">IP 地址</th>
+<th align="left">主机名</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="left">边界网关路由器</td>
+<td align="left">192.168.2.173</td>
+<td align="left">calico-gateway</td>
+</tr>
+
+<tr>
+<td align="left">边界 dns 代理服务器</td>
+<td align="left">192.168.1.62</td>
+<td align="left">node3</td>
+</tr>
+</tbody>
+</table>
+
+<p>假设我们要访问 k8s 中的 <code>dao-2048</code> 服务：</p>
+
+<pre><code class="language-bash">$ kubectl get svc|egrep 'NAME|2048'
+
+NAME                              CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+dao-2048                          10.98.217.155    &lt;none&gt;        80/TCP           13m
+</code></pre>
+
+<p>该方案的架构原理如下：</p>
+
+<pre><code class="language-bash">          +-----------------+
+          |                 |
+          |  192.168.0.0/16 |          # 物理网络以域名或tcp方式发起访问k8s service以及端口
+          |                 |
+          +-----------------+
+                   |
+                   |
++------------------------------------+
+| dao-2048.default.svc.cluster.local |  # 请求k8s服务所在空间的服务名，完整域名
++------------------------------------+
+                   |
+                   |
+          +-----------------+
+          |                 |           # dns代理服务以ingress-udp pod的模式运行在此节点udp53号端口上，
+          |   192.168.1.62  |           # 为物理网络提供仿问k8s-dns的桥梁解析dns
+          |                 |           # 此节点应固定做为一个节点布署，所有外部机器设置dns为此 192.168.1.62
+          +-----------------+
+                   |
+                   |
+          +-----------------+
+          |                 |
+          |  10.98.217.155  |           # 获取 svc 的实际 clusterip
+          |                 |
+          +-----------------+
+                   |
+                   |
+          +-----------------+           # 边界网关,用于物理网络连接k8s集群，需要开启内核转发：net.ipv4.ip_forward=1
+          |                 |           # 所有外部物理机加一条静态路由：访问 k8s 网络 10.96.0.0/12 网段必需经过网关 192.168.2.173
+          |  192.168.2.173  |           # ip route add 10.96.0.0/12 via 192.168.2.173
+          |                 |           # 边界网关运行 kube-proxy 用于防火墙规则同步实现 svc 分流，此节点不运行 kubele 服务，不受 k8s 管控
+          +-----------------+
+                   |
+                   |
+         +-------------------+
+         |                   |
+         |  calico-Iface接口  |
+         |                   |
+         +-------------------+
+                   |
+                   |
+          +-----------------+
+          |   k8s 集群网络   |            # 流量最终到达 k8s 集群
+          +-----------------+
+</code></pre>
+
+<p>以下为该方案的实施步骤。</p>
+
+<h2 id="span-id-inline-toc-3-span-部署边界-dns-代理服务器"><span id="inline-toc">3.</span> 部署边界 dns 代理服务器</h2>
+
+<hr />
+
+<p>布署 dns 代理服务节点为外部提供 dns 服务,以 <code>hostNetwork: true</code> 为非 k8s 集群网络物理机节点提供 dns 服务</p>
+
+<pre><code class="language-bash">$ cd ~/dns-udp; ll ./
+
+total 20K
+-rw-r--r--. 1 root root 1.2K Feb 12 05:13 default-backend.yaml
+-rw-r--r--. 1 root root  140 Feb 12 05:14 nginx-udp-ingress-configmap.yaml
+-rw-r--r--. 1 root root 1.8K Feb 12 05:35 nginx-udp-ingress-controller.yaml
+-rw-r--r--. 1 root root 2.4K Feb 12 05:15 rbac.yaml
+
+$ cat default-backend.yaml
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: default-http-backend
+  labels:
+    app: default-http-backend
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: default-http-backend
+  template:
+    metadata:
+      labels:
+        app: default-http-backend
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: default-http-backend
+        # Any image is permissible as long as:
+        # &lt;span id=&quot;inline-toc&quot;&gt;1.&lt;/span&gt; It serves a 404 page at /
+        # &lt;span id=&quot;inline-toc&quot;&gt;2.&lt;/span&gt; It serves 200 on a /healthz endpoint
+        image: gcr.io/google_containers/defaultbackend:1.4
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: 10m
+            memory: 20Mi
+          requests:
+            cpu: 10m
+            memory: 20Mi
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: default-http-backend
+  namespace: kube-system
+  labels:
+    app: default-http-backend
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: default-http-backend
+    
+$ cat nginx-udp-ingress-configmap.yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-udp-ingress-configmap
+  namespace: kube-system
+data:
+  53: &quot;kube-system/kube-dns:53&quot;
+  
+$ cat nginx-udp-ingress-controller.yaml
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nginx-udp-ingress-controller
+  labels:
+    k8s-app: nginx-udp-ingress-lb
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: nginx-udp-ingress-lb
+  template:
+    metadata:
+      labels:
+        k8s-app: nginx-udp-ingress-lb
+        name: nginx-udp-ingress-lb
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - node3
+      hostNetwork: true
+      serviceAccountName: nginx-ingress-serviceaccount
+      terminationGracePeriodSeconds: 60
+      containers:
+      - image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.10.2
+        name: nginx-udp-ingress-lb
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 1
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        ports:
+        - containerPort: 80
+          hostPort: 80
+        - containerPort: 443
+          hostPort: 443
+        - containerPort: 53
+          hostPort: 53
+        args:
+        - /nginx-ingress-controller
+        - --default-backend-service=$(POD_NAMESPACE)/default-http-backend
+        - --udp-services-configmap=$(POD_NAMESPACE)/nginx-udp-ingress-configmap
+
+$ cat rbac.yaml
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nginx-ingress-serviceaccount
+  namespace: kube-system
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: nginx-ingress-clusterrole
+rules:
+  - apiGroups:
+      - &quot;&quot;
+    resources:
+      - configmaps
+      - endpoints
+      - nodes
+      - pods
+      - secrets
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - &quot;&quot;
+    resources:
+      - nodes
+    verbs:
+      - get
+  - apiGroups:
+      - &quot;&quot;
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - &quot;extensions&quot;
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - &quot;&quot;
+    resources:
+        - events
+    verbs:
+        - create
+        - patch
+  - apiGroups:
+      - &quot;extensions&quot;
+    resources:
+      - ingresses/status
+    verbs:
+      - update
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: nginx-ingress-role
+  namespace: kube-system
+rules:
+  - apiGroups:
+      - &quot;&quot;
+    resources:
+      - configmaps
+      - pods
+      - secrets
+      - namespaces
+    verbs:
+      - get
+  - apiGroups:
+      - &quot;&quot;
+    resources:
+      - configmaps
+    resourceNames:
+      # Defaults to &quot;&lt;election-id&gt;-&lt;ingress-class&gt;&quot;
+      # Here: &quot;&lt;ingress-controller-leader&gt;-&lt;nginx&gt;&quot;
+      # This has to be adapted if you change either parameter
+      # when launching the nginx-ingress-controller.
+      - &quot;ingress-controller-leader-nginx&quot;
+    verbs:
+      - get
+      - update
+  - apiGroups:
+      - &quot;&quot;
+    resources:
+      - configmaps
+    verbs:
+      - create
+  - apiGroups:
+      - &quot;&quot;
+    resources:
+      - endpoints
+    verbs:
+      - get
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: nginx-ingress-role-nisa-binding
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: nginx-ingress-role
+subjects:
+  - kind: ServiceAccount
+    name: nginx-ingress-serviceaccount
+    namespace: kube-system
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: nginx-ingress-clusterrole-nisa-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nginx-ingress-clusterrole
+subjects:
+  - kind: ServiceAccount
+    name: nginx-ingress-serviceaccount
+    namespace: kube-system
+    
+$ kubectl create -f ./
+
+deployment &quot;default-http-backend&quot; created
+service &quot;default-http-backend&quot; created
+configmap &quot;nginx-udp-ingress-configmap&quot; created
+deployment &quot;nginx-udp-ingress-controller&quot; created
+</code></pre>
+
+<p>通过 nginx 反向代理 <code>kube-dns</code> 服务，同时以 <code>hostNetwork: true</code> 向集群外部暴露 53 端口，为非 k8s 集群网络物理机节点提供 dns 服务。</p>
+
+<h2 id="span-id-inline-toc-4-span-部署-gateway-边界网关节点"><span id="inline-toc">4.</span> 部署 gateway 边界网关节点</h2>
+
+<hr />
+
+<p>此节点只运行 <code>calico</code> 和 <code>kube-proxy</code>。</p>
+
+<h3 id="首先开启内核转发">首先开启内核转发</h3>
+
+<pre><code class="language-bash">$ echo 'net.ipv4.ip_forward=1' &gt;&gt;/etc/sysctl.conf
+$ sysctl -p
+</code></pre>
+
+<h3 id="运行-calico">运行 calico</h3>
+
+<pre><code class="language-bash">$ docker run --net=host --privileged --name=calico-node -d --restart=always \
+  -v /etc/etcd/ssl:/etc/kubernetes/ssl \
+  -e ETCD_ENDPOINTS=https://192.168.1.60:12379 \
+  -e ETCD_KEY_FILE=/etc/kubernetes/ssl/peer-key.pem \
+  -e ETCD_CERT_FILE=/etc/kubernetes/ssl/peer-cert.pem \
+  -e ETCD_CA_CERT_FILE=/etc/kubernetes/ssl/ca.pem \
+  -e NODENAME=${HOSTNAME} \
+  -e IP= \
+  -e CALICO_IPV4POOL_CIDR=172.28.0.0/16 \
+  -e NO_DEFAULT_POOLS= \
+  -e AS= \
+  -e CALICO_LIBNETWORK_ENABLED=true \
+  -e IP6= \
+  -e CALICO_NETWORKING_BACKEND=bird \
+  -e FELIX_DEFAULTENDPOINTTOHOSTACTION=ACCEPT \
+  -v /var/run/calico:/var/run/calico \
+  -v /lib/modules:/lib/modules \
+  -v /run/docker/plugins:/run/docker/plugins \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /var/log/calico:/var/log/calico \
+  calico/node:v2.6.7
+</code></pre>
+
+<p>需要提前将相关证书拷贝到 <code>/etc/kubernetes/ssl/</code> 目录下。</p>
+
+<p id="div-border-top-red"><font color="blue">注意：</font>此处的 <code>-e CALICO_IPV4POOL_CIDR=172.28.0.0/16</code> 要与 k8s 集群网络的网段一致</p>
+
+<h3 id="创建边界路由器">创建边界路由器</h3>
+
+<p>以下命令在 k8s 的 master 节点上进行操作</p>
+
+<pre><code class="language-bash">$ cat bgpPeer.yaml
+
+apiVersion: v1
+kind: bgpPeer
+metadata:
+  peerIP: 192.168.2.173
+  scope: global
+spec:
+  asNumber: 64512
+  
+$ calicoctl  create -f bgpPeer.yaml
+</code></pre>
+
+<p>查看 node 情况</p>
+
+<pre><code class="language-bash">$ calicoctl node status
+
+Calico process is running.
+
+IPv4 BGP status
++---------------+-------------------+-------+------------+-------------+
+| PEER ADDRESS  |     PEER TYPE     | STATE |   SINCE    |    INFO     |
++---------------+-------------------+-------+------------+-------------+
+| 192.168.1.61  | node-to-node mesh | up    | 2018-01-29 | Established |
+| 192.168.1.62  | node-to-node mesh | up    | 2018-02-09 | Established |
+| 192.168.2.173 | node-to-node mesh | up    | 2018-02-09 | Established |
+| 192.168.2.173 | global            | start | 2018-02-09 | Idle        |
++---------------+-------------------+-------+------------+-------------+
+
+IPv6 BGP status
+No IPv6 peers found.
+</code></pre>
+
+<p>查看全局对等体节点</p>
+
+<pre><code class="language-bash">$ calicoctl get bgpPeer --scope=global
+
+SCOPE    PEERIP          NODE   ASN     
+global   192.168.2.173          64512
+</code></pre>
+
+<h3 id="部署-kube-proxy">部署 kube-proxy</h3>
+
+<h4 id="安装-conntrack">安装 conntrack</h4>
+
+<pre><code class="language-bash">$ yum install -y conntrack-tools
+</code></pre>
+
+<h4 id="创建-kube-proxy-的-service-配置文件">创建 kube-proxy 的 service 配置文件</h4>
+
+<p>文件路径 <code>/usr/lib/systemd/system/kube-proxy.service</code>。</p>
+
+<pre><code class="language-bash">[Unit]
+Description=Kubernetes Kube-Proxy Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/proxy
+ExecStart=/usr/local/bin/kube-proxy \
+        --logtostderr=true \
+        --v=2 \
+        --bind-address=192.168.2.173 \
+        --hostname-override=192.168.2.173 \
+        --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
+        --proxy-mode=iptables \
+        --cluster-cidr=172.28.0.0/16
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>需要提前将 <code>kube-proxy.kubeconfig</code> 文件拷贝到 <code>/etc/kubernetes/</code> 目录下。</p>
+
+<h4 id="启动-kube-proxy">启动 kube-proxy</h4>
+
+<pre><code class="language-bash">$ systemctl daemon-reload
+$ systemctl enable kube-proxy
+$ systemctl start kube-proxy
+</code></pre>
+
+<h2 id="span-id-inline-toc-5-span-测试网关和-dns-解析以及服务访问情况"><span id="inline-toc">5.</span> 测试网关和 dns 解析以及服务访问情况</h2>
+
+<hr />
+
+<p>找台集群外的机器来验证，这台机器只有一个网卡，没有安装 <code>calico</code>。</p>
+
+<ul>
+<li><p>添加路由</p>
+
+<pre><code class="language-bash">$ ip route add 10.96.0.0/12 via 192.168.2.173 dev ens160
+</code></pre></li>
+
+<li><p>修改 dns 为 <code>192.168.1.62</code></p>
+
+<pre><code class="language-bash">$ cat /etc/resolv.conf
+
+nameserver 192.168.1.62
+search default.svc.cluster.local svc.cluster.local cluster.local
+nameserver 223.5.5.5
+</code></pre></li>
+
+<li><p>解析 <code>dao-2048</code> 服务的域名</p>
+
+<pre><code class="language-bash">$ dig dao-2048.default.svc.cluster.local
+
+; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-51.el7_4.2 &lt;&lt;&gt;&gt; dao-2048.default.svc.cluster.local
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 57053
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;dao-2048.default.svc.cluster.local. IN A
+
+;; ANSWER SECTION:
+dao-2048.default.svc.cluster.local. 5 IN A      10.98.217.155
+
+;; Query time: 1 msec
+;; SERVER: 192.168.1.62#53(192.168.1.62)
+;; WHEN: Mon Feb 12 06:46:38 EST 2018
+;; MSG SIZE  rcvd: 79
+</code></pre></li>
+
+<li><p>访问 <code>dao-2048</code> 服务</p>
+
+<pre><code class="language-bash">$ curl dao-2048.default.svc.cluster.local
+
+* About to connect() to dao-2048.default.svc.cluster.local port 80 (#0)
+*   Trying 10.98.217.155...
+* Connected to dao-2048.default.svc.cluster.local (10.98.217.155) port 80 (#0)
+&gt; GET / HTTP/1.1
+&gt; User-Agent: curl/7.29.0
+&gt; Host: dao-2048.default.svc.cluster.local
+&gt; Accept: */*
+&gt; 
+&lt; HTTP/1.1 200 OK
+&lt; Server: nginx/1.10.1
+&lt; Date: Mon, 12 Feb 2018 11:47:58 GMT
+&lt; Content-Type: text/html
+&lt; Content-Length: 4085
+&lt; Last-Modified: Sun, 11 Feb 2018 11:31:27 GMT
+&lt; Connection: keep-alive
+&lt; ETag: &quot;5a80298f-ff5&quot;
+&lt; Accept-Ranges: bytes
+&lt; 
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;title&gt;2048&lt;/title&gt;
+.........
+</code></pre></li>
+</ul>
+
+<p><strong><font color="red">成功访问！</font></strong></p>
+
+<p>如果是 windows 用户，添加路由可以用管理员打开 cmd 命令运行：</p>
+
+<pre><code class="language-bash">$ route ADD -p 172.28.0.0 MASK 255.255.0.0 192.168.2.173
+</code></pre>
+
+<p id="div-border-top-red"><font color="blue">PS：</font>如果你不想一台台机器加路由和 dns，你可以把路由信息加入物理路由器上，这样就不用每台机都加路由和 dns 了，直接打通所有链路。</p>
+
+<h2 id="span-id-inline-toc-6-span-参考"><span id="inline-toc">6.</span> 参考</h2>
+
+<hr />
+
+<p><a href="http://blog.csdn.net/idea77/article/details/73863822" target="_blank">k8s-dns-gateway 网关网络扩展实战</a></p>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/kubernetes/"><i class="fa fa-tags"></i>kubernetes</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/docker/"><i class="fa fa-tags"></i>docker</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fk8s-network-expand%2f&amp;title=Kubernetes%20%e7%bd%91%e7%bb%9c%e6%89%a9%e5%b1%95&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191204221704.png" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fk8s-network-expand%2f&amp;title=Kubernetes%20%e7%bd%91%e7%bb%9c%e6%89%a9%e5%b1%95&amp;source=Kubernetes%20%e7%bd%91%e7%bb%9c%e6%89%a9%e5%b1%95&amp;desc=&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191204221704.png&amp;summary=" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fk8s-network-expand%2f&amp;text=Kubernetes%20%e7%bd%91%e7%bb%9c%e6%89%a9%e5%b1%95&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fk8s-network-expand%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fk8s-network-expand%2f&amp;title=Kubernetes%20%e7%bd%91%e7%bb%9c%e6%89%a9%e5%b1%95" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/sealos/">kubernetes 高可用部署工具：sealos</a></li>
+                
+                    <li><a href="/posts/what-happens-when-k8s/">kubectl 创建 Pod 背后到底发生了什么？</a></li>
+                
+                    <li><a href="/posts/multiarch-docker-with-buildx/">使用 buildx 构建多平台 Docker 镜像</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/kubesphere/">KubeSphere 安装教程</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/calico-rr/" data-toggle="tooltip" data-placement="top" title="calico Router reflection(RR) 模式介绍及部署">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/federation/" data-toggle="tooltip" data-placement="top" title="Kubernetes 使用集群联邦实现多集群管理">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

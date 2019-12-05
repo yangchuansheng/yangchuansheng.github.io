@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>contour on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/contour/</link>
+    <description>Recent content in contour on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Fri, 06 Sep 2019 02:08:54 +0800</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/contour/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布</title>
+      <link>https://fuckcloudnative.io/posts/blue-green-deployments-contours-ingressroute/</link>
+      <pubDate>Fri, 06 Sep 2019 02:08:54 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/blue-green-deployments-contours-ingressroute/</guid>
+      <description>上篇文章介绍了 Contour 分布式架构的工作原理，顺便简单介绍了下 IngressRoute 的使用方式。本文将探讨 IngressRoute 更高级的用法，其中级联功能是重点。 1. IngressRoute 大入门 上篇文章在 examples/example-workload 目录</description>
+    </item>
+    
+  </channel>
+</rss>

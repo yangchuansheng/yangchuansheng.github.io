@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>docker on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/docker/</link>
+    <description>Recent content in docker on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Sun, 17 Nov 2019 13:54:43 -0500</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/docker/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>使用 buildx 构建多平台 Docker 镜像</title>
+      <link>https://fuckcloudnative.io/posts/multiarch-docker-with-buildx/</link>
+      <pubDate>Sun, 17 Nov 2019 13:54:43 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/multiarch-docker-with-buildx/</guid>
+      <description>在工作和生活中，我们可能经常需要将某个程序跑在不同的 CPU 架构上，比如让某些不可描述的软件运行在树莓派或嵌入式路由器设备上。特别是 Docker 席卷全球之后</description>
+    </item>
+    
+    <item>
+      <title>你确定你会写 Dockerfile 吗？</title>
+      <link>https://fuckcloudnative.io/posts/intro-guide-to-dockerfile-best-practices/</link>
+      <pubDate>Tue, 09 Jul 2019 17:53:17 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/intro-guide-to-dockerfile-best-practices/</guid>
+      <description>原文链接：Intro Guide to Dockerfile Best Practices 如今 GitHub 仓库中已经包含了成千上万的 Dockerfile，但并不是所有的 Dockerfile 都是高效的。本文将从五个方面来介绍 Dockerfile 的最</description>
+    </item>
+    
+    <item>
+      <title>使用 envoy-docker-shim 替代 docker-proxy</title>
+      <link>https://fuckcloudnative.io/posts/envoy-docker-shim/</link>
+      <pubDate>Fri, 22 Jun 2018 08:22:07 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/envoy-docker-shim/</guid>
+      <description>在过去一年中，服务网格技术的崛起引发了吃瓜群众对 Istio 的持续关注，而 Istio 的核心组件 Envoy 是一款由 Lyft 开源的，使用 C++ 编写的 L7 代理和通信总线，目前是 CNCF 旗下的</description>
+    </item>
+    
+    <item>
+      <title>CRI-O 简介</title>
+      <link>https://fuckcloudnative.io/posts/cri-o/</link>
+      <pubDate>Tue, 03 Apr 2018 08:11:38 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/cri-o/</guid>
+      <description>上一篇 https://www.yangcs.net/posts/container-runtime/ 介绍了什么是容器运行时，并列出了不同的容器运行时。本篇重点介绍其中的一种容器运行时 CRI-O。 1. CRI-O 的诞生 当容器运行时（Contain</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 中的容器运行时</title>
+      <link>https://fuckcloudnative.io/posts/container-runtime/</link>
+      <pubDate>Tue, 03 Apr 2018 06:50:43 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/container-runtime/</guid>
+      <description>容器运行时（Container Runtime）是 Kubernetes 最重要的组件之一，负责真正管理镜像和容器的生命周期。Kubelet 通过 Container Runtime Interface (CRI) 与容器运行时</description>
+    </item>
+    
+    <item>
+      <title>docker 在本地如何管理 image（镜像）?</title>
+      <link>https://fuckcloudnative.io/posts/how-manage-image/</link>
+      <pubDate>Mon, 02 Apr 2018 05:12:18 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/how-manage-image/</guid>
+      <description>docker 里面可以通过 docker pull、docker build、docker commit、docker load、docker import 等方式得到一个 image，得</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 网络扩展</title>
+      <link>https://fuckcloudnative.io/posts/k8s-network-expand/</link>
+      <pubDate>Sun, 11 Feb 2018 10:40:33 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/k8s-network-expand/</guid>
+      <description>1. Kubernetes 中服务暴露的方式 k8s 的服务暴露分为以下几种情况： hostNetwork hostPort NodePort LoadBalancer Ingress 说是暴露 Pod 其实跟暴露 Service 是一回事，因为 Pod 就是 Service 的 backend。 HostNetwork 这是一种直接定义</description>
+    </item>
+    
+    <item>
+      <title>calico Router reflection(RR) 模式介绍及部署</title>
+      <link>https://fuckcloudnative.io/posts/calico-rr/</link>
+      <pubDate>Thu, 01 Feb 2018 11:03:49 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/calico-rr/</guid>
+      <description>1. 名词解释 endpoint：接入到网络中的设备称为 endpoint ❤ AS：网络自治系统，一个完全自治的网络，通过 BGP 协议与其它 AS 交换路由信息 ibgp：AS 内</description>
+    </item>
+    
+    <item>
+      <title>Device Mapper基础教程：Docker 中使用 devicemapper 存储驱动</title>
+      <link>https://fuckcloudnative.io/posts/use-devicemapper/</link>
+      <pubDate>Mon, 22 Jan 2018 16:17:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/use-devicemapper/</guid>
+      <description>1. 准备条件 devicemapper 存储驱动是 RHEL, CentOS 和 Oracle Linux 系统上唯一一个支持 Docker EE 和 Commercially Supported Docker Engine (CS-Engine) 的存储驱动，具体参考 Product compatibility matrix. devicemapper 在 CentOS, Fedora, Ubuntu 和 Debian 上也支持 Docker CE。 如果你更改了 Docker 的存</description>
+    </item>
+    
+    <item>
+      <title>Device Mapper系列基础教程：Thin Provisioning 实践</title>
+      <link>https://fuckcloudnative.io/posts/thin-provisioning/</link>
+      <pubDate>Mon, 22 Jan 2018 16:00:22 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/thin-provisioning/</guid>
+      <description>1. Thin Provisioning Snapshot 演示 上一篇我们介绍了 Device Mapper 框架的技术原理及其核心概念，下面，我们用一系列的命令来演示一下 Device Mapper 的 Thin Provisioning Snapshot 是怎么玩的。 首先，我们需要先建两个</description>
+    </item>
+    
+    <item>
+      <title>Device Mapper系列基础教程：Device Mapper 的原理</title>
+      <link>https://fuckcloudnative.io/posts/devicemapper-theory/</link>
+      <pubDate>Sun, 21 Jan 2018 09:28:41 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/devicemapper-theory/</guid>
+      <description>1. Device Mapper 简介 注意 Device Mapper 是 linux 的内核用来将块设备映射到虚拟块设备的 framework，它支持许多高级卷管理技术。docker 的 devicemapper 存储驱动程序利用此框</description>
+    </item>
+    
+  </channel>
+</rss>

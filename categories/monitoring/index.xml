@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>monitoring on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/categories/monitoring/</link>
+    <description>Recent content in monitoring on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Tue, 08 Oct 2019 01:49:41 +0800</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/categories/monitoring/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Grafana 6.4 正式发布！</title>
+      <link>https://fuckcloudnative.io/posts/grafana-v6.4-released/</link>
+      <pubDate>Tue, 08 Oct 2019 01:49:41 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/grafana-v6.4-released/</guid>
+      <description>英文原文：Grafana v6.4 Released 2019 年 10 月 2 日，也就是中国的国庆期间，Grafana 实验室正式发布了 Grafana 6.4 版本。这个版本主要围绕数据模型和指标查询对</description>
+    </item>
+    
+    <item>
+      <title>一文搞懂 Prometheus 的直方图</title>
+      <link>https://fuckcloudnative.io/posts/prometheus-histograms/</link>
+      <pubDate>Tue, 06 Aug 2019 14:25:12 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/prometheus-histograms/</guid>
+      <description>Prometheus 中提供了四种指标类型（参考：Prometheus 的指标类型），其中直方图（Histogram）和摘要（Summary）是最复杂和难以理解的</description>
+    </item>
+    
+  </channel>
+</rss>

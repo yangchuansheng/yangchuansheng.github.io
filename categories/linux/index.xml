@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>linux on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/categories/linux/</link>
+    <description>Recent content in linux on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Mon, 04 Nov 2019 23:47:34 -0500</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/categories/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>并发与并行的区别</title>
+      <link>https://fuckcloudnative.io/posts/concurrency-is-not-parallelism/</link>
+      <pubDate>Mon, 04 Nov 2019 23:47:34 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/concurrency-is-not-parallelism/</guid>
+      <description>现在我们都说设计可并行、高并发的程序，而且我们很多时候会在潜意识里觉得自己对并行（Parallelism）和并发（Concurrency）的</description>
+    </item>
+    
+    <item>
+      <title>Linux Capabilities 入门教程：基础实战篇</title>
+      <link>https://fuckcloudnative.io/posts/linux-capabilities-in-practice-1/</link>
+      <pubDate>Sun, 03 Nov 2019 23:23:19 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/linux-capabilities-in-practice-1/</guid>
+      <description>该系列文章总共分为三篇： Linux Capabilities 入门教程：概念篇 Linux Capabilities 入门教程：基础实战篇 待续&amp;hellip; 上篇文章介绍了 Linux capabilities 的诞生背景和基本原理，本文将会通过</description>
+    </item>
+    
+    <item>
+      <title>Linux Capabilities 入门教程：概念篇</title>
+      <link>https://fuckcloudnative.io/posts/linux-capabilities-why-they-exist-and-how-they-work/</link>
+      <pubDate>Sun, 27 Oct 2019 09:57:11 -0400</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/linux-capabilities-why-they-exist-and-how-they-work/</guid>
+      <description>该系列文章总共分为三篇： Linux Capabilities 入门教程：概念篇 Linux Capabilities 入门教程：基础实战篇 待续&amp;hellip; Linux 是一种安全的操作系统，它把所有的系统权限都赋予了一</description>
+    </item>
+    
+    <item>
+      <title>nftables 使用教程</title>
+      <link>https://fuckcloudnative.io/posts/using-nftables/</link>
+      <pubDate>Sun, 29 Sep 2019 21:01:14 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/using-nftables/</guid>
+      <description>如果你没有生活在上个世纪，并且是云计算或相关领域的一名搬砖者，那你应该听说最近 CentOS 8 官方正式版已经发布了，CentOS 完全遵守 Red Hat 的再发行政策</description>
+    </item>
+    
+    <item>
+      <title>Linux Cgroup 入门教程：内存</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-3-memory/</link>
+      <pubDate>Thu, 25 Jul 2019 22:41:11 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-3-memory/</guid>
+      <description>该系列文章总共分为三篇： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 通过上篇文章的学习，我们学会了如何查看当前 cgroup 的信息，如何</description>
+    </item>
+    
+    <item>
+      <title>Linux Cgroup 入门教程：CPU</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-2-cpu/</link>
+      <pubDate>Fri, 31 May 2019 17:21:52 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-2-cpu/</guid>
+      <description>该系列文章总共分为三篇： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 上篇文章主要介绍了 cgroup 的一些基本概念，包括其在 CentOS 系统中的默</description>
+    </item>
+    
+    <item>
+      <title>Linux Cgroup 入门教程：基本概念</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-1-basics/</link>
+      <pubDate>Wed, 22 May 2019 17:13:10 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-1-basics/</guid>
+      <description>该系列文章总共分为三篇： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 Cgroup 是 Linux kernel 的一项功能：它是在一个系统中运行的层级制进程组，</description>
+    </item>
+    
+    <item>
+      <title>CPU 使用率 100% 的解决办法</title>
+      <link>https://fuckcloudnative.io/posts/how-to-deal-with-increasing-of-cpu-usage/</link>
+      <pubDate>Fri, 30 Nov 2018 17:45:57 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/how-to-deal-with-increasing-of-cpu-usage/</guid>
+      <description>本文经作者许可，转载自 极客时间 你好，我是倪朋飞。 通过前两节对平均负载和 CPU 上下文切换的学习，我相信你对 CPU 的性能已经有了初步了解。不过我还是想问</description>
+    </item>
+    
+  </channel>
+</rss>

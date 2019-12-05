@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨" name="keywords">
+
+  <meta name="description" content="本文主要介绍了 IngressRoute 级联功能的用法，探讨了如何使用级联功能来实现蓝绿部署和金丝雀发布。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/blue-green-deployments-contours-ingressroute\/",
+          "name": "Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布",
+  "description" : "本文主要介绍了 IngressRoute 级联功能的用法，探讨了如何使用级联功能来实现蓝绿部署和金丝雀发布。",
+  "inLanguage" : "zh",
+  "wordCount":  2633 ,
+  "datePublished" : "2019-09-06T02:08:54",
+  "dateModified" : "2019-09-06T02:08:54",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "envoy, kubernetes, contour" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/blue-green-deployments-contours-ingressroute\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布" />
+<meta property="og:description" content="本文主要介绍了 IngressRoute 级联功能的用法，探讨了如何使用级联功能来实现蓝绿部署和金丝雀发布。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/blue-green-deployments-contours-ingressroute/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布" />
+  <meta name="twitter:description" content="本文主要介绍了 IngressRoute 级联功能的用法，探讨了如何使用级联功能来实现蓝绿部署和金丝雀发布。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">IngressRoute 级联功能不完全指南</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 9 月 6 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2633&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Contour 学习笔记（二）：使用级联功能实现蓝绿部署和金丝雀发布</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">IngressRoute 级联功能不完全指南</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 9 月 6 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2633&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-ingressroute-大入门"><span id="inline-toc">1.</span> IngressRoute 大入门</a></li>
+<li><a href="#span-id-inline-toc-2-span-级联功能介绍"><span id="inline-toc">2.</span> 级联功能介绍</a></li>
+<li><a href="#span-id-inline-toc-3-span-蓝绿部署"><span id="inline-toc">3.</span> 蓝绿部署</a></li>
+<li><a href="#span-id-inline-toc-4-span-金丝雀发布"><span id="inline-toc">4.</span> 金丝雀发布</a></li>
+<li><a href="#span-id-inline-toc-5-span-参考资料"><span id="inline-toc">5.</span> 参考资料</a></li>
+<li><a href="#微信公众号">微信公众号</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<p><a href="https://www.yangcs.net/posts/use-envoy-as-a-kubernetes-ingress/" target="_blank">上篇文章</a>介绍了 Contour 分布式架构的工作原理，顺便简单介绍了下 IngressRoute 的使用方式。本文将探讨 IngressRoute 更高级的用法，其中级联功能是重点。</p>
+
+<h2 id="span-id-inline-toc-1-span-ingressroute-大入门"><span id="inline-toc">1.</span> IngressRoute 大入门</h2>
+
+<hr />
+
+<p>上篇文章在 <code>examples/example-workload</code> 目录下创建了一个示例应用，我们来回顾一下它的 <code>IngressRoute</code> 配置：</p>
+
+<pre><code class="language-yaml">apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata: 
+  labels:
+    app: kuard
+  name: kuard
+  namespace: default
+spec: 
+  virtualhost:
+    fqdn: kuard.local
+  routes: 
+    - match: /
+      services: 
+        - name: kuard
+          port: 80
+</code></pre>
+
+<ul>
+<li><strong>virtualhost</strong> : 该字段是 root IngressRoute，表示此域的顶级入口点。</li>
+<li><strong>fqdn</strong> : 该字段指定了<a href="https://www.wikiwand.com/zh/%E5%AE%8C%E6%95%B4%E7%B6%B2%E5%9F%9F%E5%90%8D%E7%A8%B1" target="_blank">完整的域名</a>，可以通过在 HTTP 请求头中指定 <code>Host:</code> 字段来访问该服务。</li>
+</ul>
+
+<p>这是最简单是使用方法，看起来没什么特别的，我们来稍作修改一下：</p>
+
+<pre><code class="language-yaml">apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata: 
+  labels:
+    app: kuard
+  name: kuard
+  namespace: default
+spec: 
+  virtualhost:
+    fqdn: kuard.local
+  routes: 
+    - match: /test
+      services: 
+        - name: kuard
+          port: 80
+</code></pre>
+
+<p>将 <code>match: /</code> 改为 <code>match: /test</code>，然后重新应用新规则。这时如果你访问 url <code>kuard.local/test</code> 是不通的，因为 kuard 服务本身并没有 <code>/test</code> 这个路径，我们可以强制将路径重写为 <code>/</code>：</p>
+
+<pre><code class="language-yaml">apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata: 
+  labels:
+    app: kuard
+  name: kuard
+  namespace: default
+spec: 
+  virtualhost:
+    fqdn: kuard.local
+  routes: 
+    - match: /test
+      prefixRewrite: &quot;/&quot;
+      services: 
+        - name: kuard
+          port: 80
+</code></pre>
+
+<p>重新 apply 之后，再次访问 url <code>kuard.local/test</code> 就通了。</p>
+
+<p>这里可以和标准的 <code>ingress</code> 对象对比一下，<code>IngressRoute</code> 的优势在于它可以分别对每个路由设置 rewrite 规则，而 Nginx Ingress Controller 只能设置全局的 rewrite 规则，因为它用的是 <code>annotations</code>。虽然可以通过其他手段来实现，但相对来说会比较麻烦。</p>
+
+<h2 id="span-id-inline-toc-2-span-级联功能介绍"><span id="inline-toc">2.</span> 级联功能介绍</h2>
+
+<hr />
+
+<p>下面我们来看看 <code>IngressRoute</code> 的级联功能，这是个非常有特色的功能，你可以通过级联多个路由规则，上层 IngressRoute 的配置被下层继承。例如，我们可以将 url 路径 <code>/</code> 的路由规则级联到其他的 <code>IngressRoute</code> 中，其他的 <code>IngressRoute</code> 可以来自不同的 namespace。</p>
+
+<p>举个例子，我们可以先创建一个这样的 IngressRoute：</p>
+
+<pre><code class="language-yaml">$ cat &gt; delegate-from-main.yaml &lt;&lt;EOF
+apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata:
+  name: delegate-from-main
+spec:
+  routes:
+    - match: /
+      services:
+        - name: kuard
+          port: 80
+EOF
+</code></pre>
+
+<pre><code class="language-bash">$ kubectl apply -f delegate-from-main.yaml
+
+$ kubectl get ingressroute delegate-from-main -o jsonpath='{.status.currentStatus}'
+orphaned
+</code></pre>
+
+<p>该 IngressRoute 的状态为 <code>orphaned</code>，因为它没有包含一个合法的 fqdn。接下来需要创建一个 root IngressRoute 来和它进行级联：</p>
+
+<pre><code class="language-yaml">apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata: 
+  labels:
+    app: kuard
+  name: kuard
+  namespace: default
+spec: 
+  virtualhost:
+    fqdn: kuard.local
+  routes: 
+    - match: /
+      delegate:
+        name: delegate-from-main
+        namespace: default
+</code></pre>
+
+<p>这时如果再检查 IngressRoute delegate-from-main 的状态，就会发现它从 <code>orphaned</code> 状态变成了 <code>valid</code> 状态，<code>kuard.local</code> 也能够顺利访问。</p>
+
+<p>了解了级联功能的用法之后，下面就来看看它的应用场景。</p>
+
+<ul>
+<li><strong>场景一：</strong>可以使用级联功能来做蓝绿部署和灰度发布，只需要在上层 IngressRoute 中稍作修改，切换到另一个下层 IngressRoute，就可以切换流量的处理规则。</li>
+<li><strong>场景二：</strong>管理员可以利用级联功能将部分 ingress 的权限放行到其他的 <code>namespace</code> 中，在这些 namespace 中，用户可以自由更新与 root IngressRoute 级联的相关的 IngressRoute。例如，如果管理员想防止其他用户配置非法的域名或路径，可以将该部分的配置权限放到 root IngressRoute 中，其他 <code>namespace</code> 中的下层 IngressRoute 中只能配置各自的路径相关信息。</li>
+</ul>
+
+<p>接下来主要探讨场景一。</p>
+
+<h2 id="span-id-inline-toc-3-span-蓝绿部署"><span id="inline-toc">3.</span> 蓝绿部署</h2>
+
+<hr />
+
+<p>蓝绿部署简单来讲就是在生产环境中有两套系统：一套是<strong>正在提供服务</strong>的系统，标记为“绿色”；另一套是<strong>准备发布</strong>的系统，标记为“蓝色”。两套系统都是功能完善的，并且正在运行的系统，只是系统版本和对外服务情况不同。</p>
+
+<p>最初，没有任何系统，没有蓝绿之分。</p>
+
+<p>然后，第一套系统开发完成，直接上线，这个过程只有一个系统，也没有蓝绿之分。</p>
+
+<p>后来，开发了新版本，要用新版本替换线上的旧版本，在线上的系统之外，搭建了一个使用新版本代码的全新系统。 这时候，一共有两套系统在运行，正在对外提供服务的老系统是绿色系统，新部署的系统是蓝色系统。</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-134200.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-134200.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-134200.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>蓝色系统不对外提供服务，用来做啥？</p>
+
+<p>用来做发布前测试，测试过程中发现任何问题，可以直接在蓝色系统上修改，不干扰用户正在使用的系统。（注意，两套系统没有耦合的时候才能百分百保证不干扰）</p>
+
+<p>蓝色系统经过反复的测试、修改、验证，确定达到上线标准之后，直接将用户切换到蓝色系统：</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-134255.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-134255.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-134255.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>切换后的一段时间内，依旧是蓝绿两套系统并存，但是用户访问的已经是蓝色系统。这段时间内观察蓝色系统（新系统）工作状态，如果出现问题，直接切换回绿色系统。</p>
+
+<p>当确信对外提供服务的蓝色系统工作正常，不对外提供服务的绿色系统已经不再需要的时候，蓝色系统正式成为对外提供服务系统，成为新的绿色系统。 原先的绿色系统可以销毁，将资源释放出来，用于部署下一个蓝色系统。</p>
+
+<p>通过 IngressRoute 的级联功能可以很方便地实现蓝绿部署策略，首先创建一个上层的 root IngressRoute（假设名为 <code>root-blog</code>），然后将域名 <code>yangcs.net/blogs</code> 的路由策略级联到下层的 IngressRoute（名为 <code>blog</code>）。我们会同时部署”蓝色“版本和”绿色“版本的应用，此时只有”绿色“版本接收流量。</p>
+
+<pre><code class="language-yaml">---
+apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata:
+  name: root-blog
+  namespace: root-ingressroute
+spec:
+  virtualhost:
+    fqdn: yangcs.net
+    tls:
+      secretName: yangcs-net
+  routes:
+    - match: /blog
+      delegate:
+        name: blog
+        namespace: marketing
+---
+apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata:
+  name: blog
+  namespace: marketing
+spec:
+  routes:
+    - match: /blog
+      services:
+        - name: green
+          port: 80
+
+---
+apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata:
+  name: blog2
+  namespace: marketing
+spec:
+  routes:
+    - match: /blog
+      services:
+        - name: blue
+          port: 80
+</code></pre>
+
+<p>在对蓝色版本进行测试验证之后，就可以将用户切换到蓝色应用了：</p>
+
+<pre><code class="language-yaml">apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata:
+  name: root-blog
+  namespace: root-ingressroute
+spec:
+  virtualhost:
+    fqdn: yangcs.net
+    tls:
+      secretName: yangcs-net
+  routes:
+    - match: /blog
+      delegate:
+        name: blog2
+        namespace: marketing
+</code></pre>
+
+<h2 id="span-id-inline-toc-4-span-金丝雀发布"><span id="inline-toc">4.</span> 金丝雀发布</h2>
+
+<hr />
+
+<p>金丝雀发布（Canary）也是一种发布策略，和国内常说的<code>灰度发布</code>是同一类策略。它和蓝绿有点像，但是它更加规避风险。你可以阶段性的进行，而不用一次性从蓝色版本切换到绿色版本。</p>
+
+<p>采用金丝雀部署，你可以在生产环境的基础设施中小范围的部署新的应用代码。一旦应用签署发布，只有少数用户被路由到它，可以最大限度的降低影响。</p>
+
+<p>如果没有错误发生，把剩余的 V1 版本全部升级为 V2 版本。如果有错误发生，则直接回退到老版本，发布失败。下图示范了金丝雀部署：</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-142053.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-142053.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-142053.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>其实金丝雀发布的名称来源于一个典故。在 17 世纪，英国矿井工人发现，金丝雀对瓦斯这种气体特别敏感，空气中哪怕有极其微量的瓦斯，金丝雀也会停止唱歌。当瓦斯含量超过一定限度时，人类毫无察觉，但金丝雀却会毒发身亡。当时在采矿设备相对简陋的条件下，工人们每次下井都会带上一只金丝雀作为”瓦斯检测指标“，以便在危险情况下紧急撤离。映射到这里就是先发布一小部分来试探整体是否能够正常运行，如果能正常运行则进行完全部署的发布方式，目前仍然是不少成长型技术组织的主流发布方式。</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-164538.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-164538.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-09-05-164538.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>IngressRoute 可以通过分配权重来实现金丝雀发布，和蓝绿部署一样，首先创建一个上层的 root IngressRoute（名为 <code>root-blog</code>），然后将域名 <code>yangcs.net/blogs</code> 的路由策略级联到下层的 IngressRoute（名为 <code>blog</code>）。在下层的 IngressRoute 中将流量按不同权重转发到不同的后端服务。</p>
+
+<pre><code class="language-yaml">apiVersion: contour.heptio.com/v1beta1
+kind: IngressRoute
+metadata:
+  name: blog
+  namespace: marketing
+spec:
+  routes:
+    - match: /blog
+      services:
+        - name: green
+          port: 80
+          weight: 5
+        - name: blue
+          port: 80
+          weight: 95
+</code></pre>
+
+<p>如果没有错误发生，就将 green 的权重调整为 <code>100</code>，blue 的权重调整为 <code>0</code>。至此就完成了金丝雀发布。</p>
+
+<p>本文主要介绍了 <code>IngressRoute</code> 级联功能的用法，探讨了如何使用级联功能来实现蓝绿部署和金丝雀发布，后面的文章将会陆续探讨其他的流量治理功能。</p>
+
+<h2 id="span-id-inline-toc-5-span-参考资料"><span id="inline-toc">5.</span> 参考资料</h2>
+
+<hr />
+
+<ul>
+<li><a href="https://www.lijiaocn.com/%E6%96%B9%E6%B3%95/2018/10/23/devops-blue-green-deployment-ab-test-canary.html" target="_blank">蓝绿部署、金丝雀发布（灰度发布）、A/B测试的准确定义</a></li>
+</ul>
+
+<h2 id="微信公众号">微信公众号</h2>
+
+<p>扫一扫下面的二维码关注微信公众号，在公众号中回复◉加群◉即可加入我们的云原生交流群，和孙宏亮、张馆长、阳明等大佬一起探讨云原生技术</p>
+
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/wechat.gif" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/wechat.gif"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/wechat.gif" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/envoy/"><i class="fa fa-tags"></i>envoy</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/kubernetes/"><i class="fa fa-tags"></i>kubernetes</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/contour/"><i class="fa fa-tags"></i>contour</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fblue-green-deployments-contours-ingressroute%2f&amp;title=Contour%20%e5%ad%a6%e4%b9%a0%e7%ac%94%e8%ae%b0%ef%bc%88%e4%ba%8c%ef%bc%89%ef%bc%9a%e4%bd%bf%e7%94%a8%e7%ba%a7%e8%81%94%e5%8a%9f%e8%83%bd%e5%ae%9e%e7%8e%b0%e8%93%9d%e7%bb%bf%e9%83%a8%e7%bd%b2%e5%92%8c%e9%87%91%e4%b8%9d%e9%9b%80%e5%8f%91%e5%b8%83&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fblog%2f2019-09-05-182130.jpg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fblue-green-deployments-contours-ingressroute%2f&amp;title=Contour%20%e5%ad%a6%e4%b9%a0%e7%ac%94%e8%ae%b0%ef%bc%88%e4%ba%8c%ef%bc%89%ef%bc%9a%e4%bd%bf%e7%94%a8%e7%ba%a7%e8%81%94%e5%8a%9f%e8%83%bd%e5%ae%9e%e7%8e%b0%e8%93%9d%e7%bb%bf%e9%83%a8%e7%bd%b2%e5%92%8c%e9%87%91%e4%b8%9d%e9%9b%80%e5%8f%91%e5%b8%83&amp;source=Contour%20%e5%ad%a6%e4%b9%a0%e7%ac%94%e8%ae%b0%ef%bc%88%e4%ba%8c%ef%bc%89%ef%bc%9a%e4%bd%bf%e7%94%a8%e7%ba%a7%e8%81%94%e5%8a%9f%e8%83%bd%e5%ae%9e%e7%8e%b0%e8%93%9d%e7%bb%bf%e9%83%a8%e7%bd%b2%e5%92%8c%e9%87%91%e4%b8%9d%e9%9b%80%e5%8f%91%e5%b8%83&amp;desc=%e6%9c%ac%e6%96%87%e4%b8%bb%e8%a6%81%e4%bb%8b%e7%bb%8d%e4%ba%86%20IngressRoute%20%e7%ba%a7%e8%81%94%e5%8a%9f%e8%83%bd%e7%9a%84%e7%94%a8%e6%b3%95%ef%bc%8c%e6%8e%a2%e8%ae%a8%e4%ba%86%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8%e7%ba%a7%e8%81%94%e5%8a%9f%e8%83%bd%e6%9d%a5%e5%ae%9e%e7%8e%b0%e8%93%9d%e7%bb%bf%e9%83%a8%e7%bd%b2%e5%92%8c%e9%87%91%e4%b8%9d%e9%9b%80%e5%8f%91%e5%b8%83%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fblog%2f2019-09-05-182130.jpg&amp;summary=%e6%9c%ac%e6%96%87%e4%b8%bb%e8%a6%81%e4%bb%8b%e7%bb%8d%e4%ba%86%20IngressRoute%20%e7%ba%a7%e8%81%94%e5%8a%9f%e8%83%bd%e7%9a%84%e7%94%a8%e6%b3%95%ef%bc%8c%e6%8e%a2%e8%ae%a8%e4%ba%86%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8%e7%ba%a7%e8%81%94%e5%8a%9f%e8%83%bd%e6%9d%a5%e5%ae%9e%e7%8e%b0%e8%93%9d%e7%bb%bf%e9%83%a8%e7%bd%b2%e5%92%8c%e9%87%91%e4%b8%9d%e9%9b%80%e5%8f%91%e5%b8%83%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fblue-green-deployments-contours-ingressroute%2f&amp;text=Contour%20%e5%ad%a6%e4%b9%a0%e7%ac%94%e8%ae%b0%ef%bc%88%e4%ba%8c%ef%bc%89%ef%bc%9a%e4%bd%bf%e7%94%a8%e7%ba%a7%e8%81%94%e5%8a%9f%e8%83%bd%e5%ae%9e%e7%8e%b0%e8%93%9d%e7%bb%bf%e9%83%a8%e7%bd%b2%e5%92%8c%e9%87%91%e4%b8%9d%e9%9b%80%e5%8f%91%e5%b8%83&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fblue-green-deployments-contours-ingressroute%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fblue-green-deployments-contours-ingressroute%2f&amp;title=Contour%20%e5%ad%a6%e4%b9%a0%e7%ac%94%e8%ae%b0%ef%bc%88%e4%ba%8c%ef%bc%89%ef%bc%9a%e4%bd%bf%e7%94%a8%e7%ba%a7%e8%81%94%e5%8a%9f%e8%83%bd%e5%ae%9e%e7%8e%b0%e8%93%9d%e7%bb%bf%e9%83%a8%e7%bd%b2%e5%92%8c%e9%87%91%e4%b8%9d%e9%9b%80%e5%8f%91%e5%b8%83" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/sealos/">kubernetes 高可用部署工具：sealos</a></li>
+                
+                    <li><a href="/posts/what-happens-when-k8s/">kubectl 创建 Pod 背后到底发生了什么？</a></li>
+                
+                    <li><a href="/posts/podman-sidecar/">Podman 使用指南</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/adguard-home/">AdGuard Home 安装使用教程</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/use-envoy-as-a-kubernetes-ingress/" data-toggle="tooltip" data-placement="top" title="Contour 学习笔记（一）：使用 Contour 接管 Kubernetes 的南北流量">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/kubeman/" data-toggle="tooltip" data-placement="top" title="Kubeman 使用指南">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

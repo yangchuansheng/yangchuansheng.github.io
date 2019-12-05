@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>控制 Egress 流量 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="" name="keywords">
+
+  <meta name="description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/control-egress-traffic\/",
+          "name": "控制 egress 流量"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "控制 Egress 流量",
+  "description" : "",
+  "inLanguage" : "zh",
+  "wordCount":  3995 ,
+  "datePublished" : "2018-08-16T13:40:27",
+  "dateModified" : "2018-08-16T13:40:27",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "istio, service mesh, kubernetes" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/control-egress-traffic\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="控制 Egress 流量" />
+<meta property="og:description" content="服务网格内部的 ServiceEntry 配置深度解析以及 Egress 流量的访问策略管理">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/control-egress-traffic/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="控制 Egress 流量" />
+  <meta name="twitter:description" content="服务网格内部的 ServiceEntry 配置深度解析以及 Egress 流量的访问策略管理">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.b17f5b30a306a1c20527ca8130baeb49216d5dffed8d128c5f84d5967c90d223.css' integrity='sha256-sX9bMKMGocIFJ8qBMLrrSSFtXf/tjRKMX4TVlnyQ0iM='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">控制 Egress 流量</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">服务网格内部的 ServiceEntry 配置深度解析以及 Egress 流量的访问策略管理</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 8 月 16 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3995&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>控制 Egress 流量</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">服务网格内部的 ServiceEntry 配置深度解析以及 Egress 流量的访问策略管理</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2018 年 8 月 16 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3995&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-开始之前"><span id="inline-toc">1.</span> 开始之前</a></li>
+<li><a href="#span-id-inline-toc-2-span-istio-中配置外部服务"><span id="inline-toc">2.</span> Istio 中配置外部服务</a>
+<ul>
+<li><a href="#配置外部服务">配置外部服务</a></li>
+<li><a href="#发起对外部服务的访问">发起对外部服务的访问</a></li>
+<li><a href="#http-serviceentry-配置深度解析">HTTP ServiceEntry 配置深度解析</a></li>
+<li><a href="#https-serviceentry-配置深度解析">HTTPS ServiceEntry 配置深度解析</a></li>
+<li><a href="#tls-virtualservice-配置深度解析">TLS VirtualService 配置深度解析</a></li>
+<li><a href="#为外部服务设置路由规则">为外部服务设置路由规则</a></li>
+</ul></li>
+<li><a href="#span-id-inline-toc-3-span-直接调用外部服务"><span id="inline-toc">3.</span> 直接调用外部服务</a></li>
+<li><a href="#span-id-inline-toc-4-span-总结"><span id="inline-toc">4.</span> 总结</a></li>
+<li><a href="#span-id-inline-toc-5-span-清理"><span id="inline-toc">5.</span> 清理</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           <p id="div-border-left-red">本文主要内容来自 <a href="https://istio.io/zh/docs/tasks/traffic-management/egress/" target="_blank">Istio 官方文档</a>，并对其进行了大量扩展和补充。</p>
+
+<p>缺省情况下，Istio 服务网格内的 Pod，由于其 iptables 将所有外发流量都透明的转发给了 <code>Sidecar</code>，所以这些集群内的服务无法访问集群之外的 URL，而只能处理集群内部的目标。</p>
+
+<p>本文的任务描述了如何将外部服务暴露给 Istio 集群中的客户端。你将会学到如何通过定义 <a href="https://istio.io/docs/reference/config/istio.networking.v1alpha3/#ServiceEntry" target="_blank">ServiceEntry</a> 来调用外部服务；或者简单的对 Istio 进行配置，要求其直接放行对特定 IP 范围的访问。</p>
+
+<h2 id="span-id-inline-toc-1-span-开始之前"><span id="inline-toc">1.</span> 开始之前</h2>
+
+<hr />
+
+<ul>
+<li>根据<a href="https://www.yangcs.net/posts/istio-1.0-deploy/" target="_blank">安装指南</a>的内容，部署 Istio。</li>
+
+<li><p>启动 <a href="https://github.com/istio/istio/tree/release-1.0/samples/sleep" target="_blank">sleep</a> 示例应用，我们将会使用这一应用来完成对外部服务的调用过程。 如果启用了 <a href="https://istio.io/zh/docs/setup/kubernetes/sidecar-injection/#sidecar-%E7%9A%84%E8%87%AA%E5%8A%A8%E6%B3%A8%E5%85%A5" target="_blank">Sidecar 的自动注入功能</a>，运行：</p>
+
+<pre><code class="language-bash">$ kubectl apply -f samples/sleep/sleep.yaml
+</code></pre></li>
+</ul>
+
+<p>否则在部署 <code>sleep</code> 应用之前，就需要手工注入 Sidecar：</p>
+
+<pre><code class="language-bash">$ kubectl apply -f &lt;(istioctl kube-inject -f samples/sleep/sleep.yaml)
+</code></pre>
+
+<p>实际上任何可以 <code>exec</code> 和 <code>curl</code> 的 Pod 都可以用来完成这一任务。</p>
+
+<h2 id="span-id-inline-toc-2-span-istio-中配置外部服务"><span id="inline-toc">2.</span> Istio 中配置外部服务</h2>
+
+<hr />
+
+<p>通过配置 Istio <code>ServiceEntry</code>，可以从 Istio 集群中访问外部任意的可用服务。这里我们会使用 <a href="http://httpbin.org/" target="_blank">httpbin.org</a> 以及 <a href="https://www.baidu.com/" target="_blank">www.baidu.com</a> 进行试验。</p>
+
+<h3 id="配置外部服务">配置外部服务</h3>
+
+<p id="blue">1. 创建一个 <code>ServiceEntry</code> 对象，放行对一个外部 HTTP 服务的访问：</p>
+
+<pre><code class="language-yaml">$ cat &lt;&lt;EOF | istioctl create -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: httpbin-ext
+spec:
+  hosts:
+  - httpbin.org
+  ports:
+  - number: 80
+    name: http
+    protocol: HTTP
+EOF
+</code></pre>
+
+<p id="blue">2. 另外创建一个 <code>ServiceEntry</code> 对象和一个 <code>VirtualService</code>，放行对一个外部 HTTPS 服务的访问：</p>
+
+<pre><code class="language-yaml">$ cat &lt;&lt;EOF | istioctl create -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: baidu
+spec:
+  hosts:
+  - www.baidu.com
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: baidu
+spec:
+  hosts:
+  - www.baidu.com
+  tls:
+  - match:
+    - port: 443
+      sniHosts:
+      - www.baidu.com
+    route:
+    - destination:
+        host: www.baidu.com
+        port:
+          number: 443
+      weight: 100
+EOF
+</code></pre>
+
+<h3 id="发起对外部服务的访问">发起对外部服务的访问</h3>
+
+<p>使用 <code>kubectl exec</code> 命令进入测试 Pod。假设使用的是 sleep 服务，运行如下命令：</p>
+
+<pre><code class="language-bash">$ export SOURCE_POD=$(kubectl get pod -l app=sleep -o go-template='{{range .items}}{{.metadata.name}}{{end}}')
+$ kubectl exec -it $SOURCE_POD -c sleep bash
+</code></pre>
+
+<p>发起一个对外部 HTTP 服务的请求：</p>
+
+<pre><code class="language-bash">$ curl http://httpbin.org/headers
+</code></pre>
+
+<p>发起一个对外部 HTTPS 服务的请求：</p>
+
+<pre><code class="language-bash">$ curl https://www.baidu.com
+</code></pre>
+
+<h3 id="http-serviceentry-配置深度解析">HTTP ServiceEntry 配置深度解析</h3>
+
+<p>按照之前的惯例，还是先来解读一下 HTTP 协议的 <code>ServiceEntry</code> 映射到 Envoy 配置层面具体是哪些内容，这样才能对 ServiceEntry 有更加深刻的认识。</p>
+
+<style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:"Font Awesome 5 Free",FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:'\f071'}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:'\f05a'}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:'\f06a'}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:'\f058'}.notice.tip{background:#e6f9e6}</style><div class="notice note" >
+<p class="first notice-title">注意</p><p>创建一个 <code>HTTP</code> 协议的 ServiceEntry（不指定 <code>GateWay</code>） 本质上是在服务网格内的<strong>所有应用的所有 Pod</strong>上创建相应的路由规则和与之对应的 Cluster。指定 GateWay 的 ServiceEntry 遵循的是另一套法则，后面我们再说。</p></div>
+
+
+<p>可以通过 istioctl 来验证一下（以 <code>httpbin-ext</code> 为例）：</p>
+
+<pre><code class="language-bash"># 查看 sleep 的 Pod Name：
+$ kubectl get pod -l app=sleep
+
+NAME                     READY     STATUS    RESTARTS   AGE
+sleep-5bc866558c-89shb   2/2       Running   0          49m
+</code></pre>
+
+<p>查看路由</p>
+
+<pre><code class="language-bash">$ istioctl pc routes sleep-5bc866558c-89shb --name 80 -o json
+</code></pre>
+
+<pre><code class="language-json">[
+    {
+        &quot;name&quot;: &quot;80&quot;,
+        &quot;virtualHosts&quot;: [
+            {
+                &quot;name&quot;: &quot;httpbin.org:80&quot;,
+                &quot;domains&quot;: [
+                    &quot;httpbin.org&quot;,
+                    &quot;httpbin.org:80&quot;
+                ],
+                &quot;routes&quot;: [
+                    {
+                        &quot;match&quot;: {
+                            &quot;prefix&quot;: &quot;/&quot;
+                        },
+                        &quot;route&quot;: {
+                            &quot;cluster&quot;: &quot;outbound|80||httpbin.org&quot;,
+                            &quot;timeout&quot;: &quot;0.000s&quot;,
+                            &quot;maxGrpcTimeout&quot;: &quot;0.000s&quot;
+                        },
+                        &quot;decorator&quot;: {
+                            &quot;operation&quot;: &quot;httpbin.org:80/*&quot;
+                        },
+...
+</code></pre>
+
+<p>可以看到从 Pod sleep-5bc866558c-89shb 内部对域名 <code>httpbin.org</code> 发起的请求通过 HTTP 路由被定向到集群 <code>outbound|80||httpbin.org</code>。<code>outbound</code> 表示这是出站流量</p>
+
+<p>查看 <code>Cluster</code>：</p>
+
+<pre><code class="language-bash">$ istioctl pc clusters sleep-5bc866558c-89shb --fqdn httpbin.org -o json
+</code></pre>
+
+<pre><code class="language-json">[
+    {
+        &quot;name&quot;: &quot;outbound|80||httpbin.org&quot;,
+        &quot;type&quot;: &quot;ORIGINAL_DST&quot;,
+        &quot;connectTimeout&quot;: &quot;1.000s&quot;,
+        &quot;lbPolicy&quot;: &quot;ORIGINAL_DST_LB&quot;,
+        &quot;circuitBreakers&quot;: {
+            &quot;thresholds&quot;: [
+                {}
+            ]
+        }
+    }
+]
+</code></pre>
+
+<ul>
+<li><p><span id="inline-blue">type</span> : 服务发现类型。<code>ORIGINAL_DST</code> 表示原始目的地类型，大概意思就是：连接进入之前已经被解析为一个特定的目标 IP 地址。这种连接通常是由代理使用 IP table REDIRECT 或者 eBPF 之类的机制转发而来的。完成路由相关的转换之后，代理服务器会将连接转发到该 IP 地址。<code>httpbin.org</code> 是外网域名，当然可以解析，所以连接进入之前可以被解析为一个特定的目标 IP 地址。Envoy 服务发现类型的详细解析可以参考：<a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/service_discovery#arch-overview-service-discovery-types-original-destination" target="_blank">Service discovery</a>。<code>ServiceEntry.Resolution</code> 字段的解析可以参考：<a href="https://istio.io/docs/reference/config/istio.networking.v1alpha3/#ServiceEntry-Resolution" target="_blank">ServiceEntry.Resolution</a>。</p>
+
+<p>这里我简要说明一下，ServiceEntry 的 <code>resolution</code> 字段可以取三个不同的值，分别对应 Envoy 中的三种服务发现策略：</p>
+
+<ul>
+<li><code>NONE</code> : 对应于 Envoy 中的 <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/service_discovery#original-destination" target="_blank">ORIGINAL_DST</a>。如果不指定 resolution 字段，默认使用这个策略。</li>
+<li><code>STATIC</code> : 对应于 Envoy 中的 <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/service_discovery#static" target="_blank">STATIC</a>。表示使用 <code>endpoints</code> 中指定的静态 IP 地址作为服务后端。</li>
+<li><code>DNS</code> : 对应于 Envoy 中的 <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/service_discovery#strict-dns" target="_blank">STRICT_DNS</a>。表示处理请求时尝试向 DNS 查询 IP 地址。如果没有指定 <code>endpoints</code>，并且没有使用通配符，代理服务器会使用 DNS 解析 <code>hosts</code> 字段中的地址。如果指定了 <code>endpoints</code>，那么指定的地址就会作为目标 IP 地址。</li>
+</ul></li>
+
+<li><p><span id="inline-blue">lbPolicy</span> : 负载均衡策略。<code>ORIGINAL_DST_LB</code> 表示使用原始目的地的负载均衡策略。具体参考: <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/load_balancing" target="_blank">Load balancing</a>。</p></li>
+</ul>
+
+<p>如果你还部署了 <code>bookinfo</code> 示例应用，可以通过执行 <code>istioctl pc routes &lt;productpage_pod_name&gt; --name 80 -o json</code> 和 <code>istioctl pc clusters &lt;productpage_pod_name&gt; --fqdn httpbin.org -o json</code> 来验证一下，你会发现输出的结果和上面一模一样。如果还不放心，可以查看 bookinfo 应用内的所有 Pod，你会得到相同的答案。至此你应该可以理解<strong>在服务网格内的所有应用的所有 Pod上创建相应的路由规则和与之对应的 Cluster</strong>这句话的含义了。</p>
+
+<h3 id="https-serviceentry-配置深度解析">HTTPS ServiceEntry 配置深度解析</h3>
+
+<p><code>HTTPS</code> 协议的 ServiceEntry 与 Envoy 配置文件的映射关系与 HTTP 协议有所不同。</p>
+
+<div class="notice note" >
+<p class="first notice-title">注意</p><p>创建一个 <code>HTTPS</code> 协议的 ServiceEntry（不指定 <code>GateWay</code>） 本质上是在服务网格内的<strong>所有应用的所有 Pod</strong>上创建相应的<strong>监听器</strong>和与之对应的 Cluster。指定 GateWay 的 ServiceEntry 我会另行发文详说。</p></div>
+
+
+<p>可以通过 istioctl 来验证（以 <code>baidu</code> 为例）。为了更精确地分析该 ServiceEntry，可以先把 <code>VirtualService</code> 删除：</p>
+
+<pre><code class="language-bash">$ istioctl delete virtualservice baidu
+</code></pre>
+
+<p>查看监听器：</p>
+
+<pre><code class="language-bash">$ istioctl pc listeners sleep-5bc866558c-89shb --address 0.0.0.0 --port 443 -o json
+</code></pre>
+
+<pre><code class="language-json">[
+    {
+        &quot;name&quot;: &quot;0.0.0.0_443&quot;,
+        &quot;address&quot;: {
+            &quot;socketAddress&quot;: {
+                &quot;address&quot;: &quot;0.0.0.0&quot;,
+                &quot;portValue&quot;: 443
+            }
+        },
+        &quot;filterChains&quot;: [
+            {
+                &quot;filters&quot;: [
+                    ...
+                    {
+                        &quot;name&quot;: &quot;envoy.tcp_proxy&quot;,
+                        &quot;config&quot;: {
+                            &quot;cluster&quot;: &quot;outbound|443||www.baidu.com&quot;,
+                            &quot;stat_prefix&quot;: &quot;outbound|443||www.baidu.com&quot;
+                        }
+                    }
+...
+</code></pre>
+
+<ul>
+<li><span id="inline-blue">name</span> : 监听器过滤器的名称。该字段的值必须与 Envoy 所支持的过滤器匹配，不可随意填写，具体参考：<a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/listener/listener.proto#listener-filter" target="_blank">listener.Filter</a>。此处 <code>envoy.tcp_proxy</code> 表示使用 TCP 代理，而 TCP 代理是无法基于路由过滤的，所以这里不会创建路由规则，而是直接将请求转到 <code>Cluster</code>。</li>
+</ul>
+
+<p>查看 Cluster：</p>
+
+<pre><code class="language-bash">$ istioctl pc clusters sleep-5bc866558c-89shb --fqdn www.baidu.com -o json
+</code></pre>
+
+<pre><code class="language-json">[
+    {
+        &quot;name&quot;: &quot;outbound|443||www.baidu.com&quot;,
+        &quot;type&quot;: &quot;STRICT_DNS&quot;,
+        &quot;connectTimeout&quot;: &quot;1.000s&quot;,
+        &quot;hosts&quot;: [
+            {
+                &quot;socketAddress&quot;: {
+                    &quot;address&quot;: &quot;www.baidu.com&quot;,
+                    &quot;portValue&quot;: 443
+                }
+            }
+        ],
+        &quot;circuitBreakers&quot;: {
+            &quot;thresholds&quot;: [
+                {}
+            ]
+        },
+        &quot;dnsLookupFamily&quot;: &quot;V4_ONLY&quot;
+    }
+]
+</code></pre>
+
+<p>从监听器的配置来看，由于绑定的是 <code>0.0.0.0</code>，而且也没有指定域名，看起来应该可以访问集群外任何 443 端口的服务。实际上这是行不通的，因为当请求通过监听器转到 Cluster 之后，由于 Cluster 采用的是严格的 DNS 服务发现策略，只要域名不是 <code>www.baidu.com</code>，都不会解析。你可以使用 kubectl exec 命令进入 sleep Pod 来测试一下：</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $SOURCE_POD -c sleep bash
+</code></pre>
+
+<p>发起对外部 HTTPS 服务的请求：</p>
+
+<pre><code class="language-bash">$ curl https://www.163.com
+curl: (51) SSL: no alternative certificate subject name matches target host name 'www.163.com'
+
+$ curl https://www.taobao.com
+curl: (51) SSL: no alternative certificate subject name matches target host name 'www.taobao.com'
+
+$ curl https://192.192.192.192
+curl: (51) SSL: certificate subject name 'baidu.com' does not match target host name '192.192.192.192'
+</code></pre>
+
+<p>而如果你将服务发现策略改为 <code>NONE</code>，就会发现除了可以访问 <code>www.baidu.com</code>，还可以访问 <code>www.163.com</code> 和 <code>www.taobao.com</code> 等其他 https 协议的网站，至于为什么会这样，前面介绍服务发现策略的时候我已经详细解释过了。</p>
+
+<h3 id="tls-virtualservice-配置深度解析">TLS VirtualService 配置深度解析</h3>
+
+<p>关于 VirtualService 的解析之前的文章已有相关说明，不过这里的 VirtualService 与之前遇到的不同，涉及到了 <code>TLSRoute</code>。</p>
+
+<ul>
+<li><span id="inline-blue">tls</span> : 透传 TLS 和 HTTPS 流量。TLS 路由通常应用在 <code>https-</code>、<code>tls-</code> 前缀的平台服务端口，或者经 <code>Gateway</code> 透传的 HTTPS、TLS 协议 端口，以及使用 HTTPS 或者 TLS 协议的 <code>ServiceEntry</code> 端口上。具体参考：<a href="https://istio.io/docs/reference/config/istio.networking.v1alpha3/#TLSRoute" target="_blank">TLSRoute</a>。
+
+<ul>
+<li><span id="inline-blue">sniHosts</span> : 必要字段。要匹配的 SNI（服务器名称指示）。可以在 SNI 匹配值中使用通配符。比如 <code>*.com</code> 可以同时匹配 <code>foo.example.com</code> 和 <code>example.com</code>。</li>
+</ul></li>
+<li><span id="inline-blue">route</span> : 流量的转发目标。目前 TLS 服务只允许一个转发目标(所以权重必须设置为 100)。当 Envoy 支持 TCP 权重路由之后，这里就可以使用多个目标了。</li>
+</ul>
+
+<p>查看映射到 Envoy 中的配置：</p>
+
+<pre><code class="language-bash">$ istioctl pc listeners sleep-5bc866558c-89shb --address 0.0.0.0 --port 443 -o json
+</code></pre>
+
+<pre><code class="language-json">[
+    {
+        &quot;name&quot;: &quot;0.0.0.0_443&quot;,
+        &quot;address&quot;: {
+            &quot;socketAddress&quot;: {
+                &quot;address&quot;: &quot;0.0.0.0&quot;,
+                &quot;portValue&quot;: 443
+            }
+        },
+        &quot;filterChains&quot;: [
+            {
+                &quot;filterChainMatch&quot;: {
+                    &quot;serverNames&quot;: [
+                        &quot;www.baidu.com&quot;
+                    ]
+                },
+                &quot;filters&quot;: [
+                    ...
+                    {
+                        &quot;name&quot;: &quot;envoy.tcp_proxy&quot;,
+                        &quot;config&quot;: {
+                            &quot;cluster&quot;: &quot;outbound|443||www.baidu.com&quot;,
+                            &quot;stat_prefix&quot;: &quot;outbound|443||www.baidu.com&quot;
+                        }
+                    }
+...
+</code></pre>
+
+<ul>
+<li><span id="inline-blue">filterChainMatch</span> : 用于为<strong>监听器过滤器链</strong>指定匹配条件，具体参考：<a href="https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/listener/listener.proto#listener-filterchainmatch" target="_blank">listener.FilterChainMatch</a>。</li>
+</ul>
+
+<blockquote>
+<p>最后我们来思考一下：既然不创建 TLS VirtualService 也可以访问 <code>www.baidu.com</code>，那么创建 TLS VirtualService 和不创建 TLS VirtualService 有什么区别呢？正确答案是：没有关联 <code>VirtualService</code> 的 <code>https-</code> 或者 <code>tls-</code> 端口流量会被视为透传 <code>TCP</code> 流量，而不是透传 TLS 和 HTTPS 流量。</p>
+</blockquote>
+
+<h3 id="为外部服务设置路由规则">为外部服务设置路由规则</h3>
+
+<p>通过 <code>ServiceEntry</code> 访问外部服务的流量，和网格内流量类似，都可以进行 Istio <a href="https://istio.io/zh/docs/concepts/traffic-management/#%E8%A7%84%E5%88%99%E9%85%8D%E7%BD%AE" target="_blank">路由规则</a> 的配置。下面我们使用 istioctl 为 httpbin.org 服务设置一个超时规则。</p>
+
+<p id="blue">1. 在测试 Pod 内部，调用 httpbin.org 这一外部服务的 <code>/delay</code> 端点：</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $SOURCE_POD -c sleep bash
+$ time curl -o /dev/null -s -w &quot;%{http_code}\n&quot; http://httpbin.org/delay/5
+
+200
+
+real    0m5.024s
+user    0m0.003s
+sys     0m0.003s
+</code></pre>
+
+<p>这个请求会在大概五秒钟左右返回一个内容为 <code>200 (OK)</code> 的响应。</p>
+
+<p id="blue">2. 退出测试 Pod，使用 <code>istioctl</code> 为 httpbin.org 外部服务的访问设置一个 3 秒钟的超时：</p>
+
+<pre><code class="language-yaml">cat &lt;&lt;EOF | istioctl create -f -
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: httpbin-ext
+spec:
+  hosts:
+    - httpbin.org
+  http:
+  - timeout: 3s
+    route:
+      - destination:
+          host: httpbin.org
+        weight: 100
+EOF
+</code></pre>
+
+<p id="blue">3. 等待几秒钟之后，再次发起 <code>curl</code> 请求：</p>
+
+<pre><code class="language-bash">$ kubectl exec -it $SOURCE_POD -c sleep bash
+$ time curl -o /dev/null -s -w &quot;%{http_code}\n&quot; http://httpbin.org/delay/5
+
+504
+
+real    0m3.149s
+user    0m0.004s
+sys     0m0.004s
+</code></pre>
+
+<p>这一次会在 3 秒钟之后收到一个内容为 <code>504 (Gateway Timeout)</code> 的响应。虽然 httpbin.org 还在等待他的 5 秒钟，Istio 却在 3 秒钟的时候切断了请求。</p>
+
+<h2 id="span-id-inline-toc-3-span-直接调用外部服务"><span id="inline-toc">3.</span> 直接调用外部服务</h2>
+
+<hr />
+
+<p>如果想要跳过 Istio，直接访问某个 IP 范围内的外部服务，就需要对 Envoy sidecar 进行配置，阻止 Envoy 对外部请求的<a href="https://istio.io/zh/docs/concepts/traffic-management/#%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E7%9A%84%E9%80%9A%E8%AE%AF" target="_blank">劫持</a>。可以在 <a href="https://istio.io/docs/reference/config/installation-options/" target="_blank">Helm</a> 中设置 <code>global.proxy.includeIPRanges</code> 变量，然后使用 kubectl apply 命令来更新名为 <code>istio-sidecar-injector</code> 的 <code>Configmap</code>。在 istio-sidecar-injector 更新之后，global.proxy.includeIPRanges 会在所有未来部署的 Pod 中生效。</p>
+
+<p>使用 <code>global.proxy.includeIPRanges</code> 变量的最简单方式就是把内部服务的 IP 地址范围传递给它，这样就在 Sidecar proxy 的重定向列表中排除掉了外部服务的地址了。</p>
+
+<p>内部服务的 IP 范围取决于集群的部署情况。例如你的集群中这一范围是 <code>10.0.0.1/24</code>，这个配置中，就应该这样更新 istio-sidecar-injector：</p>
+
+<pre><code class="language-bash">$ helm template install/kubernetes/helm/istio &lt;安装 Istio 时所使用的参数&gt; --set global.proxy.includeIPRanges=&quot;10.0.0.1/24&quot; -x templates/sidecar-injector-configmap.yaml | kubectl apply -f -
+</code></pre>
+
+<p>注意这里应该使用和之前部署 Istio 的时候同样的 Helm 命令，尤其是 &ndash;namespace 参数。在安装 Istio 原有命令的基础之上，加入 <code>--set global.proxy.includeIPRanges=&quot;10.0.0.1/24&quot; -x templates/sidecar-injector-configmap.yaml</code> 即可。</p>
+
+<p>然后和前面一样，重新部署 sleep 应用。更新了 <code>ConfigMap istio-sidecar-injector</code> 并且重新部署了 sleep 应用之后，Istio sidecar 就应该只劫持和管理集群内部的请求了。任意的外部请求都会简单的绕过 Sidecar，直接访问目的地址。</p>
+
+<pre><code class="language-bash">$ export SOURCE_POD=$(kubectl get pod -l app=sleep -o go-template='{{range .items}}{{.metadata.name}}{{end}}')
+$ kubectl exec -it $SOURCE_POD -c sleep curl http://httpbin.org/headers
+</code></pre>
+
+<h2 id="span-id-inline-toc-4-span-总结"><span id="inline-toc">4.</span> 总结</h2>
+
+<hr />
+
+<p>这个任务中，我们使用两种方式从 Istio 服务网格内部来完成对外部服务的调用：</p>
+
+<ol>
+<li>使用 <code>ServiceEntry</code> (推荐方式)</li>
+<li>配置 Istio sidecar，从它的重定向 IP 表中排除外部服务的 IP 范围</li>
+</ol>
+
+<p>第一种方式（<code>ServiceEntry</code>）中，网格内部的服务不论是访问内部还是外部的服务，都可以使用同样的 Istio 服务网格的特性。我们通过为外部服务访问设置超时规则的例子，来证实了这一优势。</p>
+
+<p>第二种方式越过了 Istio sidecar proxy，让服务直接访问到对应的外部地址。然而要进行这种配置，需要了解云供应商特定的知识和配置。</p>
+
+<h2 id="span-id-inline-toc-5-span-清理"><span id="inline-toc">5.</span> 清理</h2>
+
+<hr />
+
+<p><span id="blue">1. 删除规则：</span></p>
+
+<pre><code class="language-bash">$ istioctl delete serviceentry httpbin-ext baidu
+$ istioctl delete virtualservice httpbin-ext baidu
+</code></pre>
+
+<p><span id="blue">2. 停止 sleep 服务：</span></p>
+
+<pre><code class="language-bash">$ kubectl delete -f samples/sleep/sleep.yaml
+</code></pre>
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/istio/"><i class="fa fa-tags"></i>istio</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/service-mesh/"><i class="fa fa-tags"></i>service mesh</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/kubernetes/"><i class="fa fa-tags"></i>kubernetes</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrol-egress-traffic%2f&amp;title=%e6%8e%a7%e5%88%b6%20Egress%20%e6%b5%81%e9%87%8f&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191203170514.jpg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrol-egress-traffic%2f&amp;title=%e6%8e%a7%e5%88%b6%20Egress%20%e6%b5%81%e9%87%8f&amp;source=%e6%8e%a7%e5%88%b6%20Egress%20%e6%b5%81%e9%87%8f&amp;desc=&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191203170514.jpg&amp;summary=" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrol-egress-traffic%2f&amp;text=%e6%8e%a7%e5%88%b6%20Egress%20%e6%b5%81%e9%87%8f&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrol-egress-traffic%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrol-egress-traffic%2f&amp;title=%e6%8e%a7%e5%88%b6%20Egress%20%e6%b5%81%e9%87%8f" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/sealos/">kubernetes 高可用部署工具：sealos</a></li>
+                
+                    <li><a href="/posts/what-happens-when-k8s/">kubectl 创建 Pod 背后到底发生了什么？</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/kubesphere/">KubeSphere 安装教程</a></li>
+                
+                    <li><a href="/posts/istio-1.3/">Istio 1.3 发布，HTTP 遥测不再需要 Mixer</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/where-is-the-request-2/" data-toggle="tooltip" data-placement="top" title="数据包在 Istio 网格中的生命周期（下）">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/kubernetes-dns/" data-toggle="tooltip" data-placement="top" title="Kubernetes DNS 高阶指南">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 11 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+
