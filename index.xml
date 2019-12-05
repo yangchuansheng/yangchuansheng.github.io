@@ -635,6 +635,15 @@
     </item>
     
     <item>
+      <title>Prometheus 中文文档</title>
+      <link>https://fuckcloudnative.io/prometheus-handbook/</link>
+      <pubDate>Fri, 07 Sep 2018 18:10:36 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/prometheus-handbook/</guid>
+      <description>随着容器技术的迅速发展，Kubernetes 已然成为大家追捧的容器集群管理系统。Prometheus 作为生态圈 Cloud Native Computing Foundation（简</description>
+    </item>
+    
+    <item>
       <title>Kubernetes DNS 高阶指南</title>
       <link>https://fuckcloudnative.io/posts/kubernetes-dns/</link>
       <pubDate>Mon, 27 Aug 2018 18:11:52 +0800</pubDate>
@@ -821,6 +830,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/kubernetes-fucking-trick/</guid>
       <description>Kubernetes 作为云原生时代的“操作系统”，熟悉和使用它是每名用户（User）的必备技能。如果你正在 Kubernetes 上工作，你需要正确的工具和技巧来确保 Kubernetes 集群的高可用</description>
+    </item>
+    
+    <item>
+      <title>英语学习终极秘诀</title>
+      <link>https://fuckcloudnative.io/learn-english/</link>
+      <pubDate>Fri, 25 May 2018 06:46:19 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/learn-english/</guid>
+      <description>很久很久以前，当网易还在做梦幻西游和大话西游的时候，网易有道教研部诞生了一位大牛，他是国内最知名，最有影响力的英语学习研究者，新东方口语大赛</description>
     </item>
     
     <item>
