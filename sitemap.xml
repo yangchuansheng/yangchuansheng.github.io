@@ -19,13 +19,38 @@
   
   <url>
     <loc>https://fuckcloudnative.io/</loc>
-    <lastmod>2019-11-17T13:54:43-05:00</lastmod>
+    <lastmod>2019-12-01T10:32:58-05:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://fuckcloudnative.io/categories/</loc>
-    <lastmod>2019-11-17T13:54:43-05:00</lastmod>
+    <lastmod>2019-12-01T10:32:58-05:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
+    <lastmod>2019-12-01T10:32:58-05:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
+    <lastmod>2019-12-01T10:32:58-05:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/</loc>
+    <lastmod>2019-12-01T10:32:58-05:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/</loc>
+    <lastmod>2019-12-01T10:32:58-05:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/understanding-the-pleg-is-not-healthy/</loc>
+    <lastmod>2019-12-01T10:32:58-05:00</lastmod>
   </url>
   
   <url>
@@ -35,16 +60,6 @@
   
   <url>
     <loc>https://fuckcloudnative.io/tags/docker/</loc>
-    <lastmod>2019-11-17T13:54:43-05:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/posts/</loc>
-    <lastmod>2019-11-17T13:54:43-05:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/</loc>
     <lastmod>2019-11-17T13:54:43-05:00</lastmod>
   </url>
   
@@ -59,12 +74,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/linux/</loc>
+    <loc>https://fuckcloudnative.io/categories/linux/</loc>
     <lastmod>2019-11-04T23:47:34-05:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/linux/</loc>
+    <loc>https://fuckcloudnative.io/tags/linux/</loc>
     <lastmod>2019-11-04T23:47:34-05:00</lastmod>
   </url>
   
@@ -139,17 +154,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
+    <loc>https://fuckcloudnative.io/tags/service-mesh/</loc>
     <lastmod>2019-09-25T13:00:34+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://fuckcloudnative.io/categories/service-mesh/</loc>
-    <lastmod>2019-09-25T13:00:34+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/service-mesh/</loc>
     <lastmod>2019-09-25T13:00:34+08:00</lastmod>
   </url>
   
@@ -176,11 +186,6 @@
   <url>
     <loc>https://fuckcloudnative.io/categories/share/</loc>
     <lastmod>2019-09-22T09:02:26+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
-    <lastmod>2019-09-19T21:53:07+08:00</lastmod>
   </url>
   
   <url>
@@ -369,12 +374,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/gfw/</loc>
+    <loc>https://fuckcloudnative.io/categories/gfw/</loc>
     <lastmod>2019-03-06T13:41:11+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/gfw/</loc>
+    <loc>https://fuckcloudnative.io/tags/gfw/</loc>
     <lastmod>2019-03-06T13:41:11+08:00</lastmod>
   </url>
   
@@ -404,12 +409,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/loadbalance/</loc>
+    <loc>https://fuckcloudnative.io/tags/loadbalance/</loc>
     <lastmod>2019-01-28T16:39:48+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/loadbalance/</loc>
+    <loc>https://fuckcloudnative.io/categories/loadbalance/</loc>
     <lastmod>2019-01-28T16:39:48+08:00</lastmod>
   </url>
   
@@ -796,6 +801,11 @@
   <url>
     <loc>https://fuckcloudnative.io/posts/%E5%90%91%E9%87%8F%E7%9A%84%E5%8F%89%E4%B9%98%E4%B8%8E%E8%A1%8C%E5%88%97%E5%BC%8F/</loc>
     <lastmod>2016-12-03T23:59:48+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/%E5%AD%90%E7%A9%BA%E9%97%B4%E6%8A%95%E5%BD%B1/</loc>
+    <lastmod>2016-06-04T17:18:59+00:00</lastmod>
   </url>
   
   <url>

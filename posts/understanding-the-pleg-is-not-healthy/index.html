@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>深入理解 Kubelet 中的 PLEG is not healthy - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨, PLEG, PLEG is not healthy, relist, kubelet, kubernetes" name="keywords">
+
+  <meta name="description" content="本文通过结合源代码，详细解释了 PLEG 的工作原理和调用流程，最后提供了排障思路和规避方法。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/understanding-the-pleg-is-not-healthy\/",
+          "name": "深入理解 kubelet 中的 p l e g is not healthy"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "深入理解 Kubelet 中的 PLEG is not healthy",
+  "description" : "本文通过结合源代码，详细解释了 PLEG 的工作原理和调用流程，最后提供了排障思路和规避方法。",
+  "inLanguage" : "zh",
+  "wordCount":  4001 ,
+  "datePublished" : "2019-12-01T10:32:58",
+  "dateModified" : "2019-12-01T10:32:58",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "kubernetes" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/understanding-the-pleg-is-not-healthy\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="深入理解 Kubelet 中的 PLEG is not healthy" />
+<meta property="og:description" content="本文通过结合源代码，详细解释了 PLEG 的工作原理和调用流程，最后提供了排障思路和规避方法。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/understanding-the-pleg-is-not-healthy/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="深入理解 Kubelet 中的 PLEG is not healthy" />
+  <meta name="twitter:description" content="本文通过结合源代码，详细解释了 PLEG 的工作原理和调用流程，最后提供了排障思路和规避方法。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.27c44b95a29376b65ca966a962b3b9068abf198f09b478bb8f190381453c880a.css' integrity='sha256-J8RLlaKTdrZcqWapYrO5Boq/GY8JtHi7jxkDgUU8iAo='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">深入理解 Kubelet 中的 PLEG is not healthy</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">解读 PLEG 的工作原理</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 12 月 1 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4001&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>深入理解 Kubelet 中的 PLEG is not healthy</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">解读 PLEG 的工作原理</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 12 月 1 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4001&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div id="container" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#span-id-inline-toc-1-span-pleg-是个啥"><span id="inline-toc">1.</span> PLEG 是个啥？</a></li>
+<li><a href="#span-id-inline-toc-2-span-pleg-is-not-healthy-是如何发生的"><span id="inline-toc">2.</span> PLEG is not healthy 是如何发生的？</a></li>
+<li><a href="#span-id-inline-toc-3-span-深入解读-relist-函数"><span id="inline-toc">3.</span> 深入解读 relist 函数</a></li>
+<li><a href="#span-id-inline-toc-4-span-监控-relist"><span id="inline-toc">4.</span> 监控 relist</a></li>
+<li><a href="#span-id-inline-toc-5-span-总结"><span id="inline-toc">5.</span> 总结</a></li>
+<li><a href="#span-id-inline-toc-6-span-参考资料"><span id="inline-toc">6.</span> 参考资料</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<p>在 Kubernetes 社区中，<strong>PLEG is not healthy</strong> 成名已久，只要出现这个报错，就有很大概率造成 Node 状态变成 <code>NotReady</code>。社区相关的 issue 也有一大把，先列几个给你们看看：</p>
+
+<ul>
+<li><a href="https://stackoverflow.com/questions/53872739/how-to-fix-container-runtime-is-down-pleg-is-not-healthy" target="_blank">https://stackoverflow.com/questions/53872739/how-to-fix-container-runtime-is-down-pleg-is-not-healthy</a></li>
+<li><a href="https://github.com/kubernetes/kubernetes/issues/45419" target="_blank">https://github.com/kubernetes/kubernetes/issues/45419</a></li>
+<li><a href="https://github.com/kubernetes/kubernetes/issues/61117" target="_blank">https://github.com/kubernetes/kubernetes/issues/61117</a></li>
+<li><a href="https://github.com/kubernetes/kubernetes/issues/72533" target="_blank">https://github.com/kubernetes/kubernetes/issues/72533</a></li>
+<li><a href="https://github.com/Azure/AKS/issues/102" target="_blank">https://github.com/Azure/AKS/issues/102</a></li>
+</ul>
+
+<p>本文我将尝试解释 PLEG 的工作原理，只要理解了工作原理，再遇到类似的问题就有排查思路了。</p>
+
+<h2 id="span-id-inline-toc-1-span-pleg-是个啥"><span id="inline-toc">1.</span> PLEG 是个啥？</h2>
+
+<hr />
+
+<p>PLEG 全称叫 <code>Pod Lifecycle Event Generator</code>，即 Pod 生命周期事件生成器。实际上它只是 <code>Kubelet</code> 中的一个模块，主要职责就是通过每个匹配的 Pod 级别事件来调整容器运行时的状态，并将调整的结果写入缓存，使 <code>Pod</code> 的缓存保持最新状态。先来聊聊 PLEG 的出现背景。</p>
+
+<p>在 Kubernetes 中，每个节点上都运行着一个守护进程 <code>Kubelet</code> 来管理节点上的容器，调整容器的实际状态以匹配 <code>spec</code> 中定义的状态。具体来说，Kubelet 需要对两个地方的更改做出及时的回应：</p>
+
+<ol>
+<li>Pod spec 中定义的状态</li>
+<li>容器运行时的状态</li>
+</ol>
+
+<p>对于 Pod，Kubelet 会从多个数据来源 <code>watch</code> Pod spec 中的变化。对于容器，Kubelet 会定期（例如，10s）轮询容器运行时，以获取所有容器的最新状态。</p>
+
+<p>随着 Pod 和容器数量的增加，轮询会产生不可忽略的开销，并且会由于 Kubelet 的并行操作而加剧这种开销（为每个 Pod 分配一个 <code>goruntine</code>，用来获取容器的状态）。轮询带来的周期性大量并发请求会导致较高的 CPU 使用率峰值（即使 Pod 的定义和容器的状态没有发生改变），降低性能。最后容器运行时可能不堪重负，从而降低系统的可靠性，限制 Kubelet 的可扩展性。</p>
+
+<p>为了降低 Pod 的管理开销，提升 Kubelet 的性能和可扩展性，引入了 PLEG，改进了之前的工作方式：</p>
+
+<ul>
+<li>减少空闲期间的不必要工作（例如 Pod 的定义和容器的状态没有发生更改）。</li>
+<li>减少获取容器状态的并发请求数量。</li>
+</ul>
+
+<p>整体的工作流程如下图所示，虚线部分是 PLEG 的工作内容。</p>
+
+<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/orig-pleg-1.png" alt="" /></p>
+
+<h2 id="span-id-inline-toc-2-span-pleg-is-not-healthy-是如何发生的"><span id="inline-toc">2.</span> PLEG is not healthy 是如何发生的？</h2>
+
+<hr />
+
+<p><code>Healthy()</code> 函数会以 “PLEG” 的形式添加到 <code>runtimeState</code> 中，Kubelet 在一个同步循环（<code>SyncLoop()</code> 函数）中会定期（默认是 10s）调用 <code>Healthy()</code> 函数。<code>Healthy()</code> 函数会检查 <code>relist</code> 进程（PLEG 的关键任务）是否在 3 分钟内完成。如果 relist 进程的完成时间超过了 3 分钟，就会报告 <strong>PLEG is not healthy</strong>。</p>
+
+<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-healthy-checks.png" alt="" /></p>
+
+<p>我会在流程的每一步通过源代码解释其相关的工作原理，源代码基于 Kubernetes 1.11（Openshift 3.11）。如果你不熟悉 Go 的语法也不用担心，只需要看代码中的注释就能明白其原理。我也会在放出代码之前先解读一番，并从源代码中裁剪掉不太重要的内容以提高代码的可读性。下面是调用 healthy() 函数的相关代码：</p>
+
+<pre><code class="language-go">//// pkg/kubelet/pleg/generic.go - Healthy()
+
+// The threshold needs to be greater than the relisting period + the
+// relisting time, which can vary significantly. Set a conservative
+// threshold to avoid flipping between healthy and unhealthy.
+relistThreshold = 3 * time.Minute
+:
+func (g *GenericPLEG) Healthy() (bool, error) {
+  relistTime := g.getRelistTime()
+  elapsed := g.clock.Since(relistTime)
+  if elapsed &gt; relistThreshold {
+    return false, fmt.Errorf(&quot;pleg was last seen active %v ago; threshold is %v&quot;, elapsed, relistThreshold)
+  }
+  return true, nil
+}
+
+//// pkg/kubelet/kubelet.go - NewMainKubelet()
+func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration, ...
+:
+  klet.runtimeState.addHealthCheck(&quot;PLEG&quot;, klet.pleg.Healthy)
+
+//// pkg/kubelet/kubelet.go - syncLoop()
+func (kl *Kubelet) syncLoop(updates &lt;-chan kubetypes.PodUpdate, handler SyncHandler) {
+:
+// The resyncTicker wakes up kubelet to checks if there are any pod workers
+// that need to be sync'd. A one-second period is sufficient because the
+// sync interval is defaulted to 10s.
+:
+  const (
+    base   = 100 * time.Millisecond
+    max    = 5 * time.Second
+    factor = 2
+  )
+  duration := base
+  for {
+      if rs := kl.runtimeState.runtimeErrors(); len(rs) != 0 {
+          glog.Infof(&quot;skipping pod synchronization - %v&quot;, rs)
+          // exponential backoff
+          time.Sleep(duration)
+          duration = time.Duration(math.Min(float64(max), factor*float64(duration)))
+          continue
+      }
+    :
+  }
+:
+}
+
+//// pkg/kubelet/runtime.go - runtimeErrors()
+func (s *runtimeState) runtimeErrors() []string {
+:
+    for _, hc := range s.healthChecks {
+        if ok, err := hc.fn(); !ok {
+            ret = append(ret, fmt.Sprintf(&quot;%s is not healthy: %v&quot;, hc.name, err))
+        }
+    }
+:
+}
+</code></pre>
+
+<h2 id="span-id-inline-toc-3-span-深入解读-relist-函数"><span id="inline-toc">3.</span> 深入解读 relist 函数</h2>
+
+<hr />
+
+<p>上文提到 <code>healthy()</code> 函数会检查 relist 的完成时间，但 relist 究竟是用来干嘛的呢？解释 relist 之前，要先解释一下 Pod 的生命周期事件。Pod 的生命周期事件是在 Pod 层面上对底层容器状态改变的抽象，使其与底层的容器运行时无关，这样就可以让 Kubelet 不受底层容器运行时的影响。</p>
+
+<pre><code class="language-go">type PodLifeCycleEventType string
+
+const (
+    ContainerStarted      PodLifeCycleEventType = &quot;ContainerStarted&quot;
+    ContainerStopped      PodLifeCycleEventType = &quot;ContainerStopped&quot;
+    NetworkSetupCompleted PodLifeCycleEventType = &quot;NetworkSetupCompleted&quot;
+    NetworkFailed         PodLifeCycleEventType = &quot;NetworkFailed&quot;
+)
+
+// PodLifecycleEvent is an event reflects the change of the pod state.
+type PodLifecycleEvent struct {
+    // The pod ID.
+    ID types.UID
+    // The type of the event.
+    Type PodLifeCycleEventType
+    // The accompanied data which varies based on the event type.
+    Data interface{}
+}
+</code></pre>
+
+<p>以 Docker 为例，在 Pod 中启动一个 infra 容器就会在 Kubelet 中注册一个 <code>NetworkSetupCompleted</code> Pod 生命周期事件。</p>
+
+<p>那么 PLEG 是如何知道新启动了一个 infra 容器呢？它会定期重新列出节点上的所有容器（例如 docker ps），并与上一次的容器列表进行对比，以此来判断容器状态的变化。其实这就是 <code>relist()</code> 函数干的事情，尽管这种方法和以前的 Kubelet 轮询类似，但现在只有一个线程，就是 PLEG。现在不需要所有的线程并发获取容器的状态，只有相关的线程会被唤醒用来同步容器状态。而且 relist 与容器运行时无关，也不需要外部依赖，简直完美。</p>
+
+<p>下面我们来看一下 <code>relist()</code> 函数的内部实现。完整的流程如下图所示：</p>
+
+<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-process.png" alt="" /></p>
+
+<p>注意图中的 RPC 调用部分，后文将会拎出来详细解读。完整的源代码在<a href="https://github.com/openshift/origin/blob/release-3.11/vendor/k8s.io/kubernetes/pkg/kubelet/pleg/generic.go#L180-L284" target="_blank">这里</a>。</p>
+
+<p>尽管每秒钟调用一次 <code>relist</code>，但它的完成时间仍然有可能超过 1s。因为下一次调用 <code>relist</code> 必须得等上一次 relist 执行结束，设想一下，如果容器运行时响应缓慢，或者一个周期内有大量的容器状态发生改变，那么 <code>relist</code> 的完成时间将不可忽略，假设是 5s，那么下一次调用 <code>relist</code> 将要等到 6s 之后。</p>
+
+<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-start-relist.png" alt="" /></p>
+
+<p>相关的源代码如下：</p>
+
+<pre><code class="language-go">//// pkg/kubelet/kubelet.go - NewMainKubelet()
+
+// Generic PLEG relies on relisting for discovering container events.
+// A longer period means that kubelet will take longer to detect container
+// changes and to update pod status. On the other hand, a shorter period
+// will cause more frequent relisting (e.g., container runtime operations),
+// leading to higher cpu usage.
+// Note that even though we set the period to 1s, the relisting itself can
+// take more than 1s to finish if the container runtime responds slowly
+// and/or when there are many container changes in one cycle.
+plegRelistPeriod = time.Second * 1
+
+// NewMainKubelet instantiates a new Kubelet object along with all the required internal modules.
+// No initialization of Kubelet and its modules should happen here.
+func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration, ...
+:
+  klet.pleg = pleg.NewGenericPLEG(klet.containerRuntime, plegChannelCapacity, plegRelistPeriod, klet.podCache, clock.RealClock{})
+
+//// pkg/kubelet/pleg/generic.go - Start()
+
+// Start spawns a goroutine to relist periodically.
+func (g *GenericPLEG) Start() {
+  go wait.Until(g.relist, g.relistPeriod, wait.NeverStop)
+}
+
+//// pkg/kubelet/pleg/generic.go - relist()
+func (g *GenericPLEG) relist() {
+... WE WILL REVIEW HERE ...
+}
+</code></pre>
+
+<p>回到上面那幅图，relist 函数第一步就是记录 <code>Kubelet</code> 的相关指标（例如 <code>kubelet_pleg_relist_latency_microseconds</code>），然后通过 CRI 从容器运行时获取当前的 Pod 列表（包括停止的 Pod）。该 Pod 列表会和之前的 Pod 列表进行比较，检查哪些状态发生了变化，然后同时生成相关的 <strong>Pod 生命周期事件</strong>和<strong>更改后的状态</strong>。</p>
+
+<pre><code class="language-go">//// pkg/kubelet/pleg/generic.go - relist()
+  :
+  // get a current timestamp
+  timestamp := g.clock.Now()
+
+  // kubelet_pleg_relist_latency_microseconds for prometheus metrics
+    defer func() {
+        metrics.PLEGRelistLatency.Observe(metrics.SinceInMicroseconds(timestamp))
+    }()
+
+  // Get all the pods.
+    podList, err := g.runtime.GetPods(true)
+  :
+</code></pre>
+
+<p>其中 <code>GetPods()</code> 函数的调用堆栈如下图所示：</p>
+
+<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-getpods.png" alt="" /></p>
+
+<p>相关的源代码如下：</p>
+
+<pre><code class="language-go">//// pkg/kubelet/kuberuntime/kuberuntime_manager.go - GetPods()
+
+// GetPods returns a list of containers grouped by pods. The boolean parameter
+// specifies whether the runtime returns all containers including those already
+// exited and dead containers (used for garbage collection).
+func (m *kubeGenericRuntimeManager) GetPods(all bool) ([]*kubecontainer.Pod, error) {
+    pods := make(map[kubetypes.UID]*kubecontainer.Pod)
+    sandboxes, err := m.getKubeletSandboxes(all)
+:
+}
+
+//// pkg/kubelet/kuberuntime/kuberuntime_sandbox.go - getKubeletSandboxes()
+
+// getKubeletSandboxes lists all (or just the running) sandboxes managed by kubelet.
+func (m *kubeGenericRuntimeManager) getKubeletSandboxes(all bool) ([]*runtimeapi.PodSandbox, error) {
+:
+    resp, err := m.runtimeService.ListPodSandbox(filter)
+:
+}
+
+//// pkg/kubelet/remote/remote_runtime.go - ListPodSandbox()
+
+// ListPodSandbox returns a list of PodSandboxes.
+func (r *RemoteRuntimeService) ListPodSandbox(filter *runtimeapi.PodSandboxFilter) ([]*runtimeapi.PodSandbox, error) {
+:
+    resp, err := r.runtimeClient.ListPodSandbox(ctx, &amp;runtimeapi.ListPodSandboxRequest{
+:
+    return resp.Items, nil
+}
+</code></pre>
+
+<p>获取所有的 Pod 列表后，<code>relist</code> 的完成时间就会更新成当前的时间戳。也就是说，<code>Healthy()</code> 函数可以根据这个时间戳来评估 relist 是否超过了 3 分钟。</p>
+
+<pre><code class="language-go">//// pkg/kubelet/pleg/generic.go - relist()
+
+  // update as a current timestamp
+  g.updateRelistTime(timestamp)
+</code></pre>
+
+<p>将当前的 Pod 列表和上一次 relist 的 Pod 列表进行对比之后，就会针对每一个变化生成相应的 Pod 级别的事件。相关的源代码如下：</p>
+
+<pre><code class="language-go">//// pkg/kubelet/pleg/generic.go - relist()
+
+  pods := kubecontainer.Pods(podList)
+  g.podRecords.setCurrent(pods)
+
+  // Compare the old and the current pods, and generate events.
+  eventsByPodID := map[types.UID][]*PodLifecycleEvent{}
+  for pid := range g.podRecords {
+    oldPod := g.podRecords.getOld(pid)
+    pod := g.podRecords.getCurrent(pid)
+
+    // Get all containers in the old and the new pod.
+    allContainers := getContainersFromPods(oldPod, pod)
+    for _, container := range allContainers {
+          events := computeEvents(oldPod, pod, &amp;container.ID)
+
+          for _, e := range events {
+                updateEvents(eventsByPodID, e)
+          }
+        }
+  }
+</code></pre>
+
+<p>其中 <code>generateEvents()</code> 函数（<code>computeEvents()</code> 函数会调用它）用来生成相应的 Pod 级别的事件（例如 <code>ContainerStarted</code>、<code>ContainerDied</code> 等等），然后通过 <code>updateEvents()</code> 函数来更新事件。</p>
+
+<p><code>computeEvents()</code> 函数的内容如下：</p>
+
+<pre><code class="language-go">//// pkg/kubelet/pleg/generic.go - computeEvents()
+
+func computeEvents(oldPod, newPod *kubecontainer.Pod, cid *kubecontainer.ContainerID) []*PodLifecycleEvent {
+:
+    return generateEvents(pid, cid.ID, oldState, newState)
+}
+
+//// pkg/kubelet/pleg/generic.go - generateEvents()
+
+func generateEvents(podID types.UID, cid string, oldState, newState plegContainerState) []*PodLifecycleEvent {
+:
+    glog.V(4).Infof(&quot;GenericPLEG: %v/%v: %v -&gt; %v&quot;, podID, cid, oldState, newState)
+    switch newState {
+    case plegContainerRunning:
+      return []*PodLifecycleEvent{{ID: podID, Type: ContainerStarted, Data: cid}}
+    case plegContainerExited:
+      return []*PodLifecycleEvent{{ID: podID, Type: ContainerDied, Data: cid}}
+    case plegContainerUnknown:
+      return []*PodLifecycleEvent{{ID: podID, Type: ContainerChanged, Data: cid}}
+    case plegContainerNonExistent:
+      switch oldState {
+      case plegContainerExited:
+        // We already reported that the container died before.
+        return []*PodLifecycleEvent{{ID: podID, Type: ContainerRemoved, Data: cid}}
+      default:
+        return []*PodLifecycleEvent{{ID: podID, Type: ContainerDied, Data: cid}, {ID: podID, Type: ContainerRemoved, Data: cid}}
+      }
+    default:
+      panic(fmt.Sprintf(&quot;unrecognized container state: %v&quot;, newState))
+  }
+}
+</code></pre>
+
+<p>relist 的最后一个任务是检查是否有与 Pod 关联的事件，并按照下面的流程更新 <code>podCache</code>。</p>
+
+<pre><code class="language-go">//// pkg/kubelet/pleg/generic.go - relist()
+
+  // If there are events associated with a pod, we should update the
+  // podCache.
+  for pid, events := range eventsByPodID {
+    pod := g.podRecords.getCurrent(pid)
+    if g.cacheEnabled() {
+      // updateCache() will inspect the pod and update the cache. If an
+      // error occurs during the inspection, we want PLEG to retry again
+      // in the next relist. To achieve this, we do not update the
+      // associated podRecord of the pod, so that the change will be
+      // detect again in the next relist.
+      // TODO: If many pods changed during the same relist period,
+      // inspecting the pod and getting the PodStatus to update the cache
+      // serially may take a while. We should be aware of this and
+      // parallelize if needed.
+      if err := g.updateCache(pod, pid); err != nil {
+        glog.Errorf(&quot;PLEG: Ignoring events for pod %s/%s: %v&quot;, pod.Name, pod.Namespace, err)
+        :
+      }
+      :
+    }
+    // Update the internal storage and send out the events.
+    g.podRecords.update(pid)
+    for i := range events {
+      // Filter out events that are not reliable and no other components use yet.
+      if events[i].Type == ContainerChanged {
+           continue
+      }
+      g.eventChannel &lt;- events[i]
+     }
+  }
+</code></pre>
+
+<p><code>updateCache()</code> 将会检查每个 Pod，并在单个循环中依次对其进行更新。因此，如果在同一个 relist 中更改了大量的 Pod，那么 updateCache 过程将会成为瓶颈。最后，更新后的 Pod 生命周期事件将会被发送到 <code>eventChannel</code>。</p>
+
+<p>某些远程客户端还会调用每一个 Pod 来获取 Pod 的 spec 定义信息，这样一来，Pod 数量越多，延时就可能越高，因为 Pod 越多就会生成越多的事件。</p>
+
+<p><code>updateCache()</code> 的详细调用堆栈如下图所示，其中 <code>GetPodStatus()</code> 用来获取 Pod 的 spec 定义信息：</p>
+
+<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-updatecache.png" alt="" /></p>
+
+<p>完整的代码如下：</p>
+
+<pre><code class="language-go">//// pkg/kubelet/pleg/generic.go - updateCache()
+
+func (g *GenericPLEG) updateCache(pod *kubecontainer.Pod, pid types.UID) error {
+:
+    timestamp := g.clock.Now()
+    // TODO: Consider adding a new runtime method
+    // GetPodStatus(pod *kubecontainer.Pod) so that Docker can avoid listing
+    // all containers again.
+    status, err := g.runtime.GetPodStatus(pod.ID, pod.Name, pod.Namespace)
+  :
+    g.cache.Set(pod.ID, status, err, timestamp)
+    return err
+}
+
+//// pkg/kubelet/kuberuntime/kuberuntime_manager.go - GetPodStatus()
+
+// GetPodStatus retrieves the status of the pod, including the
+// information of all containers in the pod that are visible in Runtime.
+func (m *kubeGenericRuntimeManager) GetPodStatus(uid kubetypes.UID, name, namespace string) (*kubecontainer.PodStatus, error) {
+  podSandboxIDs, err := m.getSandboxIDByPodUID(uid, nil)
+  :
+    for idx, podSandboxID := range podSandboxIDs {
+        podSandboxStatus, err := m.runtimeService.PodSandboxStatus(podSandboxID)
+    :
+    }
+
+    // Get statuses of all containers visible in the pod.
+    containerStatuses, err := m.getPodContainerStatuses(uid, name, namespace)
+  :
+}
+
+//// pkg/kubelet/kuberuntime/kuberuntime_sandbox.go - getSandboxIDByPodUID()
+
+// getPodSandboxID gets the sandbox id by podUID and returns ([]sandboxID, error).
+// Param state could be nil in order to get all sandboxes belonging to same pod.
+func (m *kubeGenericRuntimeManager) getSandboxIDByPodUID(podUID kubetypes.UID, state *runtimeapi.PodSandboxState) ([]string, error) {
+  :
+  sandboxes, err := m.runtimeService.ListPodSandbox(filter)
+  :  
+  return sandboxIDs, nil
+}
+
+//// pkg/kubelet/remote/remote_runtime.go - PodSandboxStatus()
+
+// PodSandboxStatus returns the status of the PodSandbox.
+func (r *RemoteRuntimeService) PodSandboxStatus(podSandBoxID string) (*runtimeapi.PodSandboxStatus, error) {
+    ctx, cancel := getContextWithTimeout(r.timeout)
+    defer cancel()
+
+    resp, err := r.runtimeClient.PodSandboxStatus(ctx, &amp;runtimeapi.PodSandboxStatusRequest{
+        PodSandboxId: podSandBoxID,
+    })
+  :
+    return resp.Status, nil
+}
+
+//// pkg/kubelet/kuberuntime/kuberuntime_container.go - getPodContainerStatuses()
+
+// getPodContainerStatuses gets all containers' statuses for the pod.
+func (m *kubeGenericRuntimeManager) getPodContainerStatuses(uid kubetypes.UID, name, namespace string) ([]*kubecontainer.ContainerStatus, error) {
+  // Select all containers of the given pod.
+  containers, err := m.runtimeService.ListContainers(&amp;runtimeapi.ContainerFilter{
+    LabelSelector: map[string]string{types.KubernetesPodUIDLabel: string(uid)},
+  })
+  :
+  // TODO: optimization: set maximum number of containers per container name to examine.
+  for i, c := range containers {
+    status, err := m.runtimeService.ContainerStatus(c.Id)
+    :
+  }
+  :
+  return statuses, nil
+}
+</code></pre>
+
+<p>上面就是 relist() 函数的完整调用堆栈，我在讲解的过程中结合了相关的源代码，希望能为你提供有关 PLEG 的更多细节。为了实时了解 PLEG 的健康状况，最好的办法就是监控 relist。</p>
+
+<h2 id="span-id-inline-toc-4-span-监控-relist"><span id="inline-toc">4.</span> 监控 relist</h2>
+
+<hr />
+
+<p>我们可以通过监控 Kubelet 的指标来了解 <code>relist</code> 的延时。<code>relist</code> 的调用周期是 1s，那么 <strong>relist 的完成时间 + 1s</strong> 就等于 <code>kubelet_pleg_relist_interval_microseconds</code> 指标的值。你也可以监控容器运行时每个操作的延时，这些指标在排查故障时都能提供线索。</p>
+
+<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-kubelet-metrics-table.png" alt="" /></p>
+
+<p>你可以在每个节点上通过访问 URL <code>https://127.0.0.1:10250/metrics</code> 来获取 Kubelet 的指标。</p>
+
+<pre><code class="language-promql"># HELP kubelet_pleg_relist_interval_microseconds Interval in microseconds between relisting in PLEG.
+# TYPE kubelet_pleg_relist_interval_microseconds summary
+kubelet_pleg_relist_interval_microseconds{quantile=&quot;0.5&quot;} 1.054052e+06
+kubelet_pleg_relist_interval_microseconds{quantile=&quot;0.9&quot;} 1.074873e+06
+kubelet_pleg_relist_interval_microseconds{quantile=&quot;0.99&quot;} 1.126039e+06
+kubelet_pleg_relist_interval_microseconds_count 5146
+
+# HELP kubelet_pleg_relist_latency_microseconds Latency in microseconds for relisting pods in PLEG.
+# TYPE kubelet_pleg_relist_latency_microseconds summary
+kubelet_pleg_relist_latency_microseconds{quantile=&quot;0.5&quot;} 53438
+kubelet_pleg_relist_latency_microseconds{quantile=&quot;0.9&quot;} 74396
+kubelet_pleg_relist_latency_microseconds{quantile=&quot;0.99&quot;} 115232
+kubelet_pleg_relist_latency_microseconds_count 5106
+
+# HELP kubelet_runtime_operations Cumulative number of runtime operations by operation type.
+# TYPE kubelet_runtime_operations counter
+kubelet_runtime_operations{operation_type=&quot;container_status&quot;} 472
+kubelet_runtime_operations{operation_type=&quot;create_container&quot;} 93
+kubelet_runtime_operations{operation_type=&quot;exec&quot;} 1
+kubelet_runtime_operations{operation_type=&quot;exec_sync&quot;} 533
+kubelet_runtime_operations{operation_type=&quot;image_status&quot;} 579
+kubelet_runtime_operations{operation_type=&quot;list_containers&quot;} 10249
+kubelet_runtime_operations{operation_type=&quot;list_images&quot;} 782
+kubelet_runtime_operations{operation_type=&quot;list_podsandbox&quot;} 10154
+kubelet_runtime_operations{operation_type=&quot;podsandbox_status&quot;} 315
+kubelet_runtime_operations{operation_type=&quot;pull_image&quot;} 57
+kubelet_runtime_operations{operation_type=&quot;remove_container&quot;} 49
+kubelet_runtime_operations{operation_type=&quot;run_podsandbox&quot;} 28
+kubelet_runtime_operations{operation_type=&quot;start_container&quot;} 93
+kubelet_runtime_operations{operation_type=&quot;status&quot;} 1116
+kubelet_runtime_operations{operation_type=&quot;stop_container&quot;} 9
+kubelet_runtime_operations{operation_type=&quot;stop_podsandbox&quot;} 33
+kubelet_runtime_operations{operation_type=&quot;version&quot;} 564
+
+# HELP kubelet_runtime_operations_latency_microseconds Latency in microseconds of runtime operations. Broken down by operation type.
+# TYPE kubelet_runtime_operations_latency_microseconds summary
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;container_status&quot;,quantile=&quot;0.5&quot;} 12117
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;container_status&quot;,quantile=&quot;0.9&quot;} 26607
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;container_status&quot;,quantile=&quot;0.99&quot;} 27598
+kubelet_runtime_operations_latency_microseconds_count{operation_type=&quot;container_status&quot;} 486
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;list_containers&quot;,quantile=&quot;0.5&quot;} 29972
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;list_containers&quot;,quantile=&quot;0.9&quot;} 47907
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;list_containers&quot;,quantile=&quot;0.99&quot;} 80982
+kubelet_runtime_operations_latency_microseconds_count{operation_type=&quot;list_containers&quot;} 10812
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;list_podsandbox&quot;,quantile=&quot;0.5&quot;} 18053
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;list_podsandbox&quot;,quantile=&quot;0.9&quot;} 28116
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;list_podsandbox&quot;,quantile=&quot;0.99&quot;} 68748
+kubelet_runtime_operations_latency_microseconds_count{operation_type=&quot;list_podsandbox&quot;} 10712
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;podsandbox_status&quot;,quantile=&quot;0.5&quot;} 4918
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;podsandbox_status&quot;,quantile=&quot;0.9&quot;} 15671
+kubelet_runtime_operations_latency_microseconds{operation_type=&quot;podsandbox_status&quot;,quantile=&quot;0.99&quot;} 18398
+kubelet_runtime_operations_latency_microseconds_count{operation_type=&quot;podsandbox_status&quot;} 323
+</code></pre>
+
+<p>可以通过 Prometheus 对其进行监控：</p>
+
+<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-prometheus-metrics.png" alt="" /></p>
+
+<h2 id="span-id-inline-toc-5-span-总结"><span id="inline-toc">5.</span> 总结</h2>
+
+<hr />
+
+<p>以我的经验，造成 <strong>PLEG is not healthy</strong> 的因素有很多，而且我相信还有更多潜在的因素我们还没有遇到过。我只提供几个我能想到的原因：</p>
+
+<ul>
+<li>RPC 调用过程中容器运行时响应超时（有可能是性能下降，死锁或者出现了 bug）。</li>
+<li>节点上的 Pod 数量太多，导致 <code>relist</code> 无法在 3 分钟内完成。事件数量和延时与 Pod 数量成正比，与节点资源无关。</li>
+<li><a href="https://github.com/kubernetes/kubernetes/issues/72482" target="_blank">relist 出现了死锁</a>，该 bug 已在 Kubernetes 1.14 中修复。</li>
+<li>获取 Pod 的网络堆栈信息时 CNI 出现了 bug。</li>
+</ul>
+
+<h2 id="span-id-inline-toc-6-span-参考资料"><span id="inline-toc">6.</span> 参考资料</h2>
+
+<hr />
+
+<ul>
+<li><a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/pod-lifecycle-event-generator.md" target="_blank">Kubelet: Pod Lifecycle Event Generator (PLEG)</a></li>
+<li><a href="https://github.com/kubernetes/community/blob/master/contributors/design-proposals/node/runtime-pod-cache.md" target="_blank">Kubelet: Runtime Pod Cache</a></li>
+<li><a href="https://github.com/openshift/origin/blob/release-3.11/vendor/k8s.io/kubernetes/pkg/kubelet/pleg/generic.go#L180-L284" target="_blank">relist() in kubernetes/pkg/kubelet/pleg/generic.go</a></li>
+<li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=1486914#c16" target="_blank">Past bug about CNI — PLEG is not healthy error, node marked NotReady</a></li>
+</ul>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/kubernetes/"><i class="fa fa-tags"></i>kubernetes</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-the-pleg-is-not-healthy%2f&amp;title=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubelet%20%e4%b8%ad%e7%9a%84%20PLEG%20is%20not%20healthy&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191207224117.jpg" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-the-pleg-is-not-healthy%2f&amp;title=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubelet%20%e4%b8%ad%e7%9a%84%20PLEG%20is%20not%20healthy&amp;source=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubelet%20%e4%b8%ad%e7%9a%84%20PLEG%20is%20not%20healthy&amp;desc=%e6%9c%ac%e6%96%87%e9%80%9a%e8%bf%87%e7%bb%93%e5%90%88%e6%ba%90%e4%bb%a3%e7%a0%81%ef%bc%8c%e8%af%a6%e7%bb%86%e8%a7%a3%e9%87%8a%e4%ba%86%20PLEG%20%e7%9a%84%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86%e5%92%8c%e8%b0%83%e7%94%a8%e6%b5%81%e7%a8%8b%ef%bc%8c%e6%9c%80%e5%90%8e%e6%8f%90%e4%be%9b%e4%ba%86%e6%8e%92%e9%9a%9c%e6%80%9d%e8%b7%af%e5%92%8c%e8%a7%84%e9%81%bf%e6%96%b9%e6%b3%95%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191207224117.jpg&amp;summary=%e6%9c%ac%e6%96%87%e9%80%9a%e8%bf%87%e7%bb%93%e5%90%88%e6%ba%90%e4%bb%a3%e7%a0%81%ef%bc%8c%e8%af%a6%e7%bb%86%e8%a7%a3%e9%87%8a%e4%ba%86%20PLEG%20%e7%9a%84%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86%e5%92%8c%e8%b0%83%e7%94%a8%e6%b5%81%e7%a8%8b%ef%bc%8c%e6%9c%80%e5%90%8e%e6%8f%90%e4%be%9b%e4%ba%86%e6%8e%92%e9%9a%9c%e6%80%9d%e8%b7%af%e5%92%8c%e8%a7%84%e9%81%bf%e6%96%b9%e6%b3%95%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-the-pleg-is-not-healthy%2f&amp;text=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubelet%20%e4%b8%ad%e7%9a%84%20PLEG%20is%20not%20healthy&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-the-pleg-is-not-healthy%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2funderstanding-the-pleg-is-not-healthy%2f&amp;title=%e6%b7%b1%e5%85%a5%e7%90%86%e8%a7%a3%20Kubelet%20%e4%b8%ad%e7%9a%84%20PLEG%20is%20not%20healthy" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/sealos/">kubernetes 高可用部署工具：sealos</a></li>
+                
+                    <li><a href="/posts/what-happens-when-k8s/">kubectl 创建 Pod 背后到底发生了什么？</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/kubesphere/">KubeSphere 安装教程</a></li>
+                
+                    <li><a href="/posts/istio-1.3/">Istio 1.3 发布，HTTP 遥测不再需要 Mixer</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/multiarch-docker-with-buildx/" data-toggle="tooltip" data-placement="top" title="使用 buildx 构建多平台 Docker 镜像">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/linux-circumvent/" data-toggle="tooltip" data-placement="top" title="Linux全局智能分流方案">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+	    <link rel="stylesheet" href="https://fuckcloudnative.io/css/iDisqus.min.css" />
+<div id="comment"></div>
+<script src="https://fuckcloudnative.io/js/iDisqus.min.js"></script>
+<script>
+var disq = new iDisqus('comment', {
+    forum: 'fuckcloudnative',
+    api: 'https://disqus.fuckcloudnative.io',
+    site: 'http://fuckcloudnative.io',
+    emojiPath: 'https://api.fooleap.org/emoji/unicode/',
+    mode: 2,
+    timeout: 15,
+    init: true
+});
+</script>
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2019 年 12 月 1 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script src="https://my.openwrite.cn/js/readmore.js" type="text/javascript"></script>
+<script>
+    const btw = new BTWPlugin();
+    btw.init({
+        id: 'container',
+        blogId: '10020-1569254413955-300',
+        name: '云原生实验室',
+        qrcode: 'https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/wechat.gif',
+        keyword: 'vip',
+    });
+</script>
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Sun, 17 Nov 2019 13:54:43 -0500</lastBuildDate>
+    <lastBuildDate>Sun, 01 Dec 2019 10:32:58 -0500</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
@@ -38,6 +38,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/linux-circumvent/</guid>
       <description>Github 地址：Linux 和 MacOS 设备智能分流方案 本来我是决定不再写这样的文章了的。但是呢，最近连续配置了两次 ArchLinux，在配置这种东西的时候连</description>
+    </item>
+    
+    <item>
+      <title>深入理解 Kubelet 中的 PLEG is not healthy</title>
+      <link>https://fuckcloudnative.io/posts/understanding-the-pleg-is-not-healthy/</link>
+      <pubDate>Sun, 01 Dec 2019 10:32:58 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-the-pleg-is-not-healthy/</guid>
+      <description>在 Kubernetes 社区中，PLEG is not healthy 成名已久，只要出现这个报错，就有很大概率造成 Node 状态变成 NotReady。社区相关的 issue 也有一大把，先列几个给你们看看</description>
     </item>
     
     <item>
@@ -947,6 +956,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/%E5%90%91%E9%87%8F%E7%9A%84%E5%8F%89%E4%B9%98%E4%B8%8E%E8%A1%8C%E5%88%97%E5%BC%8F/</guid>
       <description></description>
+    </item>
+    
+    <item>
+      <title>子空间投影</title>
+      <link>https://fuckcloudnative.io/posts/%E5%AD%90%E7%A9%BA%E9%97%B4%E6%8A%95%E5%BD%B1/</link>
+      <pubDate>Sat, 04 Jun 2016 17:18:59 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/%E5%AD%90%E7%A9%BA%E9%97%B4%E6%8A%95%E5%BD%B1/</guid>
+      <description>为了弄明白子空间投影是怎么一回事，我们遵循从低维到高维的规律，先从二维开始讲起。 1. 二维空间 如下图所示（我随手画的，不要介意），设向量p是向量</description>
     </item>
     
     <item>

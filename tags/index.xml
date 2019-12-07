@@ -8,10 +8,19 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Sun, 17 Nov 2019 13:54:43 -0500</lastBuildDate>
+    <lastBuildDate>Sun, 01 Dec 2019 10:32:58 -0500</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>kubernetes</title>
+      <link>https://fuckcloudnative.io/tags/kubernetes/</link>
+      <pubDate>Sun, 01 Dec 2019 10:32:58 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/tags/kubernetes/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>docker</title>
@@ -100,15 +109,6 @@
       <pubDate>Wed, 25 Sep 2019 13:00:34 +0800</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/tags/istio/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>kubernetes</title>
-      <link>https://fuckcloudnative.io/tags/kubernetes/</link>
-      <pubDate>Wed, 25 Sep 2019 13:00:34 +0800</pubDate>
-      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
-      <guid>https://fuckcloudnative.io/tags/kubernetes/</guid>
       <description></description>
     </item>
     

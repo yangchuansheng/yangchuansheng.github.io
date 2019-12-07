@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Thu, 19 Sep 2019 21:53:07 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 01 Dec 2019 10:32:58 -0500</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/categories/kubernetes/index.xml" rel="self" type="application/rss+xml" />
     
@@ -29,6 +29,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/what-happens-when-k8s/</guid>
       <description>想象一下，如果我想将 nginx 部署到 Kubernetes 集群，我可能会在终端中输入类似这样的命令： $ kubectl run --image=nginx --replicas=3 然后回车。几秒钟后，你就会看到三个 nginx pod 分布在所有的工作节点</description>
+    </item>
+    
+    <item>
+      <title>深入理解 Kubelet 中的 PLEG is not healthy</title>
+      <link>https://fuckcloudnative.io/posts/understanding-the-pleg-is-not-healthy/</link>
+      <pubDate>Sun, 01 Dec 2019 10:32:58 -0500</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-the-pleg-is-not-healthy/</guid>
+      <description>在 Kubernetes 社区中，PLEG is not healthy 成名已久，只要出现这个报错，就有很大概率造成 Node 状态变成 NotReady。社区相关的 issue 也有一大把，先列几个给你们看看</description>
     </item>
     
     <item>
