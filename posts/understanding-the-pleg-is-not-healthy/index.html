@@ -106,7 +106,7 @@
   <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
 
 
-<link rel="stylesheet" href='/css/bundle.min.27c44b95a29376b65ca966a962b3b9068abf198f09b478bb8f190381453c880a.css' integrity='sha256-J8RLlaKTdrZcqWapYrO5Boq/GY8JtHi7jxkDgUU8iAo='>
+<link rel="stylesheet" href='/css/bundle.min.ec753382e186764192203ba56695e7d40a3c3ee5b26e6d475a8fc2e930f5cfb3.css' integrity='sha256-7HUzguGGdkGSIDulZpXn1Ao8PuWybm1HWo/C6TD1z7M='>
 
 
 
@@ -591,7 +591,17 @@ autocomplete('#aa-search-input',
 
 <p>整体的工作流程如下图所示，虚线部分是 PLEG 的工作内容。</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/orig-pleg-1.png" alt="" /></p>
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/orig-pleg-1.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/orig-pleg-1.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/orig-pleg-1.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <h2 id="span-id-inline-toc-2-span-pleg-is-not-healthy-是如何发生的"><span id="inline-toc">2.</span> PLEG is not healthy 是如何发生的？</h2>
 
@@ -599,7 +609,17 @@ autocomplete('#aa-search-input',
 
 <p><code>Healthy()</code> 函数会以 “PLEG” 的形式添加到 <code>runtimeState</code> 中，Kubelet 在一个同步循环（<code>SyncLoop()</code> 函数）中会定期（默认是 10s）调用 <code>Healthy()</code> 函数。<code>Healthy()</code> 函数会检查 <code>relist</code> 进程（PLEG 的关键任务）是否在 3 分钟内完成。如果 relist 进程的完成时间超过了 3 分钟，就会报告 <strong>PLEG is not healthy</strong>。</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-healthy-checks.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-healthy-checks.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-healthy-checks.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-healthy-checks.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>我会在流程的每一步通过源代码解释其相关的工作原理，源代码基于 Kubernetes 1.11（Openshift 3.11）。如果你不熟悉 Go 的语法也不用担心，只需要看代码中的注释就能明白其原理。我也会在放出代码之前先解读一番，并从源代码中裁剪掉不太重要的内容以提高代码的可读性。下面是调用 healthy() 函数的相关代码：</p>
 
@@ -694,13 +714,33 @@ type PodLifecycleEvent struct {
 
 <p>下面我们来看一下 <code>relist()</code> 函数的内部实现。完整的流程如下图所示：</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-process.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-process.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-process.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-process.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>注意图中的 RPC 调用部分，后文将会拎出来详细解读。完整的源代码在<a href="https://github.com/openshift/origin/blob/release-3.11/vendor/k8s.io/kubernetes/pkg/kubelet/pleg/generic.go#L180-L284" target="_blank">这里</a>。</p>
 
 <p>尽管每秒钟调用一次 <code>relist</code>，但它的完成时间仍然有可能超过 1s。因为下一次调用 <code>relist</code> 必须得等上一次 relist 执行结束，设想一下，如果容器运行时响应缓慢，或者一个周期内有大量的容器状态发生改变，那么 <code>relist</code> 的完成时间将不可忽略，假设是 5s，那么下一次调用 <code>relist</code> 将要等到 6s 之后。</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-start-relist.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-start-relist.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-start-relist.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-start-relist.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>相关的源代码如下：</p>
 
@@ -754,7 +794,17 @@ func (g *GenericPLEG) relist() {
 
 <p>其中 <code>GetPods()</code> 函数的调用堆栈如下图所示：</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-getpods.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-getpods.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-getpods.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-getpods.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>相关的源代码如下：</p>
 
@@ -901,7 +951,17 @@ func generateEvents(podID types.UID, cid string, oldState, newState plegContaine
 
 <p><code>updateCache()</code> 的详细调用堆栈如下图所示，其中 <code>GetPodStatus()</code> 用来获取 Pod 的 spec 定义信息：</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-updatecache.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-updatecache.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-updatecache.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-updatecache.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>完整的代码如下：</p>
 
@@ -988,7 +1048,17 @@ func (m *kubeGenericRuntimeManager) getPodContainerStatuses(uid kubetypes.UID, n
 
 <p>我们可以通过监控 Kubelet 的指标来了解 <code>relist</code> 的延时。<code>relist</code> 的调用周期是 1s，那么 <strong>relist 的完成时间 + 1s</strong> 就等于 <code>kubelet_pleg_relist_interval_microseconds</code> 指标的值。你也可以监控容器运行时每个操作的延时，这些指标在排查故障时都能提供线索。</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-kubelet-metrics-table.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-kubelet-metrics-table.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-kubelet-metrics-table.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-kubelet-metrics-table.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>你可以在每个节点上通过访问 URL <code>https://127.0.0.1:10250/metrics</code> 来获取 Kubelet 的指标。</p>
 
@@ -1048,7 +1118,17 @@ kubelet_runtime_operations_latency_microseconds_count{operation_type=&quot;podsa
 
 <p>可以通过 Prometheus 对其进行监控：</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-prometheus-metrics.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-prometheus-metrics.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-prometheus-metrics.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/pleg-prometheus-metrics.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <h2 id="span-id-inline-toc-5-span-总结"><span id="inline-toc">5.</span> 总结</h2>
 
@@ -1205,7 +1285,7 @@ kubelet_runtime_operations_latency_microseconds_count{operation_type=&quot;podsa
           
           
             <li class="next">
-              <a href="https://fuckcloudnative.io/posts/linux-circumvent/" data-toggle="tooltip" data-placement="top" title="Linux全局智能分流方案">后一篇 &rarr;</a>
+              <a href="https://fuckcloudnative.io/posts/font-spider-plus/" data-toggle="tooltip" data-placement="top" title="使用 font-spider 对 webfont 网页字体进行压缩">后一篇 &rarr;</a>
             </li>
           
         </ul>
@@ -1318,7 +1398,7 @@ var disq = new iDisqus('comment', {
 
           &nbsp;&bull;&nbsp;更新于
           
-            2019 年 12 月 1 日
+            2019 年 12 月 8 日
           
 
 	  &nbsp;&bull;&nbsp;

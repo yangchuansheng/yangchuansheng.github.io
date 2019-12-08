@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Sun, 01 Dec 2019 10:32:58 -0500</lastBuildDate>
+    <lastBuildDate>Sun, 08 Dec 2019 16:42:03 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/index.xml" rel="self" type="application/rss+xml" />
     
@@ -38,6 +38,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/linux-circumvent/</guid>
       <description>Github 地址：Linux 和 MacOS 设备智能分流方案 本来我是决定不再写这样的文章了的。但是呢，最近连续配置了两次 ArchLinux，在配置这种东西的时候连</description>
+    </item>
+    
+    <item>
+      <title>使用 font-spider 对 webfont 网页字体进行压缩</title>
+      <link>https://fuckcloudnative.io/posts/font-spider-plus/</link>
+      <pubDate>Sun, 08 Dec 2019 16:42:03 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/font-spider-plus/</guid>
+      <description>随着当前 Web 技术的日新月异，网页界面内容越来越丰富，让人眼花缭乱，其中就包括了网页中的各种自定义字体。 例如，个人博客的首页字体： CSS3 引入的 @font-face 这一</description>
     </item>
     
     <item>

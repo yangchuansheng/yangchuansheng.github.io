@@ -8,10 +8,19 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Sun, 01 Dec 2019 10:32:58 -0500</lastBuildDate>
+    <lastBuildDate>Sun, 08 Dec 2019 16:42:03 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>hugo</title>
+      <link>https://fuckcloudnative.io/categories/hugo/</link>
+      <pubDate>Sun, 08 Dec 2019 16:42:03 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/hugo/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>kubernetes</title>
@@ -109,15 +118,6 @@
       <pubDate>Mon, 28 Jan 2019 16:39:48 +0800</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/categories/loadbalance/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>hugo</title>
-      <link>https://fuckcloudnative.io/categories/hugo/</link>
-      <pubDate>Mon, 12 Nov 2018 15:30:35 +0800</pubDate>
-      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
-      <guid>https://fuckcloudnative.io/categories/hugo/</guid>
       <description></description>
     </item>
     
