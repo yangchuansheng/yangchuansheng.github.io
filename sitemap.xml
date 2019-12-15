@@ -19,18 +19,43 @@
   
   <url>
     <loc>https://fuckcloudnative.io/</loc>
-    <lastmod>2019-12-08T16:42:03+08:00</lastmod>
+    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://fuckcloudnative.io/categories/</loc>
-    <lastmod>2019-12-08T16:42:03+08:00</lastmod>
+    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
-    <lastmod>2019-12-08T16:42:03+08:00</lastmod>
+    <loc>https://fuckcloudnative.io/tags/istio/</loc>
+    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/istio-deploy/</loc>
+    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/</loc>
+    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/categories/service-mesh/</loc>
+    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/service-mesh/</loc>
+    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/</loc>
+    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
   </url>
   
   <url>
@@ -39,12 +64,7 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/posts/</loc>
-    <lastmod>2019-12-08T16:42:03+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/</loc>
+    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
   </url>
   
@@ -69,12 +89,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/docker/</loc>
+    <loc>https://fuckcloudnative.io/categories/docker/</loc>
     <lastmod>2019-11-17T13:54:43-05:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/docker/</loc>
+    <loc>https://fuckcloudnative.io/tags/docker/</loc>
     <lastmod>2019-11-17T13:54:43-05:00</lastmod>
   </url>
   
@@ -161,21 +181,6 @@
   <url>
     <loc>https://fuckcloudnative.io/posts/using-nftables/</loc>
     <lastmod>2019-09-29T21:01:14+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/istio/</loc>
-    <lastmod>2019-09-25T13:00:34+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/service-mesh/</loc>
-    <lastmod>2019-09-25T13:00:34+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/categories/service-mesh/</loc>
-    <lastmod>2019-09-25T13:00:34+08:00</lastmod>
   </url>
   
   <url>

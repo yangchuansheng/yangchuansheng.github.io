@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Sun, 08 Dec 2019 16:42:03 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 15 Dec 2019 00:14:06 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
@@ -38,6 +38,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/linux-circumvent/</guid>
       <description>Github 地址：Linux 和 MacOS 设备智能分流方案 本来我是决定不再写这样的文章了的。但是呢，最近连续配置了两次 ArchLinux，在配置这种东西的时候连</description>
+    </item>
+    
+    <item>
+      <title>Istio 1.4 部署指南</title>
+      <link>https://fuckcloudnative.io/posts/istio-deploy/</link>
+      <pubDate>Sun, 15 Dec 2019 00:14:06 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/istio-deploy/</guid>
+      <description>Istio 一直处于快速迭代更新的过程中，它的部署方法也在不断更新，之前我在 1.0 版本中介绍的安装方法，对于最新的 1.4 版本已经不适用了。以后主流的部署方式都</description>
     </item>
     
     <item>
