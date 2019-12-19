@@ -8,10 +8,19 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Mon, 04 Nov 2019 23:47:34 -0500</lastBuildDate>
+    <lastBuildDate>Thu, 19 Dec 2019 17:56:09 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/tags/linux/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>nftables 基础教程：使用 nftables 作为防火墙</title>
+      <link>https://fuckcloudnative.io/posts/use-nftables-as-firewall/</link>
+      <pubDate>Thu, 19 Dec 2019 17:56:09 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/use-nftables-as-firewall/</guid>
+      <description>上篇文章 给大家介绍了 nftables 的优点以及基本的使用方法，它的优点在于直接在用户态把网络规则编译成字节码，然后由内核的虚拟机执行，尽管和 iptables 一样都是基于</description>
+    </item>
     
     <item>
       <title>并发与并行的区别</title>

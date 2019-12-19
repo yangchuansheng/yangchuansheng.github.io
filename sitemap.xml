@@ -19,13 +19,43 @@
   
   <url>
     <loc>https://fuckcloudnative.io/</loc>
-    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
+    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://fuckcloudnative.io/categories/</loc>
-    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
+    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/categories/linux/</loc>
+    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/linux/</loc>
+    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/nftables/</loc>
+    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/use-nftables-as-firewall/</loc>
+    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/</loc>
+    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/</loc>
+    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
   </url>
   
   <url>
@@ -35,11 +65,6 @@
   
   <url>
     <loc>https://fuckcloudnative.io/posts/istio-deploy/</loc>
-    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/posts/</loc>
     <lastmod>2019-12-15T00:14:06+08:00</lastmod>
   </url>
   
@@ -54,17 +79,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/</loc>
-    <lastmod>2019-12-15T00:14:06+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/hugo/</loc>
+    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
+    <loc>https://fuckcloudnative.io/tags/hugo/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
   </url>
   
@@ -89,12 +109,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/docker/</loc>
+    <loc>https://fuckcloudnative.io/tags/docker/</loc>
     <lastmod>2019-11-17T13:54:43-05:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/docker/</loc>
+    <loc>https://fuckcloudnative.io/categories/docker/</loc>
     <lastmod>2019-11-17T13:54:43-05:00</lastmod>
   </url>
   
@@ -105,16 +125,6 @@
   
   <url>
     <loc>https://fuckcloudnative.io/tags/golang/</loc>
-    <lastmod>2019-11-04T23:47:34-05:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/linux/</loc>
-    <lastmod>2019-11-04T23:47:34-05:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/categories/linux/</loc>
     <lastmod>2019-11-04T23:47:34-05:00</lastmod>
   </url>
   
@@ -171,11 +181,6 @@
   <url>
     <loc>https://fuckcloudnative.io/tags/prometheus/</loc>
     <lastmod>2019-10-08T01:49:41+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/nftables/</loc>
-    <lastmod>2019-09-29T21:01:14+08:00</lastmod>
   </url>
   
   <url>
@@ -374,12 +379,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/math/</loc>
+    <loc>https://fuckcloudnative.io/tags/math/</loc>
     <lastmod>2019-03-09T19:32:33+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/math/</loc>
+    <loc>https://fuckcloudnative.io/categories/math/</loc>
     <lastmod>2019-03-09T19:32:33+08:00</lastmod>
   </url>
   
@@ -394,12 +399,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/gfw/</loc>
+    <loc>https://fuckcloudnative.io/tags/gfw/</loc>
     <lastmod>2019-03-06T13:41:11+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/gfw/</loc>
+    <loc>https://fuckcloudnative.io/categories/gfw/</loc>
     <lastmod>2019-03-06T13:41:11+08:00</lastmod>
   </url>
   
