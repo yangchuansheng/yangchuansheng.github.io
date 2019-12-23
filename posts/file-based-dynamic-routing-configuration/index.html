@@ -602,7 +602,17 @@ autocomplete('#aa-search-input',
 
 <p><code>R7000</code> 就老老实实通过 <code>Access Point</code> 模式作为二级路由提供 WiFi 吧。</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223131810.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223131810.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223131810.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223131810.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>到这里有人可能要问了，说了这么多跟这篇文章的主题有什么关系呢？别急，下面进入主题。</p>
 
@@ -643,7 +653,17 @@ config uhttpd 'main'
 
 <p><code>80</code> 和 <code>443</code> 端口被腾出来之后，就可以愉快地使用反代了。可是安装 Envoy 是个头疼的问题啊，编译太复杂，<a href="https://www.getenvoy.io/" target="_blank">GetEnvoy</a> 项目又不支持 <code>busybox</code>，只能通过容器跑了。配置如图：</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223154116.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223154116.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223154116.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223154116.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>下面就是老老实实写配置文件，没什么可说的，但问题就出在这里，Upstream 服务不多倒好办，一旦变多，<code>Envoy</code> 配置文件会过于冗长，很容易看花眼。虽想到了用控制平面来动态更新配置，但我没必要单独起个控制平面服务，还有没有别的办法呢？有的，其实 <code>Envoy</code> 是可以将文件作为配置的订阅来源的。方法很简单，首先需要参加一个 <code>Bootstrap</code> 引导程序配置文件，里面定义了 node 信息和动态资源：</p>
 
@@ -922,7 +942,17 @@ mv lds.yaml.temp lds.yaml
 
 <p><code>Grafana</code>  的安装我就不多说了，直接容器跑，配置如下：</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223174930.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223174930.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223174930.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223174930.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>为了能够通过反向代理正确访问 <code>Grafana</code>，需要对 <code>Grafana</code> 的配置做一些调整，修改 <code>grafana.ini</code> 中的以下几个字段：</p>
 
@@ -997,7 +1027,17 @@ root_url = %(protocol)s://%(domain)s/grafana/
 
 <p>然后就可以通过 <code>subpath</code> 访问 Grafana 了。</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223180534.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223180534.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223180534.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223180534.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <h3 id="tcp">TCP</h3>
 
@@ -1085,7 +1125,17 @@ root_url = %(protocol)s://%(domain)s/grafana/
 
 <p>配置生效后，就可以通过外网连接你的 samba 服务了。</p>
 
-<p><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223181539.png" alt="" /></p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223181539.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223181539.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191223181539.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>当然了，我自己的 Upstream 服务远远不止这些，我只是针对每一种类型举一个示例，大家可以举一反三。看看我的：</p>
 
