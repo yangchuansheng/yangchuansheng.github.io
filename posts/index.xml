@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Thu, 19 Dec 2019 17:56:09 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 23 Dec 2019 13:05:09 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
@@ -38,6 +38,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/linux-circumvent/</guid>
       <description>Github 地址：Linux 和 MacOS 设备智能分流方案 本来我是决定不再写这样的文章了的。但是呢，最近连续配置了两次 ArchLinux，在配置这种东西的时候连</description>
+    </item>
+    
+    <item>
+      <title>Envoy 基础教程：基于文件系统动态更新配置</title>
+      <link>https://fuckcloudnative.io/posts/file-based-dynamic-routing-configuration/</link>
+      <pubDate>Mon, 23 Dec 2019 13:05:09 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/file-based-dynamic-routing-configuration/</guid>
+      <description>之前家里的路由器一直用的都是网件 R7000 搭载的梅林固件，虽说性能也还不错，比两百块钱的小米路由器强多了，但还是不能满足我的需求，装了某魔法软件后内</description>
     </item>
     
     <item>

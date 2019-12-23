@@ -8,10 +8,28 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Thu, 19 Dec 2019 17:56:09 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 23 Dec 2019 13:05:09 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>envoy</title>
+      <link>https://fuckcloudnative.io/tags/envoy/</link>
+      <pubDate>Mon, 23 Dec 2019 13:05:09 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/tags/envoy/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>service mesh</title>
+      <link>https://fuckcloudnative.io/tags/service-mesh/</link>
+      <pubDate>Mon, 23 Dec 2019 13:05:09 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/tags/service-mesh/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>linux</title>
@@ -37,15 +55,6 @@
       <pubDate>Sun, 15 Dec 2019 00:14:06 +0800</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/tags/istio/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>service mesh</title>
-      <link>https://fuckcloudnative.io/tags/service-mesh/</link>
-      <pubDate>Sun, 15 Dec 2019 00:14:06 +0800</pubDate>
-      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
-      <guid>https://fuckcloudnative.io/tags/service-mesh/</guid>
       <description></description>
     </item>
     
@@ -91,15 +100,6 @@
       <pubDate>Sun, 03 Nov 2019 23:23:19 -0500</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/tags/capabilities/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>envoy</title>
-      <link>https://fuckcloudnative.io/tags/envoy/</link>
-      <pubDate>Fri, 18 Oct 2019 00:16:16 -0400</pubDate>
-      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
-      <guid>https://fuckcloudnative.io/tags/envoy/</guid>
       <description></description>
     </item>
     
