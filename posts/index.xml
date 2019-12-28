@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Mon, 23 Dec 2019 13:05:09 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 28 Dec 2019 15:47:03 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
@@ -38,6 +38,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/linux-circumvent/</guid>
       <description>Github 地址：Linux 和 MacOS 设备智能分流方案 本来我是决定不再写这样的文章了的。但是呢，最近连续配置了两次 ArchLinux，在配置这种东西的时候连</description>
+    </item>
+    
+    <item>
+      <title>Use Envoy Proxy Access Google</title>
+      <link>https://fuckcloudnative.io/posts/use-envoy-proxy-access-google/</link>
+      <pubDate>Sat, 28 Dec 2019 15:47:03 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/use-envoy-proxy-access-google/</guid>
+      <description>科学合理地访问 Google，一直用 Envoy 一直爽 上篇文章介绍了如何基于文件系统动态更新 Envoy 配置，还没看过的同学可以去恶补一下。今天要介绍一个新的基于</description>
     </item>
     
     <item>
