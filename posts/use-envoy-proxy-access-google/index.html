@@ -7,12 +7,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-  <title>Use Envoy Proxy Access Google - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+  <title>Envoy 基础教程：反向代理谷歌搜索 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
 
 
   <meta content="米开朗基杨, envoy, google" name="keywords">
 
-  <meta name="description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="description" content="本文教你如何使用 Envoy 来反向代理谷歌">
   <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
 {
     "@context": "http://schema.org",
@@ -49,7 +49,7 @@
         "position": 3,
         "item": {
           "@id": "https:\/\/fuckcloudnative.io\/posts\/use-envoy-proxy-access-google\/",
-          "name": "Use envoy proxy access google"
+          "name": "Envoy 基础教程：反向代理谷歌搜索"
         }
     }]
 }
@@ -60,10 +60,10 @@
   "author": {
     "name" : "米开朗基杨"
   },
-  "headline": "Use Envoy Proxy Access Google",
-  "description" : "科学合理地访问 Google，一直用 Envoy 一直爽 上篇文章介绍了如何基于文件系统动态更新 Envoy 配置，还没看过的同学可以去恶补一下。今天要介绍一个新的基于",
+  "headline": "Envoy 基础教程：反向代理谷歌搜索",
+  "description" : "本文教你如何使用 Envoy 来反向代理谷歌",
   "inLanguage" : "zh",
-  "wordCount":  929 ,
+  "wordCount":  933 ,
   "datePublished" : "2019-12-28T15:47:03",
   "dateModified" : "2019-12-28T15:47:03",
   "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
@@ -82,15 +82,15 @@
 }
 </script>
 
-<meta property="og:title" content="Use Envoy Proxy Access Google" />
-<meta property="og:description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+<meta property="og:title" content="Envoy 基础教程：反向代理谷歌搜索" />
+<meta property="og:description" content="本文教你如何使用 Envoy 来反向代理谷歌">
 <meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
 <meta property="og:url" content="https://fuckcloudnative.io/posts/use-envoy-proxy-access-google/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="云原生实验室" />
 
-  <meta name="twitter:title" content="Use Envoy Proxy Access Google" />
-  <meta name="twitter:description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="twitter:title" content="Envoy 基础教程：反向代理谷歌搜索" />
+  <meta name="twitter:description" content="本文教你如何使用 Envoy 来反向代理谷歌">
   <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:site" content="@RyangYang1" />
@@ -106,7 +106,7 @@
   <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
 
 
-<link rel="stylesheet" href='/css/bundle.min.c127a511c8953d2496e9bbd5202ee59d0dc1dabeb8253baf6d412d0c0c2b4f11.css' integrity='sha256-wSelEciVPSSW6bvVIC7lnQ3B2r64JTuvbUEtDAwrTxE='>
+<link rel="stylesheet" href='/css/bundle.min.d217a6a11bc17dc3e103bef3ba21832728f51d46cb03c12302afe9b4245396fa.css' integrity='sha256-0hemoRvBfcPhA77zuiGDJyj1HUbLA8EjAq/ptCRTlvo='>
 
 
 
@@ -426,8 +426,13 @@ autocomplete('#aa-search-input',
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <div class="post-heading">
 		  
-		      <h1 align="center">Use Envoy Proxy Access Google</h1>
+		      <h1 align="center">Envoy 基础教程：反向代理谷歌搜索</h1>
 		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">科学合理地访问 Google，一直用 Envoy 一直爽</h2>
+                    
                   
                   
                     <span class="post-meta">
@@ -439,7 +444,7 @@ autocomplete('#aa-search-input',
     &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;2&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;929&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;933&nbsp;个字
   
   
     
@@ -463,9 +468,13 @@ autocomplete('#aa-search-input',
           <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
             <div class="post-heading">
               
-                <h1>Use Envoy Proxy Access Google</h1>
+                <h1>Envoy 基础教程：反向代理谷歌搜索</h1>
               
               
+              
+                
+                  <h2 class="post-subheading">科学合理地访问 Google，一直用 Envoy 一直爽</h2>
+                
               
               
                 <span class="post-meta">
@@ -477,7 +486,7 @@ autocomplete('#aa-search-input',
     &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;2&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;929&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;933&nbsp;个字
   
   
     
@@ -649,9 +658,21 @@ autocomplete('#aa-search-input',
 </div>
 
 
-<p>已添加到我的博客首页，快快收藏起来</p>
+<p>已添加到我的博客首页，快快收藏起来：</p>
 
-<p>以后请叫我奇技淫巧之神。</p>
+
+
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191228180052.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191228180052.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20191228180052.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>以后请叫我云原生奇技淫巧之神。</p>
 
          
 	 
@@ -713,19 +734,19 @@ autocomplete('#aa-search-input',
     <ul class="share">
       
       <li>
-	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fuse-envoy-proxy-access-google%2f&amp;title=Use%20Envoy%20Proxy%20Access%20Google&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191224000952.jpg" target="_blank" title="分享到微博">
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fuse-envoy-proxy-access-google%2f&amp;title=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9a%e5%8f%8d%e5%90%91%e4%bb%a3%e7%90%86%e8%b0%b7%e6%ad%8c%e6%90%9c%e7%b4%a2&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191228184723.png" target="_blank" title="分享到微博">
           <i class="fab fa-weibo"></i>
         </a>
       </li>
       
       <li>
-	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fuse-envoy-proxy-access-google%2f&amp;title=Use%20Envoy%20Proxy%20Access%20Google&amp;source=Use%20Envoy%20Proxy%20Access%20Google&amp;desc=&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191224000952.jpg&amp;summary=" target="_blank" title="分享到 QQ">
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fuse-envoy-proxy-access-google%2f&amp;title=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9a%e5%8f%8d%e5%90%91%e4%bb%a3%e7%90%86%e8%b0%b7%e6%ad%8c%e6%90%9c%e7%b4%a2&amp;source=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9a%e5%8f%8d%e5%90%91%e4%bb%a3%e7%90%86%e8%b0%b7%e6%ad%8c%e6%90%9c%e7%b4%a2&amp;desc=%e6%9c%ac%e6%96%87%e6%95%99%e4%bd%a0%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8%20Envoy%20%e6%9d%a5%e5%8f%8d%e5%90%91%e4%bb%a3%e7%90%86%e8%b0%b7%e6%ad%8c&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191228184723.png&amp;summary=%e6%9c%ac%e6%96%87%e6%95%99%e4%bd%a0%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8%20Envoy%20%e6%9d%a5%e5%8f%8d%e5%90%91%e4%bb%a3%e7%90%86%e8%b0%b7%e6%ad%8c" target="_blank" title="分享到 QQ">
           <i class="fab fa-qq"></i>
         </a>
       </li>
       
       <li>
-        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fuse-envoy-proxy-access-google%2f&amp;text=Use%20Envoy%20Proxy%20Access%20Google&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fuse-envoy-proxy-access-google%2f&amp;text=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9a%e5%8f%8d%e5%90%91%e4%bb%a3%e7%90%86%e8%b0%b7%e6%ad%8c%e6%90%9c%e7%b4%a2&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
           <i class="fab fa-twitter"></i>
         </a>
       </li>
@@ -739,7 +760,7 @@ autocomplete('#aa-search-input',
   
       
       <li>
-	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fuse-envoy-proxy-access-google%2f&amp;title=Use%20Envoy%20Proxy%20Access%20Google" target="_blank" title="分享到 LinkedIn">
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fuse-envoy-proxy-access-google%2f&amp;title=Envoy%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9a%e5%8f%8d%e5%90%91%e4%bb%a3%e7%90%86%e8%b0%b7%e6%ad%8c%e6%90%9c%e7%b4%a2" target="_blank" title="分享到 LinkedIn">
           <i class="fab fa-linkedin"></i>
         </a>
       </li>
