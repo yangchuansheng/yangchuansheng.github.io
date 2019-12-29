@@ -46,7 +46,7 @@
       <pubDate>Sat, 28 Dec 2019 15:47:03 +0800</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/use-envoy-proxy-access-google/</guid>
-      <description>科学合理地访问 Google，一直用 Envoy 一直爽 上篇文章介绍了如何基于文件系统动态更新 Envoy 配置，还没看过的同学可以去恶补一下。今天要介绍一个新的基于</description>
+      <description>上篇文章介绍了如何基于文件系统动态更新 Envoy 配置，还没看过的同学可以去恶补一下。今天要介绍一个新的基于 Envoy 的奇技淫巧，其实很简单，几句话就可以说完</description>
     </item>
     
     <item>

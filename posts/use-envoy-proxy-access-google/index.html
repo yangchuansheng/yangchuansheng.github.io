@@ -63,7 +63,7 @@
   "headline": "Envoy 基础教程：反向代理谷歌搜索",
   "description" : "本文教你如何使用 Envoy 来反向代理谷歌",
   "inLanguage" : "zh",
-  "wordCount":  933 ,
+  "wordCount":  912 ,
   "datePublished" : "2019-12-28T15:47:03",
   "dateModified" : "2019-12-28T15:47:03",
   "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
@@ -444,7 +444,7 @@ autocomplete('#aa-search-input',
     &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;2&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;933&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;912&nbsp;个字
   
   
     
@@ -486,7 +486,7 @@ autocomplete('#aa-search-input',
     &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;2&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;933&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;912&nbsp;个字
   
   
     
@@ -530,11 +530,7 @@ autocomplete('#aa-search-input',
 <aside class="toc">
     <div id='anchors-navbar'>
         <i class='fa fa-anchor'></i>
-        <nav id="TableOfContents">
-<ul>
-<li><a href="#科学合理地访问-google-一直用-envoy-一直爽">科学合理地访问 Google，一直用 Envoy 一直爽</a></li>
-</ul>
-</nav>
+        
     </div>
     
 </aside>
@@ -545,11 +541,7 @@ autocomplete('#aa-search-input',
 
          
            
-           
-
-<h1 id="科学合理地访问-google-一直用-envoy-一直爽">科学合理地访问 Google，一直用 Envoy 一直爽</h1>
-
-<p><a href="https://fuckcloudnative.io/posts/file-based-dynamic-routing-configuration/" target="_blank">上篇文章</a>介绍了如何基于文件系统动态更新 <code>Envoy</code> 配置，还没看过的同学可以去恶补一下。今天要介绍一个新的基于 <code>Envoy</code> 的奇技淫巧，其实很简单，几句话就可以说完。但鉴于网上并无与此相关的资料，决定还是写出来吧，目测我是用此方法的第一人，至少国内如此。</p>
+           <p><a href="https://fuckcloudnative.io/posts/file-based-dynamic-routing-configuration/" target="_blank">上篇文章</a>介绍了如何基于文件系统动态更新 <code>Envoy</code> 配置，还没看过的同学可以去恶补一下。今天要介绍一个新的基于 <code>Envoy</code> 的奇技淫巧，其实很简单，几句话就可以说完。但鉴于网上并无与此相关的资料，决定还是写出来吧，目测我是用此方法的第一人，至少国内如此。</p>
 
 <p>想必大部分小朋友看标题就知道我要讲的是啥，没错，是用 <code>Envoy</code> 来反向代理 <code>Google</code>。网上铺天盖地都是 Nginx 反代 Google 的文章，看得我是真难受，还得添加各种模块自己编译，你累不累啊？今天让我用 Envoy 教你如何正确优雅地反代 Google，看懂的掌声。</p>
 
@@ -604,9 +596,8 @@ autocomplete('#aa-search-input',
 </code></pre>
 
 <ul>
-<li><p>将域名替换成你自己的域名</p></li>
-
-<li><p>将配置中的证书替换成你自己的证书，至于证书如何申请我就不说了，不是本文的重点，请面向谷歌找答案。</p></li>
+<li>将域名替换成你自己的域名</li>
+<li>将配置中的证书替换成你自己的证书，至于证书如何申请我就不说了，不是本文的重点，请面向谷歌找答案。</li>
 </ul>
 
 <p>下一步是向 <code>cds.yaml</code> 中添加 Cluster：</p>
