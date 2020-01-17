@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Linux Namespace 基础教程：namespace API - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨, namespace, linux namespace, unshare, uts namespace, setns" name="keywords">
+
+  <meta name="description" content="本文仔细研究了 namespace API 的每个组成部分，并将它们结合起来一起使用。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/introduction-to-linux-namespaces-part-1-api\/",
+          "name": "Linux namespace 基础教程：namespace a p i"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "Linux Namespace 基础教程：namespace API",
+  "description" : "本文仔细研究了 namespace API 的每个组成部分，并将它们结合起来一起使用。",
+  "inLanguage" : "zh",
+  "wordCount":  4364 ,
+  "datePublished" : "2020-01-17T21:35:19",
+  "dateModified" : "2020-01-17T21:35:19",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "linux, namespace" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/introduction-to-linux-namespaces-part-1-api\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Linux Namespace 基础教程：namespace API" />
+<meta property="og:description" content="本文仔细研究了 namespace API 的每个组成部分，并将它们结合起来一起使用。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/introduction-to-linux-namespaces-part-1-api/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="Linux Namespace 基础教程：namespace API" />
+  <meta name="twitter:description" content="本文仔细研究了 namespace API 的每个组成部分，并将它们结合起来一起使用。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.08c73021ac0ff46019df86c1981b3e72b79fa9b565520c62195a120c3cba353e.css' integrity='sha256-CMcwIawP9GAZ34bBmBs&#43;crefqbVlUgxiGVoSDDy6NT4='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://google.fuckcloudnative.io">谷歌搜索</a>
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">Linux Namespace 基础教程：namespace API</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">了解不同 namespace API 的原理和用法</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2020 年 1 月 17 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;9&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4364&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Linux Namespace 基础教程：namespace API</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">了解不同 namespace API 的原理和用法</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2020 年 1 月 17 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;9&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4364&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div id="container" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-clone">1. clone()</a></li>
+<li><a href="#2-proc-文件">2. proc 文件</a></li>
+<li><a href="#3-setns">3. setns()</a></li>
+<li><a href="#4-unshare">4. unshare()</a></li>
+<li><a href="#5-总结">5. 总结</a></li>
+<li><a href="#参考链接">参考链接</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+
+<p><code>Linux Namespace</code> 是 Linux 提供的一种内核级别环境隔离的方法。用官方的话来说，Linux Namespace 将全局系统资源封装在一个抽象中，从而使 namespace 内的进程认为自己具有独立的资源实例。这项技术本来没有掀起多大的波澜，是容器技术的崛起让他重新引起了大家的注意。</p>
+
+<p>Linux Namespace 有如下 6 个种类：</p>
+
+<table>
+<thead>
+<tr>
+<th><strong>分类</strong></th>
+<th><strong>系统调用参数</strong></th>
+<th><strong>相关内核版本</strong></th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>Mount namespaces</td>
+<td>CLONE_NEWNS</td>
+<td><a href="http://lwn.net/2001/0301/a/namespaces.php3" target="_blank">Linux 2.4.19</a></td>
+</tr>
+
+<tr>
+<td>UTS namespaces</td>
+<td>CLONE_NEWUTS</td>
+<td><a href="http://lwn.net/Articles/179345/" target="_blank">Linux 2.6.19</a></td>
+</tr>
+
+<tr>
+<td>IPC namespaces</td>
+<td>CLONE_NEWIPC</td>
+<td><a href="http://lwn.net/Articles/187274/" target="_blank">Linux 2.6.19</a></td>
+</tr>
+
+<tr>
+<td>PID namespaces</td>
+<td>CLONE_NEWPID</td>
+<td><a href="http://lwn.net/Articles/259217/" target="_blank">Linux 2.6.24</a></td>
+</tr>
+
+<tr>
+<td>Network namespaces</td>
+<td>CLONE_NEWNET</td>
+<td><a href="http://lwn.net/Articles/219794/" target="_blank">始于Linux 2.6.24 完成于 Linux 2.6.29</a></td>
+</tr>
+
+<tr>
+<td>User namespaces</td>
+<td>CLONE_NEWUSER</td>
+<td><a href="http://lwn.net/Articles/528078/" target="_blank">始于 Linux 2.6.23 完成于 Linux 3.8</a></td>
+</tr>
+</tbody>
+</table>
+
+<p>namespace 的 API 由三个系统调用和一系列 <code>/proc</code> 文件组成，本文将会详细介绍这些系统调用和 <code>/proc</code> 文件。为了指定要操作的 namespace 类型，需要在系统调用的 flag 中通过常量 <code>CLONE_NEW*</code> 指定（包括 <code>CLONE_NEWIPC</code>，<code>CLONE_NEWNS</code>， <code>CLONE_NEWNET</code>，<code>CLONE_NEWPID</code>，<code>CLONE_NEWUSER</code> 和 <code>CLONE_NEWUTS</code>），可以指定多个常量，通过 <strong>|</strong>（位或）操作来实现。</p>
+
+<p>简单描述一下三个系统调用的功能：</p>
+
+<ul>
+<li><strong>clone()</strong> : 实现线程的系统调用，用来创建一个新的进程，并可以通过设计上述系统调用参数达到隔离的目的。</li>
+<li><strong>unshare()</strong> : 使某进程脱离某个 namespace。</li>
+<li><strong>setns()</strong> : 把某进程加入到某个 namespace。</li>
+</ul>
+
+<p>具体的实现原理请往下看。</p>
+
+<h2 id="1-clone">1. clone()</h2>
+
+<hr />
+
+<p><code>clone()</code> 的原型如下：</p>
+
+<pre><code class="language-c">int clone(int (*child_func)(void *), void *child_stack, int flags, void *arg);
+</code></pre>
+
+<ul>
+<li><strong>child_func</strong> : 传入子进程运行的程序主函数。</li>
+<li><strong>child_stack</strong> : 传入子进程使用的栈空间。</li>
+<li><strong>flags</strong> : 表示使用哪些 <code>CLONE_*</code> 标志位。</li>
+<li><strong>args</strong> : 用于传入用户参数。</li>
+</ul>
+
+<p><code>clone()</code> 与 <code>fork()</code> 类似，都相当于把当前进程复制了一份，但 <code>clone()</code> 可以更细粒度地控制与子进程共享的资源（其实就是通过 flags 来控制），包括虚拟内存、打开的文件描述符和信号量等等。一旦指定了标志位 <code>CLONE_NEW*</code>，相对应类型的 namespace 就会被创建，新创建的进程也会成为该 namespace 中的一员。</p>
+
+<p>clone() 的原型并不是最底层的系统调用，而是封装过的，真正的系统调用内核实现函数为 <code>do_fork()</code>，形式如下：</p>
+
+<pre><code class="language-c">long do_fork(unsigned long clone_flags,
+	      unsigned long stack_start,
+	      unsigned long stack_size,
+	      int __user *parent_tidptr,
+	      int __user *child_tidptr)
+</code></pre>
+
+<p>其中 <code>clone_flags</code> 可以赋值为上面提到的标志。</p>
+
+<p>下面来看一个例子：</p>
+
+<pre><code class="language-c">/* demo_uts_namespaces.c
+
+   Copyright 2013, Michael Kerrisk
+   Licensed under GNU General Public License v2 or later
+
+   Demonstrate the operation of UTS namespaces.
+*/
+#define _GNU_SOURCE
+#include &lt;sys/wait.h&gt;
+#include &lt;sys/utsname.h&gt;
+#include &lt;sched.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+
+/* A simple error-handling function: print an error message based
+   on the value in 'errno' and terminate the calling process */
+
+#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+                        } while (0)
+
+static int              /* Start function for cloned child */
+childFunc(void *arg)
+{
+    struct utsname uts;
+
+    /* 在新的 UTS namespace 中修改主机名 */
+
+    if (sethostname(arg, strlen(arg)) == -1)
+        errExit(&quot;sethostname&quot;);
+
+    /* 获取并显示主机名 */
+
+    if (uname(&amp;uts) == -1)
+        errExit(&quot;uname&quot;);
+    printf(&quot;uts.nodename in child:  %s\n&quot;, uts.nodename);
+
+    /* Keep the namespace open for a while, by sleeping.
+       This allows some experimentation--for example, another
+       process might join the namespace. */
+     
+    sleep(100);
+
+    return 0;           /* Terminates child */
+}
+
+/* 定义一个给 clone 用的栈，栈大小1M */
+#define STACK_SIZE (1024 * 1024) 
+
+static char child_stack[STACK_SIZE];
+
+int
+main(int argc, char *argv[])
+{
+    pid_t child_pid;
+    struct utsname uts;
+
+    if (argc &lt; 2) {
+        fprintf(stderr, &quot;Usage: %s &lt;child-hostname&gt;\n&quot;, argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    /* 调用 clone 函数创建一个新的 UTS namespace，其中传出一个函数，还有一个栈空间（为什么传尾指针，因为栈是反着的）;
+       新的进程将在用户定义的函数 childFunc() 中执行 */
+
+    child_pid = clone(childFunc, 
+                    child_stack + STACK_SIZE,   /* 因为栈是反着的， 
+                                                   所以传尾指针 */ 
+                    CLONE_NEWUTS | SIGCHLD, argv[1]);
+    if (child_pid == -1)
+        errExit(&quot;clone&quot;);
+    printf(&quot;PID of child created by clone() is %ld\n&quot;, (long) child_pid);
+
+    /* Parent falls through to here */
+
+    sleep(1);           /* 给子进程预留一定的时间来改变主机名 */
+
+    /* 显示当前 UTS namespace 中的主机名，和 
+       子进程所在的 UTS namespace 中的主机名不同 */
+
+    if (uname(&amp;uts) == -1)
+        errExit(&quot;uname&quot;);
+    printf(&quot;uts.nodename in parent: %s\n&quot;, uts.nodename);
+
+    if (waitpid(child_pid, NULL, 0) == -1)      /* 等待子进程结束 */
+        errExit(&quot;waitpid&quot;);
+    printf(&quot;child has terminated\n&quot;);
+
+    exit(EXIT_SUCCESS);
+}
+</code></pre>
+
+<p>该程序通过标志位 <code>CLONE_NEWUTS</code> 调用 <code>clone()</code> 函数创建一个 UTS namespace。UTS namespace 隔离了两个系统标识符 — <strong>主机名</strong>和 <strong>NIS 域名</strong> —它们分别通过 <code>sethostname()</code> 和 <code>setdomainname()</code> 这两个系统调用来设置，并通过系统调用 <code>uname()</code> 来获取。</p>
+
+<p>下面将对程序中的一些关键部分进行解读（为了简单起见，我们将省略其中的错误检查）。</p>
+
+<p>程序运行时后面需要跟上一个命令行参数，它将会创建一个在新的 UTS namespace 中执行的子进程，该子进程会在新的 UTS namespace 中将主机名改为命令行参数中提供的值。</p>
+
+<p>主程序的第一个关键部分是通过系统调用 <code>clone()</code> 来创建子进程：</p>
+
+<pre><code class="language-c">child_pid = clone(childFunc, 
+                  child_stack + STACK_SIZE,   /* Points to start of 
+                                                 downwardly growing stack */ 
+                  CLONE_NEWUTS | SIGCHLD, argv[1]);
+
+printf(&quot;PID of child created by clone() is %ld\n&quot;, (long) child_pid);
+</code></pre>
+
+<p>子进程将会在用户定义的函数 <code>childFunc()</code> 中开始执行，该函数将会接收 <code>clone()</code> 最后的参数（argv[1]）作为自己的参数，并且标志位包含了 <code>CLONE_NEWUTS</code>，所以子进程会在新创建的 UTS namespace 中执行。</p>
+
+<p>接下来主进程睡眠一段时间，让子进程能够有时间更改其 UTS namespace 中的主机名。然后调用 <code>uname()</code> 来检索当前 UTS namespace 中的主机名，并显示该主机名：</p>
+
+<pre><code class="language-c">sleep(1);           /* Give child time to change its hostname */
+
+uname(&amp;uts);
+printf(&quot;uts.nodename in parent: %s\n&quot;, uts.nodename);
+</code></pre>
+
+<p>与此同时，由 <code>clone()</code> 创建的子进程执行的函数 <code>childFunc()</code> 首先将主机名改为命令行参数中提供的值，然后检索并显示修改后的主机名：</p>
+
+<pre><code class="language-c">sethostname(arg, strlen(arg);
+    
+uname(&amp;uts);
+printf(&quot;uts.nodename in child:  %s\n&quot;, uts.nodename);
+</code></pre>
+
+<p>子进程退出之前也睡眠了一段时间，这样可以防止新的 UTS namespace 不会被关闭，让我们能够有机会进行后续的实验。</p>
+
+<p>执行程序，观察父进程和子进程是否处于不同的 UTS namespace 中：</p>
+
+<pre><code class="language-bash">$ su                   # 需要特权才能创建 UTS namespace
+Password: 
+# uname -n
+antero
+# ./demo_uts_namespaces bizarro
+PID of child created by clone() is 27514
+uts.nodename in child:  bizarro
+uts.nodename in parent: antero
+</code></pre>
+
+<p>除了 User namespace 之外，创建其他的 namespace 都需要特权，更确切地说，是需要相应的 <code>Linux Capabilities</code>，即 <code>CAP_SYS_ADMIN</code>。这样就可以避免设置了 SUID（Set User ID on execution）的程序因为主机名不同而做出一些愚蠢的行为。如果对 Linux Capabilities 不是很熟悉，可以参考我之前的文章：<a href="https://fuckcloudnative.io/posts/linux-capabilities-why-they-exist-and-how-they-work/" target="_blank">Linux Capabilities 入门教程：概念篇</a>。</p>
+
+<h2 id="2-proc-文件">2. proc 文件</h2>
+
+<hr />
+
+<p>每个进程都有一个 <code>/proc/PID/ns</code> 目录，其下面的文件依次表示每个 namespace, 例如 user 就表示 user namespace。从 3.8 版本的内核开始，该目录下的每个文件都是一个特殊的符号链接，链接指向 <code>$namespace:[$namespace-inode-number]</code>，前半部份为 namespace 的名称，后半部份的数字表示这个 namespace 的句柄号。句柄号用来对进程所关联的 namespace 执行某些操作。</p>
+
+<pre><code class="language-bash">$ ls -l /proc/$$/ns         # $$ 表示当前所在的 shell 的 PID
+total 0
+lrwxrwxrwx. 1 mtk mtk 0 Jan  8 04:12 ipc -&gt; ipc:[4026531839]
+lrwxrwxrwx. 1 mtk mtk 0 Jan  8 04:12 mnt -&gt; mnt:[4026531840]
+lrwxrwxrwx. 1 mtk mtk 0 Jan  8 04:12 net -&gt; net:[4026531956]
+lrwxrwxrwx. 1 mtk mtk 0 Jan  8 04:12 pid -&gt; pid:[4026531836]
+lrwxrwxrwx. 1 mtk mtk 0 Jan  8 04:12 user -&gt; user:[4026531837]
+lrwxrwxrwx. 1 mtk mtk 0 Jan  8 04:12 uts -&gt; uts:[4026531838]
+</code></pre>
+
+<p>这些符号链接的用途之一是用来<strong>确认两个不同的进程是否处于同一 namespace 中</strong>。如果两个进程指向的 namespace inode number 相同，就说明他们在同一个 namespace 下，否则就在不同的 namespace 下。这些符号链接指向的文件比较特殊，不能直接访问，事实上指向的文件存放在被称为 <code>nsfs</code> 的文件系统中，该文件系统用户不可见，可以使用系统调用 <a href="http://man7.org/linux/man-pages/man2/stat.2.html" target="_blank">stat()</a> 在返回的结构体的 <code>st_ino</code> 字段中获取 inode number。在 shell 终端中可以用命令（实际上就是调用了 stat()）看到指向文件的 inode 信息：</p>
+
+<pre><code class="language-bash">$ stat -L /proc/$$/ns/net
+  File: /proc/3232/ns/net
+  Size: 0         	Blocks: 0          IO Block: 4096   regular empty file
+Device: 4h/4d	Inode: 4026531956  Links: 1
+Access: (0444/-r--r--r--)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2020-01-17 15:45:23.783304900 +0800
+Modify: 2020-01-17 15:45:23.783304900 +0800
+Change: 2020-01-17 15:45:23.783304900 +0800
+ Birth: -
+</code></pre>
+
+<p>除了上述用途之外，这些符号链接还有其他的用途，<strong>如果我们打开了其中一个文件，那么只要与该文件相关联的文件描述符处于打开状态，即使该 namespace 中的所有进程都终止了，该 namespace 依然不会被删除</strong>。通过 bind mount 将符号链接挂载到系统的其他位置，也可以获得相同的效果：</p>
+
+<pre><code class="language-bash">$ touch ~/uts
+$ mount --bind /proc/27514/ns/uts ~/uts
+</code></pre>
+
+<h2 id="3-setns">3. setns()</h2>
+
+<hr />
+
+<p>加入一个已经存在的 namespace 可以通过系统调用 <code>setns()</code> 来完成。它的原型如下：</p>
+
+<pre><code class="language-c">int setns(int fd, int nstype);
+</code></pre>
+
+<p>更确切的说法是：<code>setns()</code> 将调用的进程与特定类型 namespace 的一个实例分离，并将该进程与该类型 namespace 的另一个实例重新关联。</p>
+
+<ul>
+<li><code>fd</code> 表示要加入的 namespace 的文件描述符，可以通过打开其中一个符号链接来获取，也可以通过打开 bind mount  到其中一个链接的文件来获取。</li>
+<li><code>nstype</code> 让调用者可以去检查 fd 指向的 namespace 类型，值可以设置为前文提到的常量 <code>CLONE_NEW*</code>，填 <code>0</code> 表示不检查。如果调用者已经明确知道自己要加入了 namespace 类型，或者不关心 namespace 类型，就可以使用该参数来自动校验。</li>
+</ul>
+
+<p>结合 <code>setns()</code> 和 <code>execve()</code> 可以实现一个简单但非常有用的功能：将某个进程加入某个特定的 namespace，然后在该 namespace 中执行命令。直接来看例子：</p>
+
+<pre><code class="language-c">/* ns_exec.c 
+
+   Copyright 2013, Michael Kerrisk
+   Licensed under GNU General Public License v2 or later
+
+   Join a namespace and execute a command in the namespace
+*/
+#define _GNU_SOURCE
+#include &lt;fcntl.h&gt;
+#include &lt;sched.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+/* A simple error-handling function: print an error message based
+   on the value in 'errno' and terminate the calling process */
+
+#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+                        } while (0)
+
+int
+main(int argc, char *argv[])
+{
+    int fd;
+
+    if (argc &lt; 3) {
+        fprintf(stderr, &quot;%s /proc/PID/ns/FILE cmd [arg...]\n&quot;, argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    fd = open(argv[1], O_RDONLY);   /* 获取想要加入的 namespace 的文件描述符 */
+    if (fd == -1)
+        errExit(&quot;open&quot;);
+
+    if (setns(fd, 0) == -1)         /* 加入该 namespace */
+        errExit(&quot;setns&quot;);
+
+    execvp(argv[2], &amp;argv[2]);      /* 在加入的 namespace 中执行相应的命令 */
+    errExit(&quot;execvp&quot;);
+}
+</code></pre>
+
+<p>该程序运行需要两个或两个以上的命令行参数，第一个参数表示特定的 namespace 符号链接的路径（或者 bind mount 到这些符号链接的文件路径）；第二个参数表示要在该符号链接相对应的 namespace 中执行的程序名称，以及执行这个程序所需的命令行参数。关键步骤如下：</p>
+
+<pre><code class="language-c">fd = open(argv[1], O_RDONLY);   /* 获取想要加入的 namespace 的文件描述符 */
+
+setns(fd, 0);                   /* 加入该 namespace */
+
+execvp(argv[2], &amp;argv[2]);      /* 在加入的 namespace 中执行相应的命令 */
+</code></pre>
+
+<p>还记得我们之前已经通过 bind mount 将 <code>demo_uts_namespaces</code> 创建的 UTS namespace 挂载到 <code>~/uts</code> 中了吗？可以将本例中的程序与之结合，让新进程可以在该 UTS namespace 中执行 shell：</p>
+
+<pre><code class="language-bash">    $ ./ns_exec ~/uts /bin/bash     # ~/uts 被 bind mount 到了 /proc/27514/ns/uts
+    My PID is: 28788
+</code></pre>
+
+<p>验证新的 shell 是否与 <code>demo_uts_namespaces</code> 创建的子进程处于同一个 UTS namespace：</p>
+
+<pre><code class="language-bash">$ hostname
+bizarro
+$ readlink /proc/27514/ns/uts
+uts:[4026532338]
+$ readlink /proc/$$/ns/uts      # $$ 表示当前 shell 的 PID
+uts:[4026532338]
+</code></pre>
+
+<p>在早期的内核版本中，不能使用 <code>setns()</code> 来加入 mount namespace、PID namespace 和 user namespace，从 3.8 版本的内核开始，<code>setns()</code> 支持加入所有的 namespace。</p>
+
+<p>util-linux 包里提供了<code>nsenter</code> 命令，其提供了一种方式将新创建的进程运行在指定的 namespace 里面，它的实现很简单，就是通过命令行（-t 参数）指定要进入的 namespace 的符号链接，然后利用 <code>setns()</code> 将当前的进程放到指定的 namespace 里面，再调用 <code>clone()</code> 运行指定的执行文件。我们可以用 <code>strace</code> 来看看它的运行情况：</p>
+
+<pre><code class="language-bash"># strace nsenter -t 27242 -i -m -n -p -u /bin/bash
+execve(&quot;/usr/bin/nsenter&quot;, [&quot;nsenter&quot;, &quot;-t&quot;, &quot;27242&quot;, &quot;-i&quot;, &quot;-m&quot;, &quot;-n&quot;, &quot;-p&quot;, &quot;-u&quot;, &quot;/bin/bash&quot;], [/* 21 vars */]) = 0
+…………
+…………
+pen(&quot;/proc/27242/ns/ipc&quot;, O_RDONLY)    = 3
+open(&quot;/proc/27242/ns/uts&quot;, O_RDONLY)    = 4
+open(&quot;/proc/27242/ns/net&quot;, O_RDONLY)    = 5
+open(&quot;/proc/27242/ns/pid&quot;, O_RDONLY)    = 6
+open(&quot;/proc/27242/ns/mnt&quot;, O_RDONLY)    = 7
+setns(3, CLONE_NEWIPC)                  = 0
+close(3)                                = 0
+setns(4, CLONE_NEWUTS)                  = 0
+close(4)                                = 0
+setns(5, CLONE_NEWNET)                  = 0
+close(5)                                = 0
+setns(6, CLONE_NEWPID)                  = 0
+close(6)                                = 0
+setns(7, CLONE_NEWNS)                   = 0
+close(7)                                = 0
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7f4deb1faad0) = 4968
+</code></pre>
+
+<h2 id="4-unshare">4. unshare()</h2>
+
+<hr />
+
+<p>最后一个要介绍的系统调用是 <code>unshare()</code>，它的原型如下：</p>
+
+<pre><code class="language-c">int unshare(int flags);
+</code></pre>
+
+<p><code>unshare()</code> 与 <code>clone()</code> 类似，但它运行在原先的进程上，不需要创建一个新进程，即：先通过指定的 flags 参数 <code>CLONE_NEW*</code> 创建一个新的 namespace，然后将调用者加入该 namespace。最后实现的效果其实就是将调用者从当前的 namespace 分离，然后加入一个新的 namespace。</p>
+
+<p>Linux 中自带的 <code>unshare</code> 命令，就是通过 unshare() 系统调用实现的，使用方法如下：</p>
+
+<pre><code class="language-bash">$ unshare [options] program [arguments]
+</code></pre>
+
+<p><code>options</code> 指定要创建的 namespace 类型。</p>
+
+<p>unshare 命令的主要实现如下：</p>
+
+<pre><code class="language-c">/* 通过提供的命令行参数初始化 'flags' */
+
+unshare(flags);
+
+/* Now execute 'program' with 'arguments'; 'optind' is the index
+   of the next command-line argument after options */
+
+execvp(argv[optind], &amp;argv[optind]);
+</code></pre>
+
+<p>unshare 命令的完整实现如下：</p>
+
+<pre><code class="language-c">/* unshare.c 
+
+   Copyright 2013, Michael Kerrisk
+   Licensed under GNU General Public License v2 or later
+
+   A simple implementation of the unshare(1) command: unshare
+   namespaces and execute a command.
+*/
+
+#define _GNU_SOURCE
+#include &lt;sched.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stdio.h&gt;
+
+/* A simple error-handling function: print an error message based
+   on the value in 'errno' and terminate the calling process */
+
+#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); \
+                        } while (0)
+
+static void
+usage(char *pname)
+{
+    fprintf(stderr, &quot;Usage: %s [options] program [arg...]\n&quot;, pname);
+    fprintf(stderr, &quot;Options can be:\n&quot;);
+    fprintf(stderr, &quot;    -i   unshare IPC namespace\n&quot;);
+    fprintf(stderr, &quot;    -m   unshare mount namespace\n&quot;);
+    fprintf(stderr, &quot;    -n   unshare network namespace\n&quot;);
+    fprintf(stderr, &quot;    -p   unshare PID namespace\n&quot;);
+    fprintf(stderr, &quot;    -u   unshare UTS namespace\n&quot;);
+    fprintf(stderr, &quot;    -U   unshare user namespace\n&quot;);
+    exit(EXIT_FAILURE);
+}
+
+int
+main(int argc, char *argv[])
+{
+    int flags, opt;
+
+    flags = 0;
+
+    while ((opt = getopt(argc, argv, &quot;imnpuU&quot;)) != -1) {
+        switch (opt) {
+        case 'i': flags |= CLONE_NEWIPC;        break;
+        case 'm': flags |= CLONE_NEWNS;         break;
+        case 'n': flags |= CLONE_NEWNET;        break;
+        case 'p': flags |= CLONE_NEWPID;        break;
+        case 'u': flags |= CLONE_NEWUTS;        break;
+        case 'U': flags |= CLONE_NEWUSER;       break;
+        default:  usage(argv[0]);
+        }
+    }
+
+    if (optind &gt;= argc)
+        usage(argv[0]);
+
+    if (unshare(flags) == -1)
+        errExit(&quot;unshare&quot;);
+
+    execvp(argv[optind], &amp;argv[optind]);  
+    errExit(&quot;execvp&quot;);
+}
+</code></pre>
+
+<p>下面我们执行 <code>unshare.c</code> 程序在一个新的 mount namespace 中执行 shell：</p>
+
+<pre><code class="language-bash">$ echo $$                             # 显示当前 shell 的 PID
+8490
+$ cat /proc/8490/mounts | grep mq     # 显示当前 namespace 中的某个挂载点
+mqueue /dev/mqueue mqueue rw,seclabel,relatime 0 0
+$ readlink /proc/8490/ns/mnt          # 显示当前 namespace 的 ID 
+mnt:[4026531840]
+$ ./unshare -m /bin/bash              # 在新创建的 mount namespace 中执行新的 shell
+$ readlink /proc/$$/ns/mnt            # 显示新 namespace 的 ID 
+mnt:[4026532325]
+</code></pre>
+
+<p>对比两个 <code>readlink</code> 命令的输出，可以知道两个shell 处于不同的 mount namespace 中。改变新的 namespace 中的某个挂载点，然后观察两个 namespace 的挂载点是否有变化：</p>
+
+<pre><code class="language-bash">$ umount /dev/mqueue                  # 移除新 namespace 中的挂载点
+$ cat /proc/$$/mounts | grep mq       # 检查是否生效
+$ cat /proc/8490/mounts | grep mq     # 查看原来的 namespace 中的挂载点是否依然存在?
+mqueue /dev/mqueue mqueue rw,seclabel,relatime 0 0
+</code></pre>
+
+<p>可以看出，新的 namespace 中的挂载点 <code>/dev/mqueue</code> 已经消失了，但在原来的 namespace 中依然存在。</p>
+
+<h2 id="5-总结">5. 总结</h2>
+
+<hr />
+
+<p>本文仔细研究了 namespace API 的每个组成部分，并将它们结合起来一起使用。后续的文章将会继续深入研究每个单独的 namespace，尤其是 PID namespace 和 user namespace。</p>
+
+<h2 id="参考链接">参考链接</h2>
+
+<ul>
+<li><a href="https://lwn.net/Articles/531381/" target="_blank">Namespaces in operation, part 2: the namespaces API</a></li>
+<li><a href="https://coolshell.cn/articles/17010.html" target="_blank">Docker 基础技术：Linux Namespace（上）</a></li>
+</ul>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/linux/"><i class="fa fa-tags"></i>linux</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/namespace/"><i class="fa fa-tags"></i>namespace</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fintroduction-to-linux-namespaces-part-1-api%2f&amp;title=Linux%20Namespace%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9anamespace%20API&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20200117181939.png" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fintroduction-to-linux-namespaces-part-1-api%2f&amp;title=Linux%20Namespace%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9anamespace%20API&amp;source=Linux%20Namespace%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9anamespace%20API&amp;desc=%e6%9c%ac%e6%96%87%e4%bb%94%e7%bb%86%e7%a0%94%e7%a9%b6%e4%ba%86%20namespace%20API%20%e7%9a%84%e6%af%8f%e4%b8%aa%e7%bb%84%e6%88%90%e9%83%a8%e5%88%86%ef%bc%8c%e5%b9%b6%e5%b0%86%e5%ae%83%e4%bb%ac%e7%bb%93%e5%90%88%e8%b5%b7%e6%9d%a5%e4%b8%80%e8%b5%b7%e4%bd%bf%e7%94%a8%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20200117181939.png&amp;summary=%e6%9c%ac%e6%96%87%e4%bb%94%e7%bb%86%e7%a0%94%e7%a9%b6%e4%ba%86%20namespace%20API%20%e7%9a%84%e6%af%8f%e4%b8%aa%e7%bb%84%e6%88%90%e9%83%a8%e5%88%86%ef%bc%8c%e5%b9%b6%e5%b0%86%e5%ae%83%e4%bb%ac%e7%bb%93%e5%90%88%e8%b5%b7%e6%9d%a5%e4%b8%80%e8%b5%b7%e4%bd%bf%e7%94%a8%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fintroduction-to-linux-namespaces-part-1-api%2f&amp;text=Linux%20Namespace%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9anamespace%20API&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fintroduction-to-linux-namespaces-part-1-api%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fintroduction-to-linux-namespaces-part-1-api%2f&amp;title=Linux%20Namespace%20%e5%9f%ba%e7%a1%80%e6%95%99%e7%a8%8b%ef%bc%9anamespace%20API" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/use-nftables-as-firewall/">nftables 基础教程：使用 nftables 作为防火墙</a></li>
+                
+                    <li><a href="/posts/concurrency-is-not-parallelism/">并发与并行的区别</a></li>
+                
+                    <li><a href="/posts/linux-capabilities-in-practice-1/">Linux Capabilities 入门教程：基础实战篇</a></li>
+                
+                    <li><a href="/posts/linux-capabilities-why-they-exist-and-how-they-work/">Linux Capabilities 入门教程：概念篇</a></li>
+                
+                    <li><a href="/posts/using-nftables/">nftables 使用教程</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/use-envoy-proxy-access-google/" data-toggle="tooltip" data-placement="top" title="Envoy 基础教程：反向代理谷歌搜索">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/linux-circumvent/" data-toggle="tooltip" data-placement="top" title="Linux全局智能分流方案">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+	    <link rel="stylesheet" href="https://fuckcloudnative.io/css/iDisqus.min.css" />
+<div id="comment"></div>
+<script src="https://fuckcloudnative.io/js/iDisqus.min.js"></script>
+<script>
+var disq = new iDisqus('comment', {
+    forum: 'fuckcloudnative',
+    api: 'https://disqus.fuckcloudnative.io',
+    site: 'http://fuckcloudnative.io',
+    emojiPath: 'https://api.fooleap.org/emoji/unicode/',
+    mode: 2,
+    timeout: 15,
+    init: true
+});
+</script>
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2020 年 1 月 17 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script src="https://my.openwrite.cn/js/readmore.js" type="text/javascript"></script>
+<script>
+    const btw = new BTWPlugin();
+    btw.init({
+        id: 'container',
+        blogId: '10020-1569254413955-300',
+        name: '云原生实验室',
+        qrcode: 'https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/wechat.gif',
+        keyword: 'vip',
+    });
+</script>
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

@@ -19,13 +19,43 @@
   
   <url>
     <loc>https://fuckcloudnative.io/</loc>
-    <lastmod>2019-12-28T15:47:03+08:00</lastmod>
+    <lastmod>2020-01-17T21:35:19+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://fuckcloudnative.io/categories/</loc>
-    <lastmod>2019-12-28T15:47:03+08:00</lastmod>
+    <lastmod>2020-01-17T21:35:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/linux/</loc>
+    <lastmod>2020-01-17T21:35:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/categories/linux/</loc>
+    <lastmod>2020-01-17T21:35:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/introduction-to-linux-namespaces-part-1-api/</loc>
+    <lastmod>2020-01-17T21:35:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/namespace/</loc>
+    <lastmod>2020-01-17T21:35:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/</loc>
+    <lastmod>2020-01-17T21:35:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/</loc>
+    <lastmod>2020-01-17T21:35:19+08:00</lastmod>
   </url>
   
   <url>
@@ -39,17 +69,7 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/posts/</loc>
-    <lastmod>2019-12-28T15:47:03+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://fuckcloudnative.io/categories/service-mesh/</loc>
-    <lastmod>2019-12-28T15:47:03+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/</loc>
     <lastmod>2019-12-28T15:47:03+08:00</lastmod>
   </url>
   
@@ -66,16 +86,6 @@
   <url>
     <loc>https://fuckcloudnative.io/tags/lede/</loc>
     <lastmod>2019-12-23T13:05:09+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/linux/</loc>
-    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/categories/linux/</loc>
-    <lastmod>2019-12-19T17:56:09+08:00</lastmod>
   </url>
   
   <url>
@@ -104,12 +114,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/hugo/</loc>
+    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
+    <loc>https://fuckcloudnative.io/tags/hugo/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
   </url>
   
@@ -119,12 +129,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
+    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
     <lastmod>2019-12-01T10:32:58-05:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
+    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
     <lastmod>2019-12-01T10:32:58-05:00</lastmod>
   </url>
   
@@ -134,12 +144,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/docker/</loc>
+    <loc>https://fuckcloudnative.io/categories/docker/</loc>
     <lastmod>2019-11-17T13:54:43-05:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/docker/</loc>
+    <loc>https://fuckcloudnative.io/tags/docker/</loc>
     <lastmod>2019-11-17T13:54:43-05:00</lastmod>
   </url>
   
@@ -264,12 +274,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/devops/</loc>
+    <loc>https://fuckcloudnative.io/categories/devops/</loc>
     <lastmod>2019-08-21T14:03:42+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/devops/</loc>
+    <loc>https://fuckcloudnative.io/tags/devops/</loc>
     <lastmod>2019-08-21T14:03:42+08:00</lastmod>
   </url>
   
@@ -419,12 +429,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/gfw/</loc>
+    <loc>https://fuckcloudnative.io/tags/gfw/</loc>
     <lastmod>2019-03-06T13:41:11+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/gfw/</loc>
+    <loc>https://fuckcloudnative.io/categories/gfw/</loc>
     <lastmod>2019-03-06T13:41:11+08:00</lastmod>
   </url>
   
