@@ -63,7 +63,7 @@
   "headline": "使用 CoreDNS 来应对 DNS 污染",
   "description" : "在 MacOS 上部署轻量级高性能的 CoreDNS",
   "inLanguage" : "zh",
-  "wordCount":  3635 ,
+  "wordCount":  3633 ,
   "datePublished" : "2019-03-06T13:41:11",
   "dateModified" : "2019-03-06T13:41:11",
   "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
@@ -444,7 +444,7 @@ autocomplete('#aa-search-input',
     &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3635&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3633&nbsp;个字
   
   
     
@@ -486,7 +486,7 @@ autocomplete('#aa-search-input',
     &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3635&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3633&nbsp;个字
   
   
     
@@ -563,6 +563,7 @@ autocomplete('#aa-search-input',
          
 
          
+           
            
 
 <p><a href="https://github.com/coredns/coredns" target="_blank">CoreDNS</a> 是新晋的 <a href="https://coredns.io/2017/03/02/why-cncf-for-coredns/" target="_blank">CNCF 孵化项目</a>，前几天已经从 CNCF 正式毕业，并正式成为 Kubernetes 的 DNS 服务器。CoreDNS 的目标是成为 cloud-native 环境下的 DNS 服务器和服务发现解决方案，即：</p>
@@ -749,7 +750,17 @@ example.net:53 {
 
 <p>从配置文件来看，我们定义了两个 server（尽管有 4 个区块），分别监听在 <code>5300</code> 和 <code>53</code> 端口。其逻辑图可如下所示：</p>
 
-<p>![image](<a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/jYHoLN.jpg&quot;" target="_blank">https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/jYHoLN.jpg&quot;</a> &gt;}}</p>
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/jYHoLN.jpg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/jYHoLN.jpg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/jYHoLN.jpg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>每个进入到某个 server 的请求将按照 <code>plugin.cfg</code> 定义顺序执行其已经加载的插件。</p>
 
