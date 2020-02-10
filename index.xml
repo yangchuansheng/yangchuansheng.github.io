@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Fri, 17 Jan 2020 21:35:19 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 10 Feb 2020 23:22:34 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/index.xml" rel="self" type="application/rss+xml" />
     
@@ -38,6 +38,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/linux-circumvent/</guid>
       <description>Github 地址：Linux 和 MacOS 设备智能分流方案 本来我是决定不再写这样的文章了的。但是呢，最近连续配置了两次 ArchLinux，在配置这种东西的时候连</description>
+    </item>
+    
+    <item>
+      <title>Tcpdump 示例教程</title>
+      <link>https://fuckcloudnative.io/posts/tcpdump-examples/</link>
+      <pubDate>Mon, 10 Feb 2020 23:22:34 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/tcpdump-examples/</guid>
+      <description>本文主要内容翻译自《Tcpdump Examples》。 tcpdump 是一款强大的网络抓包工具，它使用 libpcap 库来抓取网络数据包，这个库在几乎在所有的 Linux/Unix 中都有。</description>
     </item>
     
     <item>
@@ -1195,6 +1204,16 @@ Association football, more commonly known as football or soccer,[2] is a sport p
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/post/2015-01-04-first-post/</guid>
       <description>This is my first post, how exciting!</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://fuckcloudnative.io/posts/ocp-4-%E9%83%A8%E7%BD%B2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/ocp-4-%E9%83%A8%E7%BD%B2/</guid>
+      <description>登录 CoreOS：
+$ ssh -i ~/.ssh/id_rsa core@192.168.57.61  </description>
     </item>
     
     <item>
