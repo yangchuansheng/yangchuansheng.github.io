@@ -8,10 +8,19 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Mon, 10 Feb 2020 23:22:34 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 22 Feb 2020 17:06:49 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>kubernetes</title>
+      <link>https://fuckcloudnative.io/categories/kubernetes/</link>
+      <pubDate>Sat, 22 Feb 2020 17:06:49 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/categories/kubernetes/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>network</title>
@@ -46,15 +55,6 @@
       <pubDate>Sun, 08 Dec 2019 16:42:03 +0800</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/categories/hugo/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>kubernetes</title>
-      <link>https://fuckcloudnative.io/categories/kubernetes/</link>
-      <pubDate>Sun, 01 Dec 2019 10:32:58 -0500</pubDate>
-      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
-      <guid>https://fuckcloudnative.io/categories/kubernetes/</guid>
       <description></description>
     </item>
     

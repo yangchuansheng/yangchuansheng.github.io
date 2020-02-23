@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>operator on 云原生实验室</title>
+    <link>https://fuckcloudnative.io/tags/operator/</link>
+    <description>Recent content in operator on 云原生实验室</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
+    <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
+    <lastBuildDate>Sat, 22 Feb 2020 17:06:49 +0800</lastBuildDate>
+    
+	<atom:link href="https://fuckcloudnative.io/tags/operator/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Kubernetes 控制器的进化之旅</title>
+      <link>https://fuckcloudnative.io/posts/controllers-confession/</link>
+      <pubDate>Sat, 22 Feb 2020 17:06:49 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/controllers-confession/</guid>
+      <description>我是一堆 Kubernetes 控制器。 你可能会疑惑为什么是一堆，因为我不是一个人，我只是众多控制器中的一员，你也可以把我看成是众多控制器的集合。我的职责就是监控</description>
+    </item>
+    
+  </channel>
+</rss>

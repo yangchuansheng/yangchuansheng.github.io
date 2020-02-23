@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Kubernetes 控制器的进化之旅 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+
+
+  <meta content="米开朗基杨, kubernetes, oam, operator, open application model" name="keywords">
+
+  <meta name="description" content="本文描述了 Kubernets 控制器的工作原理，包括通过 Operator 来控制有状态应用，最后介绍了如何通过 OAM 来解耦运维与开发的职责。">
+  <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "云原生实验室",
+    
+    "url": "https:\/\/fuckcloudnative.io"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/fuckcloudnative.io"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/controllers-confession\/",
+          "name": "Kubernetes 控制器的进化之旅"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "Kubernetes 控制器的进化之旅",
+  "description" : "本文描述了 Kubernets 控制器的工作原理，包括通过 Operator 来控制有状态应用，最后介绍了如何通过 OAM 来解耦运维与开发的职责。",
+  "inLanguage" : "zh",
+  "wordCount":  3457 ,
+  "datePublished" : "2020-02-22T17:06:49",
+  "dateModified" : "2020-02-22T17:06:49",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "kubernetes, oam, operator" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/controllers-confession\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Kubernetes 控制器的进化之旅" />
+<meta property="og:description" content="本文描述了 Kubernets 控制器的工作原理，包括通过 Operator 来控制有状态应用，最后介绍了如何通过 OAM 来解耦运维与开发的职责。">
+<meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/controllers-confession/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="云原生实验室" />
+
+  <meta name="twitter:title" content="Kubernetes 控制器的进化之旅" />
+  <meta name="twitter:description" content="本文描述了 Kubernets 控制器的工作原理，包括通过 Operator 来控制有状态应用，最后介绍了如何通过 OAM 来解耦运维与开发的职责。">
+  <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@RyangYang1" />
+  <meta name="twitter:creator" content="@RyangYang1" />
+
+  <link href='https://hugo-picture.oss-cn-beijing.aliyuncs.com/favicon-32x32.png' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.59.0" />
+  <link rel="alternate" href="https://fuckcloudnative.io/index.xml" type="application/rss+xml" title="云原生实验室">
+  
+  
+  
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/photoswipe.min.css" rel="stylesheet">
+  <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href='/css/bundle.min.dd6c20e5db80b6776351100df22b94441ebc5a92eb798675204fe45a6d47c5ef.css' integrity='sha256-3Wwg5duAtndjURAN8iuURB68WpLreYZ1IE/kWm1Hxe8='>
+
+
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?efe96f04908ae320df234a4f5626879e";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script src="https://fuckcloudnative.io/js/pace.min.js"></script>
+
+
+
+<script src="https://fuckcloudnative.io/js/busuanzi.pure.mini.js"></script>
+<script>
+var int = setInterval(fixCount, 50);
+function fixCount() {
+    if (document.getElementById('busuanzi_container_site_uv').ownerDocument.defaultView.getComputedStyle(document.getElementById('busuanzi_container_site_uv'), null).display === 'inline') {
+        clearInterval(int);
+        document.getElementById('busuanzi_value_site_uv') = parseInt(document.getElementById('busuanzi_value_site_uv').innerHTML) + parseInt('100000');
+    }
+}
+</script>
+
+
+
+
+
+
+
+    <div class="top-scroll-bar"></div>
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-145022311-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">切换导航</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="https://fuckcloudnative.io">🐳 > $ cd /home/</a>
+      
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-dharmachakra fa-spin" style="color:#986dbd"></i> 文章分类</a>
+              <div class="navlinks-children">
+                
+                  <a href="/categories/kubernetes/">kubernetes</a>
+                
+                  <a href="/categories/monitoring/">监控</a>
+                
+                  <a href="/categories/service-mesh/">Service Mesh</a>
+                
+                  <a href="/categories/devops/">DevOps</a>
+                
+                  <a href="/categories/docker/">Docker</a>
+                
+                  <a href="/categories/linux/">Linux</a>
+                
+                  <a href="/categories/python/">Python</a>
+                
+                  <a href="/categories/network/">网络</a>
+                
+                  <a href="/categories/loadbalance/"> 负载均衡</a>
+                
+                  <a href="/categories/gfw/">科学上网</a>
+                
+                  <a href="/categories/math/">数学</a>
+                
+                  <a href="/categories/share/">黑科技</a>
+                
+                  <a href="/categories/hugo/">Hugo</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fab fa-docker"></i> 电子书</a>
+              <div class="navlinks-children">
+                
+                  <a href="/prometheus-handbook/">Prometheus 中文文档</a>
+                
+                  <a href="/talent-is-overrated/">天才源自刻意练习</a>
+                
+                  <a href="/the-way-to-go/">Go 入门指南</a>
+                
+                  <a href="https://github.com/fengdu78/Coursera-ML-AndrewNg-Notes">机器学习笔记</a>
+                
+                  <a href="https://github.com/ruanyf/reading-list">阮一峰书单</a>
+                
+                  <a href="https://istio.io/zh/docs">Istio service mesh</a>
+                
+                  <a href="https://www.gitbook.com/book/yeasy/docker_practice">Docker handbook</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"><i class="fas fa-book"></i> 葵花宝典</a>
+              <div class="navlinks-children">
+                
+                  <a href="/learn-english/"> 英语学习终极秘诀</a>
+                
+                  <a href="/a-day-in-the-life-of-jeff/">A Day in the life of Jeff</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li class="navlinks-container">
+		    <a class="navlinks-parent"> 😱福利</a>
+              <div class="navlinks-children">
+                
+                  <a href="https://nav.fuckcloudnative.io">云原生导航</a>
+                
+                  <a href="https://google.fuckcloudnative.io">谷歌搜索</a>
+                
+                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
+                
+              </div>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Rss 订阅" href="/index.xml">Rss 订阅</a>
+            </li>
+          
+        
+
+        
+
+        
+        
+          <li>
+            <a href="#modalSearch" data-toggle="modal" data-target="#modalSearch" style="outline: none;">
+              <span class="hidden-sm hidden-md hidden-lg">搜索</span> <span id="searchGlyph" class="glyphicon glyphicon-search"></span>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+
+    
+      <div class="avatar-container">
+        <div class="avatar-img-border">
+          <a title="云原生实验室" href="https://fuckcloudnative.io">
+            <img class="avatar-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" alt="云原生实验室" />
+          </a>
+        </div>
+      </div>
+    
+
+  </div>
+</nav>
+
+
+
+
+
+  <div id="modalSearch" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Search fuckcloudnative.io</h4>
+        </div>
+        <div class="modal-body">
+            
+<div class="aa-input-container" id="aa-input-container">
+    <input type="search" id="aa-search-input" class="aa-input-search" placeholder="Search for titles or URIs..." name="search" autocomplete="off" />
+    <svg class="aa-input-icon" viewBox="654 -372 1664 1664">
+        <path d="M1806,332c0-123.3-43.8-228.8-131.5-316.5C1586.8-72.2,1481.3-116,1358-116s-228.8,43.8-316.5,131.5  C953.8,103.2,910,208.7,910,332s43.8,228.8,131.5,316.5C1129.2,736.2,1234.7,780,1358,780s228.8-43.8,316.5-131.5  C1762.2,560.8,1806,455.3,1806,332z M2318,1164c0,34.7-12.7,64.7-38,90s-55.3,38-90,38c-36,0-66-12.7-90-38l-343-342  c-119.3,82.7-252.3,124-399,124c-95.3,0-186.5-18.5-273.5-55.5s-162-87-225-150s-113-138-150-225S654,427.3,654,332  s18.5-186.5,55.5-273.5s87-162,150-225s138-113,225-150S1262.7-372,1358-372s186.5,18.5,273.5,55.5s162,87,225,150s113,138,150,225  S2062,236.7,2062,332c0,146.7-41.3,279.7-124,399l343,343C2305.7,1098.7,2318,1128.7,2318,1164z" />
+    </svg>
+</div>
+
+
+<script src="https://fuckcloudnative.io/js/algoliasearch.min.js"></script>
+<script src="https://fuckcloudnative.io/js/autocomplete.min.js"></script>
+
+
+<script>
+var client = algoliasearch("4BELQK2TOI", "62fd06bd949abb4211bfab0aa288f67b");
+var index = client.initIndex('blog');
+
+autocomplete('#aa-search-input',
+{ hint: false}, {
+    source: autocomplete.sources.hits(index, {hitsPerPage: 5}),
+    
+    displayKey: 'name',
+    
+    templates: {
+        
+        suggestion: function(suggestion) {
+            
+            return '<span>' + '<a href="/' + suggestion.uri+ '">' +
+            suggestion._highlightResult.title.value + '</a></span>';
+        }
+    }
+});
+</script>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
+
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">Kubernetes 控制器的进化之旅</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">从 Kubernetes 资源控制到开放应用模型</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2020 年 2 月 22 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;7&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3457&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Kubernetes 控制器的进化之旅</h1>
+              
+              
+              
+                
+                  <h2 class="post-subheading">从 Kubernetes 资源控制到开放应用模型</h2>
+                
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2020 年 2 月 22 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;7&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3457&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+      
+      <div class="minor-banner-box container">
+        <div class="minor-banner row">
+          
+          <li class="minor-item col-md-3">
+            <a href="https://www.processon.com/view/link/5ac64532e4b00dc8a02f05eb#map" target="_blank" title="Kubernetes 知识图谱">
+              <img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200221192640.jpg?x-oss-process=image/resize,w_400" alt="Kubernetes 知识图谱">
+            </a>
+          </li>
+          
+          <li class="minor-item col-md-3">
+            <a href="https://nav.fuckcloudnative.io?utm_source=blog&amp;utm_campaign=referral&amp;utm_medium=tophero" target="_blank" title="云原生导航">
+              <img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200221172445.png?x-oss-process=image/resize,w_300" alt="云原生导航">
+            </a>
+          </li>
+          
+          <li class="minor-item col-md-3">
+            <a href="https://nav.fuckcloudnative.io/" target="_blank" title="谷歌搜索">
+              <img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200221180235.png?x-oss-process=image/resize,w_400" alt="谷歌搜索">
+            </a>
+          </li>
+          
+          <li class="minor-item col-md-3">
+            <a href="https://raft.fuckcloudnative.io/raft/" target="_blank" title="Raft 协议动画演示">
+              <img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200221191048.jpg?x-oss-process=image/resize,w_400" alt="Raft 协议动画演示">
+            </a>
+          </li>
+          
+        </div>
+      </div>
+      
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div id="container" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
+
+</p>
+</a>
+
+      <article role="main" class="blog-post">
+	
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-控制循环">1. 控制循环</a></li>
+<li><a href="#2-informer">2. Informer</a></li>
+<li><a href="#3-sharedinformer">3. SharedInformer</a></li>
+<li><a href="#4-crd">4. CRD</a></li>
+<li><a href="#5-自定义控制器">5. 自定义控制器</a></li>
+<li><a href="#6-operator">6. Operator</a></li>
+<li><a href="#7-oam">7. OAM</a></li>
+</ul></li>
+</ul>
+</nav>
+    </div>
+    
+</aside>
+
+
+        
+         
+
+         
+           
+           
+
+<p>我是一堆 Kubernetes 控制器。</p>
+
+<p>你可能会疑惑为什么是一堆，因为我不是一个人，我只是众多控制器中的一员，你也可以把我看成是众多控制器的集合。我的职责就是监控集群内资源的实际状态，一旦发现其与期望的状态不相符，就采取行动使其符合期望状态。</p>
+
+<p>想当初，Kubernetes 老大哥创造我时，只是打算让我用<strong>控制循环</strong>简单维护下资源的状态。但我后来的发展，远远超出了他的想象。</p>
+
+<h2 id="1-控制循环">1. 控制循环</h2>
+
+<hr />
+
+<p>所谓控制循环就是一个用来调节系统状态的周期性操作，在 Kubernetes 中也叫<strong>调谐循环</strong>（Reconcile Loop）。我的手下控制着很多种不同类型的资源，比如 Pod，Deployment，Service 等等。就拿 <code>Deployment</code> 来说吧，我的控制循环主要分为三步：</p>
+
+<ol>
+<li>从 <code>API Server</code> 中获取到所有属于该 Deployment 的 Pod，然后统计一下它们的数量，即它们的实际状态。</li>
+<li>检查 Deployment 的 <code>Replicas</code> 字段，看看期望状态是多少个 Pod。</li>
+<li>将这两个状态做比较，如果期望状态的 Pod 数量比实际状态多，就创建新 Pod，多几个就创建几个新的；如果期望状态的 Pod 数量比实际状态少，就删除旧 Pod，少几个就删除几个旧的。</li>
+</ol>
+
+<p>然而好景不长，我收到了 Kubernetes 掌门人（看大门的） <code>API Server</code> 的抱怨：“你访问我的次数太频繁了，非常消耗我的资源，我连上厕所的时间都没有了！”</p>
+
+<p>我仔细一想，当前的控制循环模式确实有这个缺陷——访问 <code>API Server</code> 的次数太频繁了，容易被老大反感。</p>
+
+<p>所以我决定，找一个小弟。</p>
+
+<h2 id="2-informer">2. Informer</h2>
+
+<hr />
+
+<p>这次我招的小弟叫 <code>Informer</code>，它分担一部分我的任务，具体的做法是这样的：由 <code>Informer</code> 代替我去访问 API Server，而我不管是查状态还是对资源进行伸缩都和 Informer 进行交接。而且 Informer 不需要每次都去访问 API Server，它只要在初始化的时候通过 <code>LIST API</code> 获取所有资源的最新状态，然后再通过 <code>WATCH API</code> 去监听这些资源状态的变化，整个过程被称作 <code>ListAndWatch</code>。</p>
+
+<p>而 Informer 也不傻，它也有一个助手叫 <code>Reflector</code>，上面所说的 <code>ListAndWatch</code> 事实上是由 Reflector 一手操办的。</p>
+
+<p>这一次，<code>API Server</code> 的压力大大减轻了，因为 Reflector 大部分时间都在 <code>WATCH</code>，并没有通过 LIST 获取所有状态，这使 <code>API Server</code> 的压力大大减少。我想这次掌门人应该不会再批评我了吧。</p>
+
+<p>然而没过几天，掌门人又找我谈话了：“你的手下每次来 WATCH 我，都要 WATCH 所有兄弟的状态，依然很消耗我的资源啊！我就纳闷了，你一次搞这么多兄弟，你虎啊？”</p>
+
+<p>我一想有道理啊，没必要每次都 WATCH 所有兄弟的状态，于是告诉 Informer：“以后再去 API Server 那里 WATCH 状态的时候，只查 WATCH 特定资源的状态，不要一股脑儿全 WATCH。“</p>
+
+<p>Informer 再把这个决策告诉 Reflector，事情就这么愉快地决定了。</p>
+
+<p>本以为这次我会得到掌门人的夸奖，可没过几天安稳日子，它又来找我诉苦了：“兄弟，虽然你减轻了我的精神压力，但我的财力有限啊，如果每个控制器都招一个小弟，那我得多发多少人的工资啊，你想想办法。”</p>
+
+<h2 id="3-sharedinformer">3. SharedInformer</h2>
+
+<hr />
+
+<p>经过和其他控制器的讨论，我们决定这么做：所有控制器联合起来作为一个整体来分配 <code>Informer</code>，针对每个（受多个控制器管理的）资源招一个 Informer 小弟，我们称之为 <code>SharedInformer</code>。你们可以理解为共享 Informer，因为有很多资源是受多个控制器管理的，比如 Pod 同时受 <code>Deployment</code> 和 <code>StatefulSet</code> 管理。这样当多个控制器同时想查 Pod 的状态时，只需要访问一个 Informer 就行了。</p>
+
+<p>但这又引来了新的问题，<code>SharedInformer</code> 无法同时给多个控制器提供信息，这就需要每个控制器自己排队和重试。</p>
+
+<p>为了配合控制器更好地实现排队和重试，<code>SharedInformer</code>  搞了一个 <code>Delta FIFO Queue</code>（增量先进先出队列），每当资源被修改时，它的助手 <code>Reflector</code> 就会收到事件通知，并将对应的事件放入 <code>Delta FIFO Queue</code> 中。与此同时，<code>SharedInformer</code> 会不断从 <code>Delta FIFO Queue</code> 中读取事件，然后更新本地缓存的状态。</p>
+
+<p>这还不行，<code>SharedInformer</code> 除了更新本地缓存之外，还要想办法将数据同步给各个控制器，为了解决这个问题，它又搞了个工作队列（Workqueue），一旦有资源被添加、修改或删除，就会将相应的事件加入到工作队列中。所有的控制器排队进行读取，一旦某个控制器发现这个事件与自己相关，就执行相应的操作。如果操作失败，就将该事件放回队列，等下次排到自己再试一次。如果操作成功，就将该事件从队列中删除。</p>
+
+<p>现在这个工作模式得到了大家的一致好评。虽然单个 <code>SharedInformer</code> 的工作量增加了，但 Informer 的数量大大减少了，老大可以把省下来的资金拿出一小部分给 <code>SharedInformer</code> 涨工资啊，这样大家都很开心。</p>
+
+<h2 id="4-crd">4. CRD</h2>
+
+<hr />
+
+<p>全民 Kubernetes 时代到了。</p>
+
+<p>随着容器及其编排技术的普及，使用 Kubernetes 的用户大量增长，用户已经不满足 Kubernetes 自带的那些资源（Pod，Node，Service）了，大家都希望能根据具体的业务创建特定的资源，并且对这些资源的状态维护还要遵循上面所说的那一套控制循环机制。</p>
+
+<p>幸好最近掌门人做了一次升级，新增了一个插件叫 <code>CRD（Custom Resource Definition）</code>，创建一个全新的资源实例，只需要经过以下两步：</p>
+
+<ol>
+<li>创建一个 CRD 资源（没错，CRD 也是一种资源类型），其中定义”自定义资源“的 <strong>API 组</strong>、<strong>API 版本</strong>和<strong>资源类型</strong>。这样就会向 API Server 注册该资源类型的 API。</li>
+<li>指定上面定义的 API 组 和 API 版本，创建自定义资源。</li>
+</ol>
+
+<p>当然，中间还要加入一些代码让 Kubernetes 认识自定义资源的各种参数。</p>
+
+<p>到这一步就基本上完成了自定义资源的创建，但 Kubernetes 并不知道该资源所对应的业务逻辑，比如你的自定义资源是宿主机，那么对应的业务逻辑就是创建一台真正的宿主机出来。那么怎样实现它的业务逻辑呢？</p>
+
+<h2 id="5-自定义控制器">5. 自定义控制器</h2>
+
+<hr />
+
+<p><code>Controller Manager</code> 见多识广，说：”这里的每个控制器都是我的一部分，当初创造你们是因为你们都属于通用的控制器，大家都能用得上。而自定义资源需要根据具体的业务来实现，我们不可能知道每个用户的具体业务是啥，自己一拍脑袋想出来的自定义资源，用户也不一定用得上。我们可以让用户自己编写自定义控制器，你们把之前使用的控制循环和 Informer 这些编码模式总结一下，然后提供给用户，让他们按照同样的方法编写自己的控制器。“</p>
+
+<p>Deployment 控制器一惊，要把自己的秘密告诉别人？那别人把自己取代了咋办？赶忙问道：”那将来我岂不是很危险，没有存在的余地了？“</p>
+
+<p><code>Controller Manager</code> 赶忙解释道：”不用担心，虽然用户可以编写自定义控制器，但无论他们玩出什么花样，只要他们的业务跑在 Kubernetes 平台上，就免不了要跑容器，最后还是会来求你们帮忙的，你要知道，控制器是可以层层递进的，他们只不过是在你外面套了一层，最后还是要回到你这里，请求你帮忙控制 Pod。“</p>
+
+<p>这下大家都不慌了，决定就把自定义控制器这件事情交给用户自己去处理，将选择权留给用户。</p>
+
+<h2 id="6-operator">6. Operator</h2>
+
+<hr />
+
+<p>用户自从获得了编写自定义控制器的权力之后，非常开心，有的用户（CoreOS）为了方便大家控制有状态应用，开发出了一种特定的控制器模型叫 <code>Operator</code>，并开始在社区内推广，得到了大家的一致好评。不可否认，<code>Operator</code> 这种模式是很聪明的，它把需要特定领域知识的应用单独写一个 Operator 控制器，将这种应用特定的操作知识编写到软件中，使其可以利用 Kubernetes 强大的抽象能力，达到正确运行和管理应用的目的。</p>
+
+<p>以 <code>ETCD Operator</code> 为例，假如你想手动扩展一个 ETCD 集群，一般的做法是：</p>
+
+<ol>
+<li>使用 ETCD 管理工具添加一个新成员。</li>
+<li>为这个成员所在的节点生成对应的启动参数，并启动它。</li>
+</ol>
+
+<p>而 ETCD Operator 将这些特定于 etcd 的操作手法编写到了它的控制循环中，你只需要通过修改自定义资源声明集群期望的成员数量，剩下的事情交给 Operator 就好了。</p>
+
+<p>本以为这是一个皆大欢喜的方案，但没过多久，就有开发 Operator 的小哥来抱怨了：”我们有很多开发的小伙伴都是不懂运维那一套的，什么高可用、容灾根本不懂啊，现在让我们将运维的操作知识编写到软件中，臣妾做不到啊。。“</p>
+
+<p>这确实是个问题，这样一来就把开发和运维的工作都塞到了开发手里，既懂开发又懂运维的可不多啊，为了照顾大家，还得继续想办法把开发和运维的工作拆分开来。</p>
+
+<h2 id="7-oam">7. OAM</h2>
+
+<hr />
+
+<p>这时候阿里和微软发力了，他们联合发布了一个开放应用模型，叫 <a href="https://cloudblogs.microsoft.com/opensource/2019/10/16/announcing-open-application-model/" target="_blank">Open Application Model </a>（OAM）。这个模型就是为了解决上面提到的问题，将开发和运维的职责解耦，不同的角色履行不同的职责，并形成一个统一的规范，如下图所示：</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200223122350.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200223122350.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200223122350.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
+
+<p>这个规范告诉我们：</p>
+
+<ul>
+<li>开发人员负责描述组件的功能，如何配置组件，以及运行需要多少资源</li>
+<li>运维人员负责将相关组件组合成一个应用，并配置运行时参数和运维支撑能力，比如是否需要监控，是否需要弹性伸缩。</li>
+<li>基础设施工程师负责建立和维护应用的运行时环境（如底层系统）。</li>
+</ul>
+
+<p>其中每一个团队负责的事情都用对应的 CRD 来配置。</p>
+
+<p>这样一来，开发和运维人员的职责就被区分开来了，简化了应用的组合和运维。它将应用的配置和运维特征（如自动伸缩、流量监控）进行解耦，然后通过建模构成一个整体，避免了 Operator 这种模型带来的大量冗余。</p>
+
+<p>自从用上了这个模型之后，运维和开发小哥表示现在他们的关系很融洽，没事还能一起出去喝两杯。</p>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/kubernetes/"><i class="fa fa-tags"></i>kubernetes</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/oam/"><i class="fa fa-tags"></i>oam</a>&nbsp;
+            
+              <a href="https://fuckcloudnative.io/tags/operator/"><i class="fa fa-tags"></i>operator</a>&nbsp;
+            
+          </div>
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrollers-confession%2f&amp;title=Kubernetes%20%e6%8e%a7%e5%88%b6%e5%99%a8%e7%9a%84%e8%bf%9b%e5%8c%96%e4%b9%8b%e6%97%85&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20200223122350.png" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrollers-confession%2f&amp;title=Kubernetes%20%e6%8e%a7%e5%88%b6%e5%99%a8%e7%9a%84%e8%bf%9b%e5%8c%96%e4%b9%8b%e6%97%85&amp;source=Kubernetes%20%e6%8e%a7%e5%88%b6%e5%99%a8%e7%9a%84%e8%bf%9b%e5%8c%96%e4%b9%8b%e6%97%85&amp;desc=%e6%9c%ac%e6%96%87%e6%8f%8f%e8%bf%b0%e4%ba%86%20Kubernets%20%e6%8e%a7%e5%88%b6%e5%99%a8%e7%9a%84%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86%ef%bc%8c%e5%8c%85%e6%8b%ac%e9%80%9a%e8%bf%87%20Operator%20%e6%9d%a5%e6%8e%a7%e5%88%b6%e6%9c%89%e7%8a%b6%e6%80%81%e5%ba%94%e7%94%a8%ef%bc%8c%e6%9c%80%e5%90%8e%e4%bb%8b%e7%bb%8d%e4%ba%86%e5%a6%82%e4%bd%95%e9%80%9a%e8%bf%87%20OAM%20%e6%9d%a5%e8%a7%a3%e8%80%a6%e8%bf%90%e7%bb%b4%e4%b8%8e%e5%bc%80%e5%8f%91%e7%9a%84%e8%81%8c%e8%b4%a3%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20200223122350.png&amp;summary=%e6%9c%ac%e6%96%87%e6%8f%8f%e8%bf%b0%e4%ba%86%20Kubernets%20%e6%8e%a7%e5%88%b6%e5%99%a8%e7%9a%84%e5%b7%a5%e4%bd%9c%e5%8e%9f%e7%90%86%ef%bc%8c%e5%8c%85%e6%8b%ac%e9%80%9a%e8%bf%87%20Operator%20%e6%9d%a5%e6%8e%a7%e5%88%b6%e6%9c%89%e7%8a%b6%e6%80%81%e5%ba%94%e7%94%a8%ef%bc%8c%e6%9c%80%e5%90%8e%e4%bb%8b%e7%bb%8d%e4%ba%86%e5%a6%82%e4%bd%95%e9%80%9a%e8%bf%87%20OAM%20%e6%9d%a5%e8%a7%a3%e8%80%a6%e8%bf%90%e7%bb%b4%e4%b8%8e%e5%bc%80%e5%8f%91%e7%9a%84%e8%81%8c%e8%b4%a3%e3%80%82" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrollers-confession%2f&amp;text=Kubernetes%20%e6%8e%a7%e5%88%b6%e5%99%a8%e7%9a%84%e8%bf%9b%e5%8c%96%e4%b9%8b%e6%97%85&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrollers-confession%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fcontrollers-confession%2f&amp;title=Kubernetes%20%e6%8e%a7%e5%88%b6%e5%99%a8%e7%9a%84%e8%bf%9b%e5%8c%96%e4%b9%8b%e6%97%85" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/sealos/">kubernetes 高可用部署工具：sealos</a></li>
+                
+                    <li><a href="/posts/what-happens-when-k8s/">kubectl 创建 Pod 背后到底发生了什么？</a></li>
+                
+                    <li><a href="/posts/understanding-the-pleg-is-not-healthy/">深入理解 Kubelet 中的 PLEG is not healthy</a></li>
+                
+                    <li><a href="/posts/istio-1.3-tour/">手把手教你部署 Istio 1.3</a></li>
+                
+                    <li><a href="/posts/kubesphere/">KubeSphere 安装教程</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/tcpdump-examples/" data-toggle="tooltip" data-placement="top" title="Tcpdump 示例教程">&larr; 前一篇</a>
+            </li>
+          
+          
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/linux-circumvent/" data-toggle="tooltip" data-placement="top" title="Linux全局智能分流方案">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+	    <link rel="stylesheet" href="https://fuckcloudnative.io/css/iDisqus.min.css" />
+<div id="comment"></div>
+<script src="https://fuckcloudnative.io/js/iDisqus.min.js"></script>
+<script>
+var disq = new iDisqus('comment', {
+    forum: 'fuckcloudnative',
+    api: 'https://disqus.fuckcloudnative.io',
+    site: 'http://fuckcloudnative.io',
+    emojiPath: 'https://api.fooleap.org/emoji/unicode/',
+    mode: 2,
+    timeout: 15,
+    init: true
+});
+</script>
+
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:yangchuansheng33@gmail.com" target="_blank" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-06-13-%E9%BB%98%E8%AE%A4%E6%A0%87%E9%A2%98_%E6%A8%AA%E7%89%88%E4%BA%8C%E7%BB%B4%E7%A0%81_2019.05.17.1.1.png" target="_blank" title="Weixin">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weixin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/yangchuansheng" target="_blank" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/RyangYang1" target="_blank" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/yang-ryan-b6659b106" target="_blank" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://weibo.com/3496206342" target="_blank" title="微博">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-weibo fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://drive.google.com/drive/folders/0By_W-zIhlMXqSGJyU3pHaVVpV2M" target="_blank" title="视频分享">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                    <i class="fab fa-google-drive fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://fuckcloudnative.io/index.xml" target="_blank" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fas fa-circle fa-stack-2x" style="color:#986dbd"></i>
+                <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+	<br />
+        <p class="credits copyright text-muted">
+	  &nbsp;&bull;&nbsp;&copy;2019
+          
+            
+              <a href="https://fuckcloudnative.io">米开朗基杨</a>
+            
+          
+
+          &nbsp;&bull;&nbsp;更新于
+          
+            2020 年 2 月 22 日
+          
+
+	  &nbsp;&bull;&nbsp;
+          <a href="https://fuckcloudnative.io/tags/">所有文章</a>
+
+	  
+        </p>
+        <p class="credits theme-by text-muted">
+        <br />
+        <span id="busuanzi_container_site_pv">
+            本站已被访问 <span id="busuanzi_value_site_pv"></span> 次啦
+        </span>
+        <span id="busuanzi_container_site_uv">
+            &ensp;|&ensp;&thinsp;您是第 <span id="busuanzi_value_site_uv"></span> 位到访的小伙伴
+        </span>
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          由 <a href="https://gohugo.io">Hugo v0.59.0</a> 强力驱动 &nbsp;&bull;&nbsp; 主题 <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> 移植自 <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+	  <section class="credits theme-by text-muted" align="center">
+    <span class="footer__copyright">
+    <div>
+    <span id="span_dt_dt"> </span>
+    <script language="javascript">
+      function show_date_time(){
+        window.setTimeout("show_date_time()", 1000);
+        BirthDay=new Date("7/8/2017 10:56:12");
+        today=new Date();
+        timeold=(today.getTime()-BirthDay.getTime());
+        sectimeold=timeold/1000
+        secondsold=Math.floor(sectimeold);
+        msPerDay=24*60*60*1000
+        e_daysold=timeold/msPerDay
+        daysold=Math.floor(e_daysold);
+        e_hrsold=(e_daysold-daysold)*24;
+        hrsold=Math.floor(e_hrsold);
+        e_minsold=(e_hrsold-hrsold)*60;
+        minsold=Math.floor((e_hrsold-hrsold)*60);
+        seconds=Math.floor((e_minsold-minsold)*60);
+        span_dt_dt.innerHTML="本站已经开心运行 "+daysold+" 天 "+hrsold+" 小时 "+minsold+" 分 "+seconds+" 秒";
+      }
+      show_date_time();
+    </script>
+    </div>
+</script>
+</section>
+
+	</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script src="https://my.openwrite.cn/js/readmore.js" type="text/javascript"></script>
+<script>
+    const btw = new BTWPlugin();
+    btw.init({
+        id: 'container',
+        blogId: '10020-1569254413955-300',
+        name: '云原生实验室',
+        qrcode: 'https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/wechat.gif',
+        keyword: 'vip',
+    });
+</script>
+<script src='/js/bundle.min.13b2d74fbe48bdf362a1e1572571a00fa30ef02c3fa8f697c71a47c9462a759a.js' integrity='sha256-E7LXT75IvfNioeFXJXGgD6MO8Cw/qPaXxxpHyUYqdZo='></script>
+
+
+
+
+
+
+<script src="https://fuckcloudnative.io/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+
+<div class="rocket"><img src="/img/rocket_up.png" alt="" width="100" height="100"></div>
+<script>
+    $(function () {
+      $(window).scroll(function () {
+        
+        if ($(window).scrollTop() >= 1000) {
+          $('.rocket').stop().fadeIn(1000);
+        }else {
+          $('.rocket').stop().fadeOut(1000);
+        }
+      })
+      
+      $('.rocket').click(function () {
+        $('html,body').stop().animate({scrollTop:0},400);
+       
+      })
+    })
+
+</script>
+
+
+
+
+<script type="text/javascript">
+      jQuery(function() {
+          jQuery("img").lazyload({threshold: 0,effect: "fadeIn"});
+      });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+  $(window).scroll(function(){
+    $(".top-scroll-bar").attr("style", "width: " + ($(this).scrollTop() / ($(document).height() - $(this).height()) * 100) + "%; display: block;");
+  });
+})
+</script>
+
+
+<script type="text/javascript">
+var a_idx = 0;
+jQuery(document).ready(function($) {
+    $("body").click(function(e) {
+        var a = new Array("Docker", "Kubernetes", "Prometheus", "Envoy", "Istio", "coredns", "Service Mesh", "Cloud Native");
+        var $i = $("<span />").text(a[a_idx]);
+        a_idx = (a_idx + 1) % a.length;
+        var x = e.pageX,
+        y = e.pageY;
+        function randomColor() {
+          var flakeColor = new Array("#FFDA65", "#00BFFF", "#BA55D3", "#FFA07A", "#87CEEB", "#FFB6C1");
+          var snowColor = flakeColor[Math.floor(flakeColor.length * Math.random())];
+          return snowColor;
+        }
+        $i.css({
+            "z-index": 999999999999999999999999999999999999999999999999999999999999999999999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": randomColor()
+        });
+        $("body").append($i);
+        $i.animate({
+            "top": y - 180,
+            "opacity": 0
+        },
+        1500,
+        function() {
+            $i.remove();
+        });
+    });
+});
+</script>
+
+
+    
+  </body>
+</html>
+

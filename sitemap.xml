@@ -19,27 +19,52 @@
   
   <url>
     <loc>https://fuckcloudnative.io/</loc>
-    <lastmod>2020-02-10T23:22:34+08:00</lastmod>
+    <lastmod>2020-02-22T17:06:49+08:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://fuckcloudnative.io/categories/</loc>
-    <lastmod>2020-02-10T23:22:34+08:00</lastmod>
+    <lastmod>2020-02-22T17:06:49+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/network/</loc>
-    <lastmod>2020-02-10T23:22:34+08:00</lastmod>
+    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
+    <lastmod>2020-02-22T17:06:49+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
+    <lastmod>2020-02-22T17:06:49+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/controllers-confession/</loc>
+    <lastmod>2020-02-22T17:06:49+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/oam/</loc>
+    <lastmod>2020-02-22T17:06:49+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/tags/operator/</loc>
+    <lastmod>2020-02-22T17:06:49+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://fuckcloudnative.io/posts/</loc>
-    <lastmod>2020-02-10T23:22:34+08:00</lastmod>
+    <lastmod>2020-02-22T17:06:49+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://fuckcloudnative.io/tags/</loc>
+    <lastmod>2020-02-22T17:06:49+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/categories/network/</loc>
     <lastmod>2020-02-10T23:22:34+08:00</lastmod>
   </url>
   
@@ -54,12 +79,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/linux/</loc>
+    <loc>https://fuckcloudnative.io/categories/linux/</loc>
     <lastmod>2020-01-17T21:35:19+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/linux/</loc>
+    <loc>https://fuckcloudnative.io/tags/linux/</loc>
     <lastmod>2020-01-17T21:35:19+08:00</lastmod>
   </url>
   
@@ -129,28 +154,18 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
+    <loc>https://fuckcloudnative.io/tags/hugo/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/hugo/</loc>
+    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://fuckcloudnative.io/posts/font-spider-plus/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
-    <lastmod>2019-12-01T10:32:58-05:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
-    <lastmod>2019-12-01T10:32:58-05:00</lastmod>
   </url>
   
   <url>
@@ -289,12 +304,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/devops/</loc>
+    <loc>https://fuckcloudnative.io/categories/devops/</loc>
     <lastmod>2019-08-21T14:03:42+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/devops/</loc>
+    <loc>https://fuckcloudnative.io/tags/devops/</loc>
     <lastmod>2019-08-21T14:03:42+08:00</lastmod>
   </url>
   
@@ -474,12 +489,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/loadbalance/</loc>
+    <loc>https://fuckcloudnative.io/tags/loadbalance/</loc>
     <lastmod>2019-01-28T16:39:48+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/loadbalance/</loc>
+    <loc>https://fuckcloudnative.io/categories/loadbalance/</loc>
     <lastmod>2019-01-28T16:39:48+08:00</lastmod>
   </url>
   

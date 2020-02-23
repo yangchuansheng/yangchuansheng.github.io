@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Sun, 01 Dec 2019 10:32:58 -0500</lastBuildDate>
+    <lastBuildDate>Sat, 22 Feb 2020 17:06:49 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/categories/kubernetes/index.xml" rel="self" type="application/rss+xml" />
     
@@ -29,6 +29,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/what-happens-when-k8s/</guid>
       <description>想象一下，如果我想将 nginx 部署到 Kubernetes 集群，我可能会在终端中输入类似这样的命令： $ kubectl run --image=nginx --replicas=3 然后回车。几秒钟后，你就会看到三个 nginx pod 分布在所有的工作节点</description>
+    </item>
+    
+    <item>
+      <title>Kubernetes 控制器的进化之旅</title>
+      <link>https://fuckcloudnative.io/posts/controllers-confession/</link>
+      <pubDate>Sat, 22 Feb 2020 17:06:49 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/controllers-confession/</guid>
+      <description>我是一堆 Kubernetes 控制器。 你可能会疑惑为什么是一堆，因为我不是一个人，我只是众多控制器中的一员，你也可以把我看成是众多控制器的集合。我的职责就是监控</description>
     </item>
     
     <item>
