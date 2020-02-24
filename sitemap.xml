@@ -29,12 +29,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
+    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
     <lastmod>2020-02-22T17:06:49+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
+    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
     <lastmod>2020-02-22T17:06:49+08:00</lastmod>
   </url>
   
@@ -154,12 +154,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/hugo/</loc>
+    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/hugo/</loc>
+    <loc>https://fuckcloudnative.io/tags/hugo/</loc>
     <lastmod>2019-12-08T16:42:03+08:00</lastmod>
   </url>
   
@@ -454,12 +454,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/gfw/</loc>
+    <loc>https://fuckcloudnative.io/categories/gfw/</loc>
     <lastmod>2019-03-06T13:41:11+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/gfw/</loc>
+    <loc>https://fuckcloudnative.io/tags/gfw/</loc>
     <lastmod>2019-03-06T13:41:11+08:00</lastmod>
   </url>
   
@@ -934,6 +934,10 @@
   
   <url>
     <loc>https://fuckcloudnative.io/page/</loc>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/page/friend/</loc>
   </url>
   
 </urlset>
