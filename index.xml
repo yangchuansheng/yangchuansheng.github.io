@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Sat, 22 Feb 2020 17:06:49 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 29 Feb 2020 16:31:23 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/index.xml" rel="self" type="application/rss+xml" />
     
@@ -38,6 +38,15 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/linux-circumvent/</guid>
       <description>Github 地址：Linux 和 MacOS 设备智能分流方案 本来我是决定不再写这样的文章了的。但是呢，最近连续配置了两次 ArchLinux，在配置这种东西的时候连</description>
+    </item>
+    
+    <item>
+      <title>Grafana 自定义主题</title>
+      <link>https://fuckcloudnative.io/posts/customize-grafana-theme/</link>
+      <pubDate>Sat, 29 Feb 2020 16:31:23 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/customize-grafana-theme/</guid>
+      <description>Grafana 自带两款主题 Light 和 Dark，都还不错，Light 有点刺眼，不建议使用。Dark 还马马虎虎，不过时间长了总会产生审美疲劳，anyway 还是有很</description>
     </item>
     
     <item>
