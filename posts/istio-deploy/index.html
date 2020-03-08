@@ -7,12 +7,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-  <title>Istio 1.4 部署指南 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+  <title>Istio 1.5 部署指南 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
 
 
   <meta content="米开朗基杨, istio, istio cni, critical pod" name="keywords">
 
-  <meta name="description" content="本文将会告诉你如何使用 istioctl 部署 istio 1.4，并开启 istio CNI 插件。">
+  <meta name="description" content="本文将会告诉你如何使用 Operator 部署 istio 1.5，并开启 istio CNI 插件。">
   <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
 {
     "@context": "http://schema.org",
@@ -49,7 +49,7 @@
         "position": 3,
         "item": {
           "@id": "https:\/\/fuckcloudnative.io\/posts\/istio-deploy\/",
-          "name": "Istio 1.4 部署指南"
+          "name": "Istio 1.5 部署指南"
         }
     }]
 }
@@ -60,10 +60,10 @@
   "author": {
     "name" : "米开朗基杨"
   },
-  "headline": "Istio 1.4 部署指南",
-  "description" : "本文将会告诉你如何使用 istioctl 部署 istio 1.4，并开启 istio CNI 插件。",
+  "headline": "Istio 1.5 部署指南",
+  "description" : "本文将会告诉你如何使用 Operator 部署 istio 1.5，并开启 istio CNI 插件。",
   "inLanguage" : "zh",
-  "wordCount":  2436 ,
+  "wordCount":  2735 ,
   "datePublished" : "2019-12-15T00:14:06",
   "dateModified" : "2019-12-15T00:14:06",
   "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
@@ -82,15 +82,15 @@
 }
 </script>
 
-<meta property="og:title" content="Istio 1.4 部署指南" />
-<meta property="og:description" content="本文将会告诉你如何使用 istioctl 部署 istio 1.4，并开启 istio CNI 插件。">
+<meta property="og:title" content="Istio 1.5 部署指南" />
+<meta property="og:description" content="本文将会告诉你如何使用 Operator 部署 istio 1.5，并开启 istio CNI 插件。">
 <meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
 <meta property="og:url" content="https://fuckcloudnative.io/posts/istio-deploy/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="云原生实验室" />
 
-  <meta name="twitter:title" content="Istio 1.4 部署指南" />
-  <meta name="twitter:description" content="本文将会告诉你如何使用 istioctl 部署 istio 1.4，并开启 istio CNI 插件。">
+  <meta name="twitter:title" content="Istio 1.5 部署指南" />
+  <meta name="twitter:description" content="本文将会告诉你如何使用 Operator 部署 istio 1.5，并开启 istio CNI 插件。">
   <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:site" content="@RyangYang1" />
@@ -106,7 +106,7 @@
   <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
 
 
-<link rel="stylesheet" href='/css/bundle.min.961106221873fd3f6869d4089fe323826d792280c65d2e609db007e6894feffc.css' integrity='sha256-lhEGIhhz/T9oadQIn&#43;Mjgm15IoDGXS5gnbAH5olP7/w='>
+<link rel="stylesheet" href='/css/bundle.min.8b33001cb8c3d51f8085f63340dc8125037189887ad85ec370ff371acf3530d1.css' integrity='sha256-izMAHLjD1R&#43;AhfYzQNyBJQNxiYh62F7DcP83Gs81MNE='>
 
 
 
@@ -258,8 +258,6 @@ if (!doNotTrack) {
                   <a href="https://nav.fuckcloudnative.io">云原生导航</a>
                 
                   <a href="https://google.fuckcloudnative.io">谷歌搜索</a>
-                
-                  <a href="https://bt.fuckcloudnative.io">种子搜索</a>
                 
               </div>
             </li>
@@ -429,7 +427,7 @@ autocomplete('#aa-search-input',
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
               <div class="post-heading">
 		  
-		      <h1 align="center">Istio 1.4 部署指南</h1>
+		      <h1 align="center">Istio 1.5 部署指南</h1>
 		  
                   
                     
@@ -444,10 +442,10 @@ autocomplete('#aa-search-input',
   <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 12 月 15 日
   
   
-    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;5&nbsp;分钟
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2436&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2735&nbsp;个字
   
   
     
@@ -471,7 +469,7 @@ autocomplete('#aa-search-input',
           <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
             <div class="post-heading">
               
-                <h1>Istio 1.4 部署指南</h1>
+                <h1>Istio 1.5 部署指南</h1>
               
               
               
@@ -486,10 +484,10 @@ autocomplete('#aa-search-input',
   <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 12 月 15 日
   
   
-    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;5&nbsp;分钟
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2436&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2735&nbsp;个字
   
   
     
@@ -601,10 +599,29 @@ autocomplete('#aa-search-input',
 
          
            
+           
 
-<p>Istio 一直处于快速迭代更新的过程中，它的部署方法也在不断更新，之前我在 1.0 版本中介绍的安装方法，对于最新的 1.4 版本已经不适用了。以后主流的部署方式都是用 istioctl 进行部署，helm 可以渐渐靠边站了~~</p>
+<p>没错，Istio 架构又换了。。。北京时间 2020 年 3 月 6 日 凌晨发布了 1.5 版本，该版本最大的变化是将控制平面的所有组件组合成一个单体结构叫  <code>istiod</code>。</p>
 
-<p>在部署 Istio 之前，首先需要确保 Kubernetes 集群（kubernetes 版本建议在 <code>1.13</code> 以上）已部署并配置好本地的 kubectl 客户端。</p>
+<p>![The overall architecture of an Istio-based application.](<a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/istio-1.5-arch.svg&quot;" target="_blank">https://hugo-picture.oss-cn-beijing.aliyuncs.com/istio-1.5-arch.svg&quot;</a> &gt;}}</p>
+
+<p>从架构图可以看出，在 Istio 1.5 中，饱受诟病的 <code>Mixer</code> 终于被废弃了，新版本的 HTTP 遥测默认基于 in-proxy Stats filter，同时可使用 <a href="https://webassembly.org/" target="_blank">WebAssembly</a> 开发 <code>in-proxy</code> 扩展。更详细的说明请参考 <a href="https://istio.io/news/releases/1.5.x/announcing-1.5/" target="_blank">Istio 1.5 发布公告</a>。</p>
+
+<p>官方文档的部署方法比较笼统，不利于快速上手，为了帮助大家快速上手，本文将重点介绍 Istio 1.5 的部署方法。为了更方便地管理 Istio 各个组件的生命周期，推荐使用 <code>Operator</code> 进行部署。</p>
+
+<p>在部署 Istio 之前，首先需要确保 Kubernetes 集群（kubernetes 版本建议在 <code>1.14</code> 以上）已部署并配置好本地的 kubectl 客户端。</p>
+
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200306144254.png" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200306144254.png"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200306144254.png" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <h2 id="span-id-inline-toc-1-span-kubernetes-环境准备"><span id="inline-toc">1.</span> Kubernetes 环境准备</h2>
 
@@ -644,12 +661,12 @@ sealos04   Ready    &lt;none&gt;   18h   v1.16.3
 
 <h2 id="span-id-inline-toc-2-span-下载-istio-部署文件"><span id="inline-toc">2.</span> 下载 Istio 部署文件</h2>
 
-<p>你可以从 GitHub 的 <a href="https://github.com/istio/istio/releases/tag/1.4.2" target="_blank">release</a> 页面下载 istio，或者直接通过下面的命令下载：</p>
+<p>你可以从 GitHub 的 <a href="https://github.com/istio/istio/releases/tag/1.5.0" target="_blank">release</a> 页面下载 istio，或者直接通过下面的命令下载：</p>
 
 <pre><code class="language-bash">$ curl -L https://istio.io/downloadIstio | sh -
 </code></pre>
 
-<p>下载完成后会得到一个 <code>istio-1.4.2</code> 目录，里面包含了：</p>
+<p>下载完成后会得到一个 <code>istio-1.5.0</code> 目录，里面包含了：</p>
 
 <ul>
 <li><code>install/kubernetes</code> : 针对 Kubernetes 平台的安装文件</li>
@@ -657,14 +674,13 @@ sealos04   Ready    &lt;none&gt;   18h   v1.16.3
 <li><code>bin</code> : istioctl 二进制文件，可以用来手动注入 sidecar proxy</li>
 </ul>
 
-<p>进入 <code>istio-1.4.2</code> 目录。</p>
+<p>进入 <code>istio-1.5.0</code> 目录。</p>
 
-<pre><code class="language-bash">$ cd istio-1.4.2
+<pre><code class="language-bash">$ cd istio-1.5.0
 
 $ tree -L 1 ./
 ./
 ├── bin
-├── demo.yaml
 ├── install
 ├── LICENSE
 ├── manifest.yaml
@@ -720,14 +736,14 @@ $ tree -L 1 ./
 
 <p>istioctl 提供了多种安装配置文件，可以通过下面的命令查看：</p>
 
-<pre><code class="language-bash">$ istioctl profile list
+<pre><code class="language-bash">$ ll install/kubernetes/operator/profiles
 
-Istio configuration profiles:
-    minimal
-    remote
-    sds
-    default
-    demo
+-rw-r--r-- 1 root root  18K 3月   4 20:40 default.yaml
+-rw-r--r-- 1 root root 3.2K 3月   4 20:40 demo.yaml
+-rw-r--r-- 1 root root  964 3月   4 20:40 empty.yaml
+-rw-r--r-- 1 root root  913 3月   4 20:40 minimal.yaml
+-rw-r--r-- 1 root root  579 3月   4 20:40 remote.yaml
+-rw-r--r-- 1 root root  554 3月   4 20:40 separate.yaml
 </code></pre>
 
 <p>它们之间的差异如下：</p>
@@ -739,7 +755,6 @@ Istio configuration profiles:
 <th align="left">default</th>
 <th align="left">demo</th>
 <th align="left">minimal</th>
-<th align="left">sds</th>
 <th align="left">remote</th>
 </tr>
 </thead>
@@ -751,16 +766,6 @@ Istio configuration profiles:
 <td align="left"></td>
 <td align="left"></td>
 <td align="left"></td>
-<td align="left"></td>
-</tr>
-
-<tr>
-<td align="center">istio-citadel</td>
-<td align="left"><strong>X</strong></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"><strong>X</strong></td>
 </tr>
 
 <tr>
@@ -769,16 +774,6 @@ Istio configuration profiles:
 <td align="left"><strong>X</strong></td>
 <td align="left"></td>
 <td align="left"></td>
-<td align="left"></td>
-</tr>
-
-<tr>
-<td align="center">istio-galley</td>
-<td align="left"><strong>X</strong></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"></td>
 </tr>
 
 <tr>
@@ -786,16 +781,6 @@ Istio configuration profiles:
 <td align="left"><strong>X</strong></td>
 <td align="left"><strong>X</strong></td>
 <td align="left"></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"></td>
-</tr>
-
-<tr>
-<td align="center">istio-nodeagent</td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left"></td>
-<td align="left"><strong>X</strong></td>
 <td align="left"></td>
 </tr>
 
@@ -804,40 +789,11 @@ Istio configuration profiles:
 <td align="left"><strong>X</strong></td>
 <td align="left"><strong>X</strong></td>
 <td align="left"><strong>X</strong></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"></td>
-</tr>
-
-<tr>
-<td align="center">istio-policy</td>
-<td align="left"><strong>X</strong></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"></td>
-</tr>
-
-<tr>
-<td align="center">istio-sidecar-injector</td>
-<td align="left"><strong>X</strong></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"><strong>X</strong></td>
-</tr>
-
-<tr>
-<td align="center">istio-telemetry</td>
-<td align="left"><strong>X</strong></td>
-<td align="left"><strong>X</strong></td>
-<td align="left"></td>
-<td align="left"><strong>X</strong></td>
 <td align="left"></td>
 </tr>
 
 <tr>
 <td align="center"><strong>附加组件</strong></td>
-<td align="left"></td>
 <td align="left"></td>
 <td align="left"></td>
 <td align="left"></td>
@@ -850,14 +806,12 @@ Istio configuration profiles:
 <td align="left"><strong>X</strong></td>
 <td align="left"></td>
 <td align="left"></td>
-<td align="left"></td>
 </tr>
 
 <tr>
 <td align="center">istio-tracing</td>
 <td align="left"></td>
 <td align="left"><strong>X</strong></td>
-<td align="left"></td>
 <td align="left"></td>
 <td align="left"></td>
 </tr>
@@ -868,7 +822,6 @@ Istio configuration profiles:
 <td align="left"><strong>X</strong></td>
 <td align="left"></td>
 <td align="left"></td>
-<td align="left"></td>
 </tr>
 
 <tr>
@@ -877,7 +830,6 @@ Istio configuration profiles:
 <td align="left"><strong>X</strong></td>
 <td align="left"></td>
 <td align="left"><strong>X</strong></td>
-<td align="left"></td>
 </tr>
 </tbody>
 </table>
@@ -908,109 +860,90 @@ Istio configuration profiles:
 
 <p>详细内容可以参考<a href="https://v1-16.docs.kubernetes.io/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/" target="_blank">官方文档</a>。</p>
 
-<p>接下来正式安装 istio，命令如下：</p>
+<p>接下来正式安装 Istio，首先部署 <code>Istio operator</code>：</p>
 
-<pre><code class="language-bash">$ istioctl manifest apply --set profile=demo \
-   --set cni.enabled=true --set cni.components.cni.namespace=kube-system \
-   --set values.gateways.istio-ingressgateway.type=ClusterIP
+<pre><code class="language-bash">🐳 → istioctl operator init
 </code></pre>
 
-<p>istioctl 支持两种 API：</p>
+<p>该命令会创建一个 namespace <code>istio-operator</code>，并将 Istio operator 部署在此 namespace 中。</p>
 
-<ul>
-<li><a href="https://istio.io/docs/reference/config/istio.operator.v1alpha12.pb/" target="_blank">IstioControlPlane API</a></li>
-<li><a href="https://istio.io/docs/reference/config/installation-options/" target="_blank">Helm API</a></li>
-</ul>
+<pre><code class="language-bash">🐳 → kubectl -n istio-operator get pod
 
-<p>在上述安装命令中，cni 参数使用的是 IstioControlPlane API，而 <code>values.*</code> 使用的是 Helm API。</p>
-
-<p>部署完成后，查看各组件状态：</p>
-
-<pre><code class="language-bash">$ kubectl -n istio-system get pod
-
-NAME                                      READY   STATUS    RESTARTS   AGE
-grafana-6b65874977-8psph                  1/1     Running   0          36s
-istio-citadel-86dcf4c6b-nklp5             1/1     Running   0          37s
-istio-egressgateway-68f754ccdd-m87m8      0/1     Running   0          37s
-istio-galley-5fc6d6c45b-znwl9             1/1     Running   0          38s
-istio-ingressgateway-6d759478d8-g5zz2     0/1     Running   0          37s
-istio-pilot-5c4995d687-vf9c6              0/1     Running   0          37s
-istio-policy-57b99968f-ssq28              1/1     Running   1          37s
-istio-sidecar-injector-746f7c7bbb-qwc8l   1/1     Running   0          37s
-istio-telemetry-854d8556d5-6znwb          1/1     Running   1          36s
-istio-tracing-c66d67cd9-gjnkl             1/1     Running   0          38s
-kiali-8559969566-jrdpn                    1/1     Running   0          36s
-prometheus-66c5887c86-vtbwb               1/1     Running   0          39s
+NAME                              READY   STATUS    RESTARTS   AGE
+istio-operator-7c69599466-bz8lp   1/1     Running   0          3h29m
 </code></pre>
 
-<pre><code class="language-bash">$ kubectl -n kube-system get pod -l k8s-app=istio-cni-node
+<p>然后创建一个 CR <code>IstioOperator</code>：</p>
 
-NAME                   READY   STATUS    RESTARTS   AGE
-istio-cni-node-k8zfb   1/1     Running   0          10m
-istio-cni-node-kpwpc   1/1     Running   0          10m
-istio-cni-node-nvblg   1/1     Running   0          10m
-istio-cni-node-vk6jd   1/1     Running   0          10m
-</code></pre>
-
-<p>可以看到 cni 插件已经安装成功，查看配置是否已经追加到 CNI 插件链的末尾：</p>
-
-<pre><code class="language-bash">$ cat /etc/cni/net.d/10-calico.conflist
-
-{
-  &quot;name&quot;: &quot;k8s-pod-network&quot;,
-  &quot;cniVersion&quot;: &quot;0.3.1&quot;,
-  &quot;plugins&quot;: [
-  ...
-    {
-      &quot;type&quot;: &quot;istio-cni&quot;,
-      &quot;log_level&quot;: &quot;info&quot;,
-      &quot;kubernetes&quot;: {
-        &quot;kubeconfig&quot;: &quot;/etc/cni/net.d/ZZZ-istio-cni-kubeconfig&quot;,
-        &quot;cni_bin_dir&quot;: &quot;/opt/cni/bin&quot;,
-        &quot;exclude_namespaces&quot;: [
-          &quot;istio-system&quot;
-        ]
-      }
-    }
-  ]
-}
-</code></pre>
-
-<p>默认情况下除了 <code>istio-system</code> namespace 之外，istio cni 插件会监视其他所有 namespace 中的 Pod，然而这并不能满足我们的需求，更严谨的做法是让 istio CNI 插件至少忽略 <code>kube-system</code>、<code>istio-system</code> 这两个 namespace，怎么做呢？</p>
-
-<p>也很简单，还记得之前提到的 IstioControlPlane API 吗？可以直接通过它来覆盖之前的配置，只需要创建一个 <code>IstioControlPlane</code> CRD 就可以了。例如：</p>
-
-<pre><code class="language-yaml">$ cat cni.yaml
-
-apiVersion: install.istio.io/v1alpha2
-kind: IstioControlPlane
+<pre><code class="language-yaml">🐳 → kubectl create ns istio-system
+🐳 → kubectl apply -f - &lt;&lt;EOF
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  namespace: istio-system
+  name: example-istiocontrolplane
 spec:
-  cni:
-    enabled: true
-    components:
+  profile: demo
+  components:
+    cni:
+      enabled: true
       namespace: kube-system
+    ingressGateways:
+    - enabled: true
+      k8s:
+        service:
+          type: ClusterIP
+        strategy:
+          rollingUpdate:
+            maxUnavailable: 100%
+            maxSurge: 0%
+        nodeSelector:
+          kubernetes.io/hostname: sealos02
   values:
     cni:
       excludeNamespaces:
        - istio-system
        - kube-system
        - monitoring
-  unvalidatedValues:
-    cni:
       logLevel: info
+EOF
 </code></pre>
 
-<pre><code class="language-bash">$ istioctl manifest apply -f cni.yaml
+<p>其中各个字段的详细含义请参考 <a href="https://istio.io/docs/reference/config/istio.operator.v1alpha1/" target="_blank"><code>IstioOperator</code> API 文档</a>，这里我简要说明一下：</p>
+
+<ul>
+<li>istio-ingressgateway 的 Service 默认类型为 <code>LoadBalancer</code>，需将其改为 <code>ClusterIP</code>。</li>
+<li>为防止集群资源紧张，更新配置后无法创建新的 <code>Pod</code>，需将滚动更新策略改为先删除旧的，再创建新的。</li>
+<li>将 istio-ingressgateway 调度到指定节点。</li>
+<li>默认情况下除了 <code>istio-system</code> namespace 之外，istio cni 插件会监视其他所有 namespace 中的 Pod，然而这并不能满足我们的需求，更严谨的做法是让 istio CNI 插件至少忽略 <code>kube-system</code>、<code>istio-system</code> 这两个 namespace，如果你还有其他的特殊的 namespace，也应该加上，例如 <code>monitoring</code>。</li>
+</ul>
+
+<p>部署完成后，查看各组件状态：</p>
+
+<pre><code class="language-bash">🐳 → kubectl -n istio-system get pod
+
+NAME                                    READY   STATUS    RESTARTS   AGE
+grafana-5cc7f86765-rt549                1/1     Running   0          3h11m
+istio-egressgateway-57999c5b76-59z8v    1/1     Running   0          3h11m
+istio-ingressgateway-5b97647565-zjz4k   1/1     Running   0          71m
+istio-tracing-8584b4d7f9-2jbjp          1/1     Running   0          3h11m
+istiod-86798869b8-jmk9v                 1/1     Running   0          3h11m
+kiali-76f556db6d-qnsfj                  1/1     Running   0          3h11m
+prometheus-6fd77b7876-c4vzn             2/2     Running   0          3h11m
 </code></pre>
 
-<p>删除所有的 istio-cni-node Pod：</p>
+<pre><code class="language-bash">🐳 → kubectl -n kube-system get pod -l k8s-app=istio-cni-node
 
-<pre><code class="language-bash">$ kubectl -n kube-system delete pod -l k8s-app=istio-cni-node
+NAME                   READY   STATUS    RESTARTS   AGE
+istio-cni-node-4dlfb   2/2     Running   0          3h12m
+istio-cni-node-4s9s7   2/2     Running   0          3h12m
+istio-cni-node-8g22x   2/2     Running   0          3h12m
+istio-cni-node-x2drr   2/2     Running   0          3h12m
 </code></pre>
 
-<p>再次查看 CNI 插件链的配置：</p>
+<p>可以看到 cni 插件已经安装成功，查看配置是否已经追加到 CNI 插件链的末尾：</p>
 
-<pre><code class="language-bash">$ cat /etc/cni/net.d/10-calico.conflist
+<pre><code class="language-bash">🐳 → cat /etc/cni/net.d/10-calico.conflist
 
 {
   &quot;name&quot;: &quot;k8s-pod-network&quot;,
@@ -1018,6 +951,8 @@ spec:
   &quot;plugins&quot;: [
   ...
     {
+      &quot;cniVersion&quot;: &quot;0.3.1&quot;,
+      &quot;name&quot;: &quot;istio-cni&quot;,
       &quot;type&quot;: &quot;istio-cni&quot;,
       &quot;log_level&quot;: &quot;info&quot;,
       &quot;kubernetes&quot;: {
@@ -1040,7 +975,7 @@ spec:
 
 <p>这里我再介绍一种新的方式，<code>istioctl</code> 提供了一个子命令来从本地打开各种 Dashboard：</p>
 
-<pre><code class="language-bash">$ istioctl dashboard --help
+<pre><code class="language-bash">🐳 → istioctl dashboard --help
 
 Access to Istio web UIs
 
@@ -1063,7 +998,7 @@ Available Commands:
 
 <p>例如，要想在本地打开 Grafana 页面，只需执行下面的命令：</p>
 
-<pre><code class="language-bash">$ istioctl dashboard grafana
+<pre><code class="language-bash">🐳 → istioctl dashboard grafana
 http://localhost:36813
 </code></pre>
 
@@ -1071,7 +1006,7 @@ http://localhost:36813
 
 <h2 id="span-id-inline-toc-5-span-暴露-gateway"><span id="inline-toc">5.</span> 暴露 Gateway</h2>
 
-<p>为了暴露 Ingress Gateway，我们可以使用 <code>HostNetwork</code> 模式运行，但你会发现无法启动 ingressgateway 的 Pod，因为如果 Pod 设置了 <code>HostNetwork=true</code>，则 dnsPolicy 就会从 <code>ClusterFirst</code> 被强制转换成 <code>Default</code>。而 Ingress Gateway 启动过程中需要通过 DNS 域名连接 <code>pilot</code> 等其他组件，所以无法启动。</p>
+<p>为了暴露 Ingress Gateway，我们可以使用 <code>hostport</code> 暴露端口，并将其调度到某个固定节点，上面的部署方法就是这么做的。如果你的 CNI 插件不支持 <code>hostport</code>，可以使用 <code>HostNetwork</code> 模式运行，但你会发现无法启动 ingressgateway 的 Pod，因为如果 Pod 设置了 <code>HostNetwork=true</code>，则 dnsPolicy 就会从 <code>ClusterFirst</code> 被强制转换成 <code>Default</code>。而 Ingress Gateway 启动过程中需要通过 DNS 域名连接 <code>pilot</code> 等其他组件，所以无法启动。</p>
 
 <p>我们可以通过强制将 <code>dnsPolicy</code> 的值设置为 <code>ClusterFirstWithHostNet</code> 来解决这个问题，详情参考：<a href="https://fuckcloudnative.io/posts/kubernetes-dns/" target="_blank">Kubernetes DNS 高阶指南</a>。</p>
 
@@ -1098,7 +1033,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - 192.168.0.4   # 假设你想调度到这台主机上
+                - sealos02   # 假设你想调度到这台主机上
       ...
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
@@ -1168,19 +1103,19 @@ spec:
     <ul class="share">
       
       <li>
-	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fistio-deploy%2f&amp;title=Istio%201.4%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191215002051.png" target="_blank" title="分享到微博">
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fistio-deploy%2f&amp;title=Istio%201.5%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191215002051.png" target="_blank" title="分享到微博">
           <i class="fab fa-weibo"></i>
         </a>
       </li>
       
       <li>
-	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fistio-deploy%2f&amp;title=Istio%201.4%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97&amp;source=Istio%201.4%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97&amp;desc=%e6%9c%ac%e6%96%87%e5%b0%86%e4%bc%9a%e5%91%8a%e8%af%89%e4%bd%a0%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8%20istioctl%20%e9%83%a8%e7%bd%b2%20istio%201.4%ef%bc%8c%e5%b9%b6%e5%bc%80%e5%90%af%20istio%20CNI%20%e6%8f%92%e4%bb%b6%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191215002051.png&amp;summary=%e6%9c%ac%e6%96%87%e5%b0%86%e4%bc%9a%e5%91%8a%e8%af%89%e4%bd%a0%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8%20istioctl%20%e9%83%a8%e7%bd%b2%20istio%201.4%ef%bc%8c%e5%b9%b6%e5%bc%80%e5%90%af%20istio%20CNI%20%e6%8f%92%e4%bb%b6%e3%80%82" target="_blank" title="分享到 QQ">
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fistio-deploy%2f&amp;title=Istio%201.5%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97&amp;source=Istio%201.5%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97&amp;desc=%e6%9c%ac%e6%96%87%e5%b0%86%e4%bc%9a%e5%91%8a%e8%af%89%e4%bd%a0%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8%20Operator%20%e9%83%a8%e7%bd%b2%20istio%201.5%ef%bc%8c%e5%b9%b6%e5%bc%80%e5%90%af%20istio%20CNI%20%e6%8f%92%e4%bb%b6%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20191215002051.png&amp;summary=%e6%9c%ac%e6%96%87%e5%b0%86%e4%bc%9a%e5%91%8a%e8%af%89%e4%bd%a0%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8%20Operator%20%e9%83%a8%e7%bd%b2%20istio%201.5%ef%bc%8c%e5%b9%b6%e5%bc%80%e5%90%af%20istio%20CNI%20%e6%8f%92%e4%bb%b6%e3%80%82" target="_blank" title="分享到 QQ">
           <i class="fab fa-qq"></i>
         </a>
       </li>
       
       <li>
-        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fistio-deploy%2f&amp;text=Istio%201.4%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fistio-deploy%2f&amp;text=Istio%201.5%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
           <i class="fab fa-twitter"></i>
         </a>
       </li>
@@ -1194,7 +1129,7 @@ spec:
   
       
       <li>
-	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fistio-deploy%2f&amp;title=Istio%201.4%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97" target="_blank" title="分享到 LinkedIn">
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fistio-deploy%2f&amp;title=Istio%201.5%20%e9%83%a8%e7%bd%b2%e6%8c%87%e5%8d%97" target="_blank" title="分享到 LinkedIn">
           <i class="fab fa-linkedin"></i>
         </a>
       </li>

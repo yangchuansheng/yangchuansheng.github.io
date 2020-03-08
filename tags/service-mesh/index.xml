@@ -14,12 +14,12 @@
     
     
     <item>
-      <title>Istio 1.4 部署指南</title>
+      <title>Istio 1.5 部署指南</title>
       <link>https://fuckcloudnative.io/posts/istio-deploy/</link>
       <pubDate>Sun, 15 Dec 2019 00:14:06 +0800</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/istio-deploy/</guid>
-      <description>Istio 一直处于快速迭代更新的过程中，它的部署方法也在不断更新，之前我在 1.0 版本中介绍的安装方法，对于最新的 1.4 版本已经不适用了。以后主流的部署方式都</description>
+      <description>没错，Istio 架构又换了。。。北京时间 2020 年 3 月 6 日 凌晨发布了 1.5 版本，该版本最大的变化是将控制平面的所有组件组合成一个单体结构叫 istiod</description>
     </item>
     
     <item>
