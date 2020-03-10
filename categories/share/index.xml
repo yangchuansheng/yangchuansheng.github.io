@@ -8,10 +8,19 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Sun, 22 Sep 2019 09:02:26 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 10 Mar 2020 12:06:03 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/categories/share/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>iTerm2 自定义配置和优化教程（上）</title>
+      <link>https://fuckcloudnative.io/posts/customize-iterm2-1/</link>
+      <pubDate>Tue, 10 Mar 2020 12:06:03 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/customize-iterm2-1/</guid>
+      <description>对于需要长期与终端打交道的工程师来说，拥有一款称手的终端管理器是很有必要的，对于 Windows 用户来说，最好的选择是 Xshell，这个大家都没有异议。但</description>
+    </item>
     
     <item>
       <title>AdGuard Home 安装使用教程</title>
