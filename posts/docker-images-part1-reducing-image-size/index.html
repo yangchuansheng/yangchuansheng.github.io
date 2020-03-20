@@ -7,12 +7,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-  <title>Overview of all pages with the category #network - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+  <title>两个奇技淫巧，将 Docker 镜像体积减小 99% - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
 
 
-  <meta content="" name="keywords">
+  <meta content="米开朗基杨" name="keywords">
 
-  <meta name="description" content="Overview of all pages with the category #network, such as: Tcpdump 示例教程">
+  <meta name="description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
   <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
 {
     "@context": "http://schema.org",
@@ -33,15 +33,63 @@
   
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/fuckcloudnative.io\/posts\/docker-images-part1-reducing-image-size\/",
+          "name": "两个奇技淫巧，将 docker 镜像体积减小 99%"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "米开朗基杨"
+  },
+  "headline": "两个奇技淫巧，将 Docker 镜像体积减小 99%",
+  "description" : "对于刚接触容器的人来说，他们很容易被自己构建的 Docker 镜像体积吓到，我只需要一个几 MB 的可执行文件而已，为何镜像的体积会达到 1 GB 以上？本文将会介绍几",
+  "inLanguage" : "zh",
+  "wordCount":  797 ,
+  "datePublished" : "2020-03-19T23:25:39",
+  "dateModified" : "2020-03-19T23:25:39",
+  "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+  "keywords" : [ "" ],
+  "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/docker-images-part1-reducing-image-size\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/fuckcloudnative.io",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
 
-<meta property="og:title" content="network" />
+<meta property="og:title" content="两个奇技淫巧，将 Docker 镜像体积减小 99%" />
 <meta property="og:description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
 <meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
-<meta property="og:url" content="https://fuckcloudnative.io/categories/network/" />
+<meta property="og:url" content="https://fuckcloudnative.io/posts/docker-images-part1-reducing-image-size/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="云原生实验室" />
 
-  <meta name="twitter:title" content="network" />
+  <meta name="twitter:title" content="两个奇技淫巧，将 Docker 镜像体积减小 99%" />
   <meta name="twitter:description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
   <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
   <meta name="twitter:card" content="summary" />
@@ -95,6 +143,8 @@ function fixCount() {
 
 
 
+
+    <div class="top-scroll-bar"></div>
 
 
 
@@ -368,12 +418,30 @@ autocomplete('#aa-search-input',
           <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
             <div class="post-heading">
               
-                <h1>network</h1>
+                <h1>两个奇技淫巧，将 Docker 镜像体积减小 99%</h1>
               
               
-                <hr class="small">
               
               
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2020 年 3 月 19 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;2&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;797&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
               
             </div>
           </div>
@@ -415,233 +483,234 @@ autocomplete('#aa-search-input',
 
 
     
-  <div class="container" role="main">
-    <div class="row">
-      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-        
-        <div class="posts-list">
-          
-            <article class="post-preview">
-    <a href="https://fuckcloudnative.io/posts/tcpdump-examples/">
-        <h2 class="post-title">Tcpdump 示例教程</h2>
-        
-        <h3 class="post-subtitle">
-            网络抓包神器 Tcpdump 使用指南
-        </h3>
-        
-        
-        
-    </a>
+<div class="container" role="main">
+  <div class="row">
+    <div id="container" class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <a title="搬瓦工" href="https://bandwagonhost.com/aff.php?aff=54207" target="_blank">
+<p id="sponsor-text" style="box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    border: 1px solid #e5e4e9;
+    background-color: #d0e4a9;
+    margin: 1em 0 0;
+    padding: 0.6em 0.6em 0.4em 0.6em;
+    border-radius: 0.3em 0.3em 0.1em 0.1em;
+    color: #076a66;"><span style="text-decoration: underline;">搬瓦工</span>香港 VPS CN2，超低价 <span style="text-decoration: underline;">$2.99/年</span>起。适合新手入门建站，我的博客就是在这上面搭建的</p>
+<p style="padding:0em;margin:0 0 1.5em 0;border: 1px solid #e5e4e9;border-radius: 0.1em 0.1em 0.3em 0.3em;background-color: #28344a;text-align: center;" class="entry-sponsor-img">
+  <img alt="搬瓦工" id="support-img" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/bandwagonhost.jpg" style="border: none;width: 100%;max-width: 100%;display: inline-block;">
 
-    <p class="post-meta">
-        <span class="post-meta">
-  
-  
-  <i class="fas fa-calendar"></i>&nbsp;发表于 2020 年 2 月 10 日
-  
-  
-    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;12&nbsp;分钟
-  
-  
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;5561&nbsp;个字
-  
-  
-    
-    
-  
-  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
-  
-</span>
+</p>
+</a>
 
-    </p>
-    <div class="post-entry">
-        
-	<div class="view">
-	  <img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/20200210234336.png">
-        </div>
+      <article role="main" class="blog-post">
 	
-        <a href="https://fuckcloudnative.io/posts/tcpdump-examples/" class="post-read-more">阅读全文</a>
-        
+<aside class="toc">
+    <div id='anchors-navbar'>
+        <i class='fa fa-anchor'></i>
+        <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#1-万恶之源">1. 万恶之源</a></li>
+</ul></li>
+</ul>
+</nav>
     </div>
-
     
-    <div class="blog-tags">
-        
-        <a href="https://fuckcloudnative.io/tags/tcpdump/"><i class="fa fa-tags"></i>tcpdump</a>&nbsp;
-        
-    </div>
-    
+</aside>
 
-</article>
+
+        
+         
+
+         
+           
+
+<p>对于刚接触容器的人来说，他们很容易被自己构建的 Docker 镜像体积吓到，我只需要一个几 MB 的可执行文件而已，为何镜像的体积会达到 <code>1 GB</code> 以上？本文将会介绍几个奇技淫巧来帮助你精简镜像，同时又不牺牲开发人员和运维人员的操作便利性。本系列文章将分为三个部分：</p>
+
+<p>第一部分着重介绍多阶段构建（multi-stage builds），因为这是镜像精简之路至关重要的一环。在这部分内容中，我会解释静态链接和动态链接的区别，它们对镜像带来的影响，以及如何避免那些不好的影响。中间会穿插一部分对 <code>Alpine</code> 镜像的介绍。</p>
+
+<p>第二部分将会针对不同的语言来选择适当的精简策略，其中主要讨论 <code>Go</code>，同时也涉及到了 <code>Java</code>，<code>Node</code>，<code>Python</code>，<code>Ruby</code> 和 <code>Rust</code>。这一部分也会详细介绍 Alpine 镜像的避坑指南。什么？你不知道 <code>Alpine</code> 镜像有哪些坑？我来告诉你。</p>
+
+<p>第三部分将会探讨适用于大多数语言和框架的通用精简策略，例如使用常见的基础镜像、提取可执行文件和减小每一层的体积。同时还会介绍一些更加奇特或激进的工具，例如 <code>Bazel</code>，<code>Distroless</code>，<code>DockerSlim</code> 和 <code>UPX</code>，虽然这些工具在某些特定场景下能带来奇效，但大多情况下会起到反作用。</p>
+
+<p>本文介绍第一部分。</p>
+
+<h2 id="1-万恶之源">1. 万恶之源</h2>
+
+<p>我敢打赌，每一个初次使用自己写好的代码构建 Docker 镜像的人都会被镜像的体积吓到，来看一个例子。</p>
+
+<p>让我们搬出那个屡试不爽的 <code>hello world</code> C 程序：</p>
+
+<pre><code class="language-c">/* hello.c */
+int main () {
+  puts(&quot;Hello, world!&quot;);
+  return 0;
+}
+</code></pre>
+
+<p>并通过下面的 Dockerfile 构建镜像：</p>
+
+<pre><code class="language-dockerfile">FROM gcc
+COPY hello.c .
+RUN gcc -o hello hello.c
+CMD [&quot;./hello&quot;]
+</code></pre>
+
+<p>然后你会发现构建成功的镜像体积远远超过了 <code>1 GB</code>。。。因为该镜像包含了整个 <code>gcc</code> 镜像的内容。</p>
+
+<p>如果使用 <code>Ubuntu</code> 镜像，安装 C 编译器，最后编译程序，你会得到一个大概 <code>300 MB</code> 大小的镜像，比上面的镜像小多了。但还是不够小，因为编译好的可执行文件还不到 <code>20 KB</code>：</p>
+
+<pre><code class="language-bash">🐳 → ls -l hello
+-rwxr-xr-x   1 root root 16384 Nov 18 14:36 hello
+</code></pre>
+
+<p>类似地，Go 语言版本的 <code>hello world</code> 会得到相同的结果：</p>
+
+<pre><code class="language-go">package main
+
+import &quot;fmt&quot;
+
+func main () {
+  fmt.Println(&quot;Hello, world!&quot;)
+}
+</code></pre>
+
+<p>使用基础镜像 <code>golang</code> 构建的镜像大小是 <code>800 MB</code>，而编译完成的可执行文件只有 <code>2 MB</code> 大小。</p>
+
+         
+	 
+	 <br />
+	 <div style="text-align:center;color: #ccc;font-size:16px;font-family: cursive;">-------他日江湖相逢 <i class="fa fa-umbrella" style="color:#986dbd"></i> 再当杯酒言欢-------</div>
+         
+           
+
+<div class="entry-shang text-center">
+	<p>「真诚赞赏，手留余香」</p>
+        <button class="zs show-zs btn rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}"> <span>赏</span> </button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg"/>米开朗基杨</span>
+		<p class="tip"><i></i><span>真诚赞赏，手留余香</span></p>
+ 	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/wechat-2.png" id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+                <span class="zs-wechat"><img src="/img/wechat-btn.png"/></span>
+	</div>
+</div>
+
+         
+
+        
+
+        
+            <hr/>
+            <section id="social-share">
+              <div class="list-inline footer-links">
+                
+
+<div class="share-box" aria-hidden="true">
+    <ul class="share">
+      
+      <li>
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;title=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25&amp;pic=" target="_blank" title="分享到微博">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+      
+      <li>
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;title=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25&amp;source=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25&amp;desc=&amp;pics=&amp;summary=" target="_blank" title="分享到 QQ">
+          <i class="fab fa-qq"></i>
+        </a>
+      </li>
+      
+      <li>
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;text=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f" target="_blank" title="分享到 Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+      </li>
+  
+      
+      <li>
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;title=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25" target="_blank" title="分享到 LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+
+              </div>
+            </section>
+        
+
+        
+          
 
           
-            <article class="post-preview">
-    <a href="https://fuckcloudnative.io/posts/poke-calicos-lies/">
-        <h2 class="post-title">Calico 网络通信原理揭秘</h2>
         
-        <h3 class="post-subtitle">
-            戳穿 Calico 的谎言
-        </h3>
-        
-        
-        
-    </a>
+      </article>
 
-    <p class="post-meta">
-        <span class="post-meta">
-  
-  
-  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 7 月 30 日
-  
-  
-    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;5&nbsp;分钟
-  
-  
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2056&nbsp;个字
-  
-  
-    
-    
-  
-  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
-  
-</span>
-
-    </p>
-    <div class="post-entry">
-        
-	<div class="view">
-	  <img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-07-30-dockercalico.jpg">
-        </div>
-	
-        <a href="https://fuckcloudnative.io/posts/poke-calicos-lies/" class="post-read-more">阅读全文</a>
-        
-    </div>
-
-    
-    <div class="blog-tags">
-        
-        <a href="https://fuckcloudnative.io/tags/calico/"><i class="fa fa-tags"></i>calico</a>&nbsp;
-        
-    </div>
-    
-
-</article>
-
+      
+        <ul class="pager blog-pager">
           
-            <article class="post-preview">
-    <a href="https://fuckcloudnative.io/posts/macvlan-in-action/">
-        <h2 class="post-title">Macvlan 网络方案实践</h2>
-        
-        <h3 class="post-subtitle">
-            通过实验来验证 Macvlan Bridge 模式的连通性
-        </h3>
-        
-        
-        
-    </a>
-
-    <p class="post-meta">
-        <span class="post-meta">
-  
-  
-  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 4 月 1 日
-  
-  
-    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;4&nbsp;分钟
-  
-  
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;1615&nbsp;个字
-  
-  
-    
-    
-  
-  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
-  
-</span>
-
-    </p>
-    <div class="post-entry">
-        
-	<div class="view">
-	  <img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/docker_networking-banner1.png">
-        </div>
-	
-        <a href="https://fuckcloudnative.io/posts/macvlan-in-action/" class="post-read-more">阅读全文</a>
-        
-    </div>
-
-    
-    <div class="blog-tags">
-        
-        <a href="https://fuckcloudnative.io/tags/macvlan/"><i class="fa fa-tags"></i>macvlan</a>&nbsp;
-        
-    </div>
-    
-
-</article>
-
+            <li class="previous">
+              <a href="https://fuckcloudnative.io/posts/customize-iterm2-1/" data-toggle="tooltip" data-placement="top" title="iTerm2 自定义配置和优化教程（上）">&larr; 前一篇</a>
+            </li>
           
-            <article class="post-preview">
-    <a href="https://fuckcloudnative.io/posts/netwnetwork-virtualization-macvlan/">
-        <h2 class="post-title">Linux 虚拟网卡技术：Macvlan</h2>
-        
-        <h3 class="post-subtitle">
-            Macvlan 的实现原理及其工作模式
-        </h3>
-        
-        
-        
-    </a>
-
-    <p class="post-meta">
-        <span class="post-meta">
-  
-  
-  <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 3 月 25 日
-  
-  
-    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;7&nbsp;分钟
-  
-  
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3267&nbsp;个字
-  
-  
-    
-    
-  
-  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
-  
-</span>
-
-    </p>
-    <div class="post-entry">
-        
-	<div class="view">
-	  <img src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/mceclip0.png">
-        </div>
-	
-        <a href="https://fuckcloudnative.io/posts/netwnetwork-virtualization-macvlan/" class="post-read-more">阅读全文</a>
-        
-    </div>
-
-    
-    <div class="blog-tags">
-        
-        <a href="https://fuckcloudnative.io/tags/macvlan/"><i class="fa fa-tags"></i>macvlan</a>&nbsp;
-        
-    </div>
-    
-
-</article>
-
           
-        </div>
-        
-      </div>
+            <li class="next">
+              <a href="https://fuckcloudnative.io/posts/linux-circumvent/" data-toggle="tooltip" data-placement="top" title="Linux全局智能分流方案">后一篇 &rarr;</a>
+            </li>
+          
+        </ul>
+      
+
+      
+	    <link rel="stylesheet" href="https://fuckcloudnative.io/css/iDisqus.min.css" />
+<div id="comment"></div>
+<script src="https://fuckcloudnative.io/js/iDisqus.min.js"></script>
+<script>
+var disq = new iDisqus('comment', {
+    forum: 'fuckcloudnative',
+    api: 'https://disqus.fuckcloudnative.io',
+    site: 'http://fuckcloudnative.io',
+    emojiPath: 'https://api.fooleap.org/emoji/unicode/',
+    mode: 2,
+    timeout: 15,
+    init: true
+});
+</script>
+
+      
+
     </div>
   </div>
+</div>
 
       
 <footer>

@@ -63,7 +63,7 @@
   "headline": "Istio 1.5 部署指南",
   "description" : "本文将会告诉你如何使用 Operator 部署 istio 1.5，并开启 istio CNI 插件。",
   "inLanguage" : "zh",
-  "wordCount":  2735 ,
+  "wordCount":  2727 ,
   "datePublished" : "2019-12-15T00:14:06",
   "dateModified" : "2019-12-15T00:14:06",
   "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
@@ -445,7 +445,7 @@ autocomplete('#aa-search-input',
     &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2735&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2727&nbsp;个字
   
   
     
@@ -487,7 +487,7 @@ autocomplete('#aa-search-input',
     &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2735&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2727&nbsp;个字
   
   
     
@@ -603,7 +603,17 @@ autocomplete('#aa-search-input',
 
 <p>没错，Istio 架构又换了。。。北京时间 2020 年 3 月 6 日 凌晨发布了 1.5 版本，该版本最大的变化是将控制平面的所有组件组合成一个单体结构叫  <code>istiod</code>。</p>
 
-<p>![The overall architecture of an Istio-based application.](<a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/istio-1.5-arch.svg&quot;" target="_blank">https://hugo-picture.oss-cn-beijing.aliyuncs.com/istio-1.5-arch.svg&quot;</a> &gt;}}</p>
+
+<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+<div class="box" >
+  <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
+    <div class="img">
+      <img itemprop="thumbnail" src="https://hugo-picture.oss-cn-beijing.aliyuncs.com/images/post_loading.gif" data-original="https://hugo-picture.oss-cn-beijing.aliyuncs.com/istio-1.5-arch.svg" alt="https://hugo-picture.oss-cn-beijing.aliyuncs.com/istio-1.5-arch.svg"/>
+    </div>
+    <a href="https://hugo-picture.oss-cn-beijing.aliyuncs.com/istio-1.5-arch.svg" itemprop="contentUrl"></a>
+  </figure>
+</div>
+
 
 <p>从架构图可以看出，在 Istio 1.5 中，饱受诟病的 <code>Mixer</code> 终于被废弃了，新版本的 HTTP 遥测默认基于 in-proxy Stats filter，同时可使用 <a href="https://webassembly.org/" target="_blank">WebAssembly</a> 开发 <code>in-proxy</code> 扩展。更详细的说明请参考 <a href="https://istio.io/news/releases/1.5.x/announcing-1.5/" target="_blank">Istio 1.5 发布公告</a>。</p>
 
@@ -612,7 +622,7 @@ autocomplete('#aa-search-input',
 <p>在部署 Istio 之前，首先需要确保 Kubernetes 集群（kubernetes 版本建议在 <code>1.14</code> 以上）已部署并配置好本地的 kubectl 客户端。</p>
 
 
-<link rel="stylesheet" href="https://fuckcloudnative.io/css/hugo-easy-gallery.css" />
+
 <div class="box" >
   <figure  itemprop="associatedMedia" itemscope itemtype="http://schema.org/ImageObject">
     <div class="img">
@@ -1289,7 +1299,7 @@ var disq = new iDisqus('comment', {
 
           &nbsp;&bull;&nbsp;更新于
           
-            2020.3.10
+            2020.3.19
           
 
 	  &nbsp;&bull;&nbsp;
