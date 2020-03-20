@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Thu, 19 Mar 2020 23:25:39 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 10 Mar 2020 12:06:03 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
@@ -38,15 +38,6 @@
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/linux-circumvent/</guid>
       <description>Github 地址：Linux 和 MacOS 设备智能分流方案 本来我是决定不再写这样的文章了的。但是呢，最近连续配置了两次 ArchLinux，在配置这种东西的时候连</description>
-    </item>
-    
-    <item>
-      <title>两个奇技淫巧，将 Docker 镜像体积减小 99%</title>
-      <link>https://fuckcloudnative.io/posts/docker-images-part1-reducing-image-size/</link>
-      <pubDate>Thu, 19 Mar 2020 23:25:39 +0800</pubDate>
-      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
-      <guid>https://fuckcloudnative.io/posts/docker-images-part1-reducing-image-size/</guid>
-      <description>对于刚接触容器的人来说，他们很容易被自己构建的 Docker 镜像体积吓到，我只需要一个几 MB 的可执行文件而已，为何镜像的体积会达到 1 GB 以上？本文将会介绍几</description>
     </item>
     
     <item>

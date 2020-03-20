@@ -19,18 +19,8 @@
   
   <url>
     <loc>https://fuckcloudnative.io/</loc>
-    <lastmod>2020-03-19T23:25:39+08:00</lastmod>
+    <lastmod>2020-03-10T12:06:03+08:00</lastmod>
     <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/posts/</loc>
-    <lastmod>2020-03-19T23:25:39+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://fuckcloudnative.io/posts/docker-images-part1-reducing-image-size/</loc>
-    <lastmod>2020-03-19T23:25:39+08:00</lastmod>
   </url>
   
   <url>
@@ -45,6 +35,11 @@
   
   <url>
     <loc>https://fuckcloudnative.io/posts/customize-iterm2-1/</loc>
+    <lastmod>2020-03-10T12:06:03+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://fuckcloudnative.io/posts/</loc>
     <lastmod>2020-03-10T12:06:03+08:00</lastmod>
   </url>
   
@@ -74,12 +69,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
+    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
     <lastmod>2020-02-22T17:06:49+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/kubernetes/</loc>
+    <loc>https://fuckcloudnative.io/categories/kubernetes/</loc>
     <lastmod>2020-02-22T17:06:49+08:00</lastmod>
   </url>
   
@@ -324,12 +319,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/devops/</loc>
+    <loc>https://fuckcloudnative.io/tags/devops/</loc>
     <lastmod>2019-08-21T14:03:42+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/devops/</loc>
+    <loc>https://fuckcloudnative.io/categories/devops/</loc>
     <lastmod>2019-08-21T14:03:42+08:00</lastmod>
   </url>
   
@@ -509,12 +504,12 @@
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/categories/loadbalance/</loc>
+    <loc>https://fuckcloudnative.io/tags/loadbalance/</loc>
     <lastmod>2019-01-28T16:39:48+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://fuckcloudnative.io/tags/loadbalance/</loc>
+    <loc>https://fuckcloudnative.io/categories/loadbalance/</loc>
     <lastmod>2019-01-28T16:39:48+08:00</lastmod>
   </url>
   
