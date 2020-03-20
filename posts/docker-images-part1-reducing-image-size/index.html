@@ -7,12 +7,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-  <title>两个奇技淫巧，将 Docker 镜像体积减小 99% - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
+  <title>Docker 镜像构建教程：减小镜像体积 - Kubernetes|Docker|Istio|Envoy|Hugo|Golang|云原生</title>
 
 
-  <meta content="米开朗基杨" name="keywords">
+  <meta content="米开朗基杨, docker, multi-stage, scratch, alpine" name="keywords">
 
-  <meta name="description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="description" content="本文主要介绍了 Docker 镜像的多阶段构建，解释了静态链接和动态链接的区别，它们对镜像带来的影响，以及如何避免那些不好的影响。">
   <meta name="author" content="米开朗基杨"/><script type="application/ld+json">
 {
     "@context": "http://schema.org",
@@ -49,7 +49,7 @@
         "position": 3,
         "item": {
           "@id": "https:\/\/fuckcloudnative.io\/posts\/docker-images-part1-reducing-image-size\/",
-          "name": "两个奇技淫巧，将 docker 镜像体积减小 99%"
+          "name": "Docker 镜像构建教程：减小镜像体积"
         }
     }]
 }
@@ -60,14 +60,14 @@
   "author": {
     "name" : "米开朗基杨"
   },
-  "headline": "两个奇技淫巧，将 Docker 镜像体积减小 99%",
-  "description" : "对于刚接触容器的人来说，他们很容易被自己构建的 Docker 镜像体积吓到，我只需要一个几 MB 的可执行文件而已，为何镜像的体积会达到 1 GB 以上？本文将会介绍几",
+  "headline": "Docker 镜像构建教程：减小镜像体积",
+  "description" : "本文主要介绍了 Docker 镜像的多阶段构建，解释了静态链接和动态链接的区别，它们对镜像带来的影响，以及如何避免那些不好的影响。",
   "inLanguage" : "zh",
-  "wordCount":  797 ,
+  "wordCount":  4915 ,
   "datePublished" : "2020-03-19T23:25:39",
   "dateModified" : "2020-03-19T23:25:39",
   "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
-  "keywords" : [ "" ],
+  "keywords" : [ "docker" ],
   "mainEntityOfPage" : "https:\/\/fuckcloudnative.io\/posts\/docker-images-part1-reducing-image-size\/",
   "publisher" : {
     "@type": "Organization",
@@ -82,15 +82,15 @@
 }
 </script>
 
-<meta property="og:title" content="两个奇技淫巧，将 Docker 镜像体积减小 99%" />
-<meta property="og:description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+<meta property="og:title" content="Docker 镜像构建教程：减小镜像体积" />
+<meta property="og:description" content="本文主要介绍了 Docker 镜像的多阶段构建，解释了静态链接和动态链接的区别，它们对镜像带来的影响，以及如何避免那些不好的影响。">
 <meta property="og:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
 <meta property="og:url" content="https://fuckcloudnative.io/posts/docker-images-part1-reducing-image-size/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="云原生实验室" />
 
-  <meta name="twitter:title" content="两个奇技淫巧，将 Docker 镜像体积减小 99%" />
-  <meta name="twitter:description" content="云原生实验室是一个关注容器、kubernetes、istio、devops、prometheus、envoy、golang、云原生、微服务等技术的个人博客。">
+  <meta name="twitter:title" content="Docker 镜像构建教程：减小镜像体积" />
+  <meta name="twitter:description" content="本文主要介绍了 Docker 镜像的多阶段构建，解释了静态链接和动态链接的区别，它们对镜像带来的影响，以及如何避免那些不好的影响。">
   <meta name="twitter:image" content="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-08-26-WechatIMG12268.jpeg" />
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:site" content="@RyangYang1" />
@@ -106,7 +106,7 @@
   <link href="https://cdn.bootcss.com/photoswipe/4.1.2/default-skin/default-skin.min.css" rel="stylesheet">
 
 
-<link rel="stylesheet" href='/css/bundle.min.3b81e7633fb9a691d491b032dc2f6584482338977b8e6433e4dcbf3a454be9a8.css' integrity='sha256-O4HnYz&#43;5ppHUkbAy3C9lhEgjOJd7jmQz5Ny/OkVL6ag='>
+<link rel="stylesheet" href='/css/bundle.min.1efc00383f8d4a70c30b9c35493ace4175cd103b68bd32064bea71f62bafeceb.css' integrity='sha256-HvwAOD&#43;NSnDDC5w1STrOQXXNEDtovTIGS&#43;px9iuv7Os='>
 
 
 
@@ -409,8 +409,59 @@ autocomplete('#aa-search-input',
 
 
   
+    <div id="header-big-imgs" data-num-img=1 
+      
+         
+          data-img-src-1="https://hugo-picture.oss-cn-beijing.aliyuncs.com/blog/2019-04-27-080627.jpg" 
+         
+         
+      ></div>
+  
 
-  <header class="header-section ">
+  <header class="header-section has-img">
+    
+      <div class="intro-header big-img">
+        
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+              <div class="post-heading">
+		  
+		      <h1 align="center">Docker 镜像构建教程：减小镜像体积</h1>
+		  
+                  
+                    
+		      <hr class="small">
+                      <h2 class="post-subheading">两个技巧，将 Docker 镜像体积减小 99%</h2>
+                    
+                  
+                  
+                    <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;发表于 2020 年 3 月 19 日
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;10&nbsp;分钟
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4915&nbsp;个字
+  
+  
+    
+    
+  
+  &nbsp;|&nbsp;<i class="fas fa-book-reader"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>次阅读
+  
+</span>
+
+                  
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="img-desc" style="display: inline;"></span>
+      </div>
     
     <div class="intro-header no-img">
       <div class="container">
@@ -418,9 +469,13 @@ autocomplete('#aa-search-input',
           <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
             <div class="post-heading">
               
-                <h1>两个奇技淫巧，将 Docker 镜像体积减小 99%</h1>
+                <h1>Docker 镜像构建教程：减小镜像体积</h1>
               
               
+              
+                
+                  <h2 class="post-subheading">两个技巧，将 Docker 镜像体积减小 99%</h2>
+                
               
               
                 <span class="post-meta">
@@ -429,10 +484,10 @@ autocomplete('#aa-search-input',
   <i class="fas fa-calendar"></i>&nbsp;发表于 2020 年 3 月 19 日
   
   
-    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;2&nbsp;分钟
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;10&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;797&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;4915&nbsp;个字
   
   
     
@@ -512,6 +567,23 @@ autocomplete('#aa-search-input',
 <li>
 <ul>
 <li><a href="#1-万恶之源">1. 万恶之源</a></li>
+<li><a href="#2-多阶段构建">2. 多阶段构建</a>
+<ul>
+<li><a href="#使用经典的基础镜像">使用经典的基础镜像</a></li>
+<li><a href="#copy-from-使用绝对路径"><code>COPY --from</code> 使用绝对路径</a></li>
+</ul></li>
+<li><a href="#3-from-scratch-的魔力">3. FROM scratch 的魔力</a>
+<ul>
+<li><a href="#缺少-shell">缺少 shell</a></li>
+<li><a href="#缺少调试工具">缺少调试工具</a></li>
+<li><a href="#缺少-libc">缺少 libc</a>
+<ul>
+<li><a href="#1-使用静态库">1、使用静态库</a></li>
+<li><a href="#2-拷贝库文件到镜像中">2、拷贝库文件到镜像中</a></li>
+<li><a href="#3-使用-busybox-glibc-作为基础镜像">3、使用 <code>busybox:glibc</code> 作为基础镜像</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#4-总结">4. 总结</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -526,6 +598,10 @@ autocomplete('#aa-search-input',
          
            
 
+<blockquote>
+<p>原文链接：<a href="https://www.ardanlabs.com/blog/2020/02/docker-images-part1-reducing-image-size.html" target="_blank">Docker Images : Part I - Reducing Image Size</a></p>
+</blockquote>
+
 <p>对于刚接触容器的人来说，他们很容易被自己构建的 Docker 镜像体积吓到，我只需要一个几 MB 的可执行文件而已，为何镜像的体积会达到 <code>1 GB</code> 以上？本文将会介绍几个奇技淫巧来帮助你精简镜像，同时又不牺牲开发人员和运维人员的操作便利性。本系列文章将分为三个部分：</p>
 
 <p>第一部分着重介绍多阶段构建（multi-stage builds），因为这是镜像精简之路至关重要的一环。在这部分内容中，我会解释静态链接和动态链接的区别，它们对镜像带来的影响，以及如何避免那些不好的影响。中间会穿插一部分对 <code>Alpine</code> 镜像的介绍。</p>
@@ -537,6 +613,8 @@ autocomplete('#aa-search-input',
 <p>本文介绍第一部分。</p>
 
 <h2 id="1-万恶之源">1. 万恶之源</h2>
+
+<hr />
 
 <p>我敢打赌，每一个初次使用自己写好的代码构建 Docker 镜像的人都会被镜像的体积吓到，来看一个例子。</p>
 
@@ -561,7 +639,7 @@ CMD [&quot;./hello&quot;]
 
 <p>如果使用 <code>Ubuntu</code> 镜像，安装 C 编译器，最后编译程序，你会得到一个大概 <code>300 MB</code> 大小的镜像，比上面的镜像小多了。但还是不够小，因为编译好的可执行文件还不到 <code>20 KB</code>：</p>
 
-<pre><code class="language-bash">🐳 → ls -l hello
+<pre><code class="language-bash">$ ls -l hello
 -rwxr-xr-x   1 root root 16384 Nov 18 14:36 hello
 </code></pre>
 
@@ -576,7 +654,229 @@ func main () {
 }
 </code></pre>
 
-<p>使用基础镜像 <code>golang</code> 构建的镜像大小是 <code>800 MB</code>，而编译完成的可执行文件只有 <code>2 MB</code> 大小。</p>
+<p>使用基础镜像 <code>golang</code> 构建的镜像大小是 <code>800 MB</code>，而编译后的可执行文件只有 <code>2 MB</code> 大小：</p>
+
+<pre><code class="language-bash">$ ls -l hello
+-rwxr-xr-x 1 root root 2008801 Jan 15 16:41 hello
+</code></pre>
+
+<p>还是不太理想，有没有办法大幅度减少镜像的体积呢？往下看。</p>
+
+<style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:"Font Awesome 5 Free",FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:'\f071'}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:'\f05a'}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:'\f06a'}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:'\f058'}.notice.tip{background:#e6f9e6}</style><div class="notice note" >
+<p class="first notice-title">注意</p><p>为了更直观地对比不同镜像的大小，所有镜像都使用相同的镜像名，不同的标签。例如：<code>hello:gcc</code>，<code>hello:ubuntu</code>，<code>hello:thisweirdtrick</code> 等等，这样就可以直接使用命令 <code>docker images hello</code> 列出所有镜像名为 hello 的镜像，不会被其他镜像所干扰。</p></div>
+
+
+<h2 id="2-多阶段构建">2. 多阶段构建</h2>
+
+<hr />
+
+<p>要想大幅度减少镜像的体积，多阶段构建是必不可少的。多阶段构建的想法很简单：“我不想在最终的镜像中包含一堆 C 或 Go 编译器和整个编译工具链，我只要一个编译好的可执行文件！”</p>
+
+<p>多阶段构建可以由多个 <code>FROM</code> 指令识别，每一个 <code>FROM</code> 语句表示一个新的构建阶段，阶段名称可以用 <code>AS</code> 参数指定，例如：</p>
+
+<pre><code class="language-dockerfile">FROM gcc AS mybuildstage
+COPY hello.c .
+RUN gcc -o hello hello.c
+FROM ubuntu
+COPY --from=mybuildstage hello .
+CMD [&quot;./hello&quot;]
+</code></pre>
+
+<p>本例使用基础镜像 <code>gcc</code> 来编译程序 <code>hello.c</code>，然后启动一个新的构建阶段，它以 <code>ubuntu</code> 作为基础镜像，将可执行文件 <code>hello</code> 从上一阶段拷贝到最终的镜像中。最终的镜像大小是 <code>64 MB</code>，比之前的 <code>1.1 GB</code> 减少了 <code>95%</code>：</p>
+
+<pre><code class="language-bash">🐳 → docker images minimage
+REPOSITORY          TAG                    ...         SIZE
+minimage            hello-c.gcc            ...         1.14GB
+minimage            hello-c.gcc.ubuntu     ...         64.2MB
+</code></pre>
+
+<p>还能不能继续优化？当然能。在继续优化之前，先提醒一下：</p>
+
+<p>在声明构建阶段时，可以不必使用关键词 <code>AS</code>，最终阶段拷贝文件时可以直接使用序号表示之前的构建阶段（从零开始）。也就是说，下面两行是等效的：</p>
+
+<pre><code class="language-dockerfile">COPY --from=mybuildstage hello .
+COPY --from=0 hello .
+</code></pre>
+
+<p>如果 <code>Dockerfile</code> 内容不是很复杂，构建阶段也不是很多，可以直接使用序号表示构建阶段。一旦 Dockerfile 变复杂了，构建阶段增多了，最好还是通过关键词 <code>AS</code> 为每个阶段命名，这样也便于后期维护。</p>
+
+<h3 id="使用经典的基础镜像">使用经典的基础镜像</h3>
+
+<p>我强烈建议在构建的第一阶段使用经典的基础镜像，这里经典的镜像指的是 <code>CentOS</code>，<code>Debian</code>，<code>Fedora</code> 和 <code>Ubuntu</code> 之类的镜像。你可能还听说过 Alpine 镜像，不要用它！至少暂时不要用，后面我会告诉你有哪些坑。</p>
+
+<h3 id="copy-from-使用绝对路径"><code>COPY --from</code> 使用绝对路径</h3>
+
+<p>从上一个构建阶段拷贝文件时，使用的路径是相对于上一阶段的<strong>根目录</strong>的。如果你使用 <code>golang</code> 镜像作为构建阶段的基础镜像，就会遇到类似的问题。假设使用下面的 Dockerfile 来构建镜像：</p>
+
+<pre><code class="language-dockerfile">FROM golang
+COPY hello.go .
+RUN go build hello.go
+FROM ubuntu
+COPY --from=0 hello .
+CMD [&quot;./hello&quot;]
+</code></pre>
+
+<p>你会看到这样的报错：</p>
+
+<pre><code class="language-bash">COPY failed: stat /var/lib/docker/overlay2/1be...868/merged/hello: no such file or directory
+</code></pre>
+
+<p>这是因为 <code>COPY</code> 命令想要拷贝的是 <code>/hello</code>，而 <code>golang</code> 镜像的 <code>WORKDIR</code> 是 <code>/go</code>，所以可执行文件的真正路径是 <code>/go/hello</code>。</p>
+
+<p>当然你可以使用绝对路径来解决这个问题，但如果后面基础镜像改变了 <code>WORKDIR</code> 怎么办？你还得不断地修改绝对路径，所以这个方案还是不太优雅。最好的方法是在第一阶段指定 <code>WORKDIR</code>，在第二阶段使用绝对路径拷贝文件，这样即使基础镜像修改了 <code>WORKDIR</code>，也不会影响到镜像的构建。例如：</p>
+
+<pre><code class="language-dockerfile">FROM golang
+WORKDIR /src
+COPY hello.go .
+RUN go build hello.go
+FROM ubuntu
+COPY --from=0 /src/hello .
+CMD [&quot;./hello&quot;]
+</code></pre>
+
+<p>最后的效果还是很惊人的，将镜像的体积直接从 <code>800 MB</code> 降低到了 <code>66 MB</code>：</p>
+
+<pre><code class="language-bash">🐳 → docker images minimage
+REPOSITORY     TAG                              ...    SIZE
+minimage       hello-go.golang                  ...    805MB
+minimage       hello-go.golang.ubuntu-workdir   ...    66.2MB
+</code></pre>
+
+<h2 id="3-from-scratch-的魔力">3. FROM scratch 的魔力</h2>
+
+<hr />
+
+<p>回到我们的 <code>hello world</code>，C 语言版本的程序大小为 <code>16 kB</code>，Go 语言版本的程序大小为 <code>2 MB</code>，那么我们到底能不能将镜像缩减到这么小？能否构建一个只包含我需要的程序，没有任何多余文件的镜像？</p>
+
+<p>答案是肯定的，你只需要将多阶段构建的第二阶段的基础镜像改为 <code>scratch</code> 就好了。<code>scratch</code> 是一个虚拟镜像，不能被 pull，也不能运行，因为它表示空、nothing！这就意味着新镜像的构建是从零开始，不存在其他的镜像层。例如：</p>
+
+<pre><code class="language-dockerfile">FROM golang
+COPY hello.go .
+RUN go build hello.go
+FROM scratch
+COPY --from=0 /go/hello .
+CMD [&quot;./hello&quot;]
+</code></pre>
+
+<p>这一次构建的镜像大小正好就是 <code>2 MB</code>，堪称完美！</p>
+
+<p>然而，但是，使用 <code>scratch</code> 作为基础镜像时会带来很多的不便，且听我一一道来。</p>
+
+<h3 id="缺少-shell">缺少 shell</h3>
+
+<p><code>scratch</code> 镜像的第一个不便是没有 <code>shell</code>，这就意味着 <code>CMD/RUN</code> 语句中不能使用字符串，例如：</p>
+
+<pre><code class="language-dockerfile">...
+FROM scratch
+COPY --from=0 /go/hello .
+CMD ./hello
+</code></pre>
+
+<p>如果你使用构建好的镜像创建并运行容器，就会遇到下面的报错：</p>
+
+<pre><code class="language-bash">docker: Error response from daemon: OCI runtime create failed: container_linux.go:345: starting container process caused &quot;exec: \&quot;/bin/sh\&quot;: stat /bin/sh: no such file or directory&quot;: unknown.
+</code></pre>
+
+<p>从报错信息可以看出，镜像中并不包含 <code>/bin/sh</code>，所以无法运行程序。这是因为当你在  <code>CMD/RUN</code> 语句中使用字符串作为参数时，这些参数会被放到 <code>/bin/sh</code> 中执行，也就是说，下面这两条语句是等效的：</p>
+
+<pre><code class="language-dockerfile">CMD ./hello
+CMD /bin/sh -c &quot;./hello&quot;
+</code></pre>
+
+<p>解决办法其实也很简单：<strong>使用 JSON 语法取代字符串语法。</strong>例如，将 <code>CMD ./hello</code> 替换为 <code>CMD [&quot;./hello&quot;]</code>，这样 Docker 就会直接运行程序，不会把它放到 shell 中运行。</p>
+
+<h3 id="缺少调试工具">缺少调试工具</h3>
+
+<p><code>scratch</code> 镜像不包含任何调试工具，<code>ls</code>、<code>ps</code>、<code>ping</code> 这些统统没有，当然了，shell 也没有（上文提过了），你无法使用 <code>docker exec</code> 进入容器，也无法查看网络堆栈信息等等。</p>
+
+<p>如果想查看容器中的文件，可以使用 <code>docker cp</code>；如果想查看或调试网络堆栈，可以使用 <code>docker run --net container:</code>，或者使用 <code>nsenter</code>；为了更好地调试容器，Kubernetes 也引入了一个新概念叫 <a href="https://kubernetes.io/docs/concepts/workloads/pods/ephemeral-containers/" target="_blank">Ephemeral Containers</a>，但现在还是 Alpha 特性。</p>
+
+<p>虽然有这么多杂七杂八的方法可以帮助我们调试容器，但它们会将事情变得更加复杂，我们追求的是简单，越简单越好。</p>
+
+<p>折中一下可以选择 <code>busybox</code> 或 <code>alpine</code> 镜像来替代 <code>scratch</code>，虽然它们多了那么几 MB，但从整体来看，这只是牺牲了少量的空间来换取调试的便利性，还是很值得的。</p>
+
+<h3 id="缺少-libc">缺少 libc</h3>
+
+<p>这是最难解决的问题。使用 <code>scratch</code> 作为基础镜像时，Go 语言版本的 <code>hello world</code> 跑得很欢快，C 语言版本就不行了，或者换个更复杂的 Go 程序也是跑不起来的（例如用到了网络相关的工具包），你会遇到类似于下面的错误：</p>
+
+<pre><code class="language-bash">standard_init_linux.go:211: exec user process caused &quot;no such file or directory&quot;
+</code></pre>
+
+<p>从报错信息可以看出缺少文件，但没有告诉我们到底缺少哪些文件，其实这些文件就是程序运行所必需的动态库（dynamic library）。</p>
+
+<p>那么，什么是动态库？为什么需要动态库？</p>
+
+<p>所谓动态库、静态库，指的是程序编译的<strong>链接阶段</strong>，链接成可执行文件的方式。<strong>静态库</strong>指的是在链接阶段将汇编生成的目标文件.o 与引用到的库一起链接打包到可执行文件中，因此对应的链接方式称为<strong>静态链接</strong>（static linking）。而动态库在程序编译时并不会被连接到目标代码中，而是在程序运行是才被载入，因此对应的链接方式称为<strong>动态链接</strong>（dynamic linking）。</p>
+
+<p>90 年代的程序大多使用的是静态链接，因为当时的程序大多数都运行在软盘或者盒式磁带上，而且当时根本不存在标准库。这样程序在运行时与函数库再无瓜葛，移植方便。但对于 Linux 这样的分时系统，会在在同一块硬盘上并发运行多个程序，这些程序基本上都会用到标准的 C 库，这时使用动态链接的优点就体现出来了。使用动态链接时，可执行文件不包含标准库文件，只包含到这些库文件的索引。例如，某程序依赖于库文件 <code>libtrigonometry.so</code> 中的 <code>cos</code> 和 <code>sin</code> 函数，该程序运行时就会根据索引找到并加载 <code>libtrigonometry.so</code>，然后程序就可以调用这个库文件中的函数。</p>
+
+<p>使用动态链接的好处显而易见：</p>
+
+<ol>
+<li>节省磁盘空间，不同的程序可以共享常见的库。</li>
+<li>节省内存，共享的库只需从磁盘中加载到内存一次，然后在不同的程序之间共享。</li>
+<li>更便于维护，库文件更新后，不需要重新编译使用该库的所有程序。</li>
+</ol>
+
+<p>严格来说，动态库与共享库（shared libraries）相结合才能达到节省内存的功效。Linux 中动态库的扩展名是 <code>.so</code>（ <code>shared object</code>），而 Windows 中动态库的扩展名是 <code>.DLL</code>（<a href="https://en.wikipedia.org/wiki/Dynamic-link_library" target="_blank">Dynamic-link library</a>）。</p>
+
+<p>回到最初的问题，默认情况下，C 程序使用的是动态链接，Go 程序也是。上面的 <code>hello world</code> 程序使用了标准库文件 <code>libc.so.6</code>，所以只有镜像中包含该文件，程序才能正常运行。使用 <code>scratch</code> 作为基础镜像肯定是不行的，使用 <code>busybox</code> 和 <code>alpine</code> 也不行，因为 <code>busybox</code> 不包含标准库，而 alpine 使用的标准库是 <code>musl libc</code>，与大家常用的标准库 <code>glibc</code> 不兼容，后续的文章会详细解读，这里就不赘述了。</p>
+
+<p>那么该如何解决标准库的问题呢？有三种方案。</p>
+
+<h4 id="1-使用静态库">1、使用静态库</h4>
+
+<p>我们可以让编译器使用静态库编译程序，办法有很多，如果使用 gcc 作为编译器，只需加上一个参数 <code>-static</code>：</p>
+
+<pre><code class="language-bash">$ gcc -o hello hello.c -static
+</code></pre>
+
+<p>编译完的可执行文件大小为 <code>760 kB</code>，相比于之前的 <code>16kB</code> 是大了好多，这是因为可执行文件中包含了其运行所需要的库文件。编译完的程序就可以跑在 <code>scratch</code> 镜像中了。</p>
+
+<p>如果使用 alpine 镜像作为基础镜像来编译，得到的可执行文件会更小（&lt; 100kB），下篇文章会详述。</p>
+
+<h4 id="2-拷贝库文件到镜像中">2、拷贝库文件到镜像中</h4>
+
+<p>为了找出程序运行需要哪些库文件，可以使用 <code>ldd</code> 工具：</p>
+
+<pre><code class="language-bash">$ ldd hello
+	linux-vdso.so.1 (0x00007ffdf8acb000)
+	libc.so.6 =&gt; /usr/lib/libc.so.6 (0x00007ff897ef6000)
+	/lib64/ld-linux-x86-64.so.2 =&gt; /usr/lib64/ld-linux-x86-64.so.2 (0x00007ff8980f7000)
+</code></pre>
+
+<p>从输出结果可知，该程序只需要 <code>libc.so.6</code> 这一个库文件。<code>linux-vdso.so.1</code> 与一种叫做  <a href="https://en.wikipedia.org/wiki/VDSO" target="_blank">VDSO</a> 的机制有关，用来加速某些系统调用，可有可无。<code>ld-linux-x86-64.so.2</code> 表示动态链接器本身，包含了所有依赖的库文件的信息。</p>
+
+<p>你可以选择将 <code>ldd</code> 列出的所有库文件拷贝到镜像中，但这会很难维护，特别是当程序有大量依赖库时。对于 <code>hello world</code> 程序来说，拷贝库文件完全没有问题，但对于更复杂的程序（例如使用到 DNS 的程序），就会遇到令人费解的问题：<code>glibc</code>（GNU C library）通过一种相当复杂的机制来实现 DNS，这种机制叫 <code>NSS</code>（Name Service Switch, 名称服务开关）。它需要一个配置文件 <code>/etc/nsswitch.conf</code> 和额外的函数库，但使用 <code>ldd</code> 时不会显示这些函数库，因为这些库在程序运行后才会加载。如果想让 DNS 解析正确工作，必须要拷贝这些额外的库文件（<code>/lib64/libnss_*</code>）。</p>
+
+<p>我个人不建议直接拷贝库文件，因为它非常难以维护，后期需要不断地更改，而且还有很多未知的隐患。</p>
+
+<h4 id="3-使用-busybox-glibc-作为基础镜像">3、使用 <code>busybox:glibc</code> 作为基础镜像</h4>
+
+<p>有一个镜像可以完美解决所有的这些问题，那就是 <code>busybox:glibc</code>。它只有 <code>5 MB</code> 大小，并且包含了 <code>glibc</code> 和各种调试工具。如果你想选择一个合适的镜像来运行使用动态链接的程序，<code>busybox:glibc</code> 是最好的选择。</p>
+
+<p>注意：如果你的程序使用到了除标准库之外的库，仍然需要将这些库文件拷贝到镜像中。</p>
+
+<h2 id="4-总结">4. 总结</h2>
+
+<hr />
+
+<p>最后来对比一下不同构建方法构建的镜像大小：</p>
+
+<ul>
+<li>原始的构建方法：1.14 GB</li>
+<li>使用 <code>ubuntu</code> 镜像的多阶段构建：64.2 MB</li>
+<li>使用 <code>alpine</code> 镜像和静态 <code>glibc</code>：6.5 MB</li>
+<li>使用 <code>alpine</code> 镜像和动态库：5.6 MB</li>
+<li>使用 <code>scratch</code> 镜像和静态 <code>glibc</code>：940 kB</li>
+<li>使用 <code>scratch</code> 镜像和静态 <code>musl libc</code>：94 kB</li>
+</ul>
+
+<p>最终我们将镜像的体积减少了 <code>99.99%</code>。</p>
+
+<p>但我不建议使用 sratch 作为基础镜像，因为调试起来非常麻烦，但如果你喜欢，我也不会拦着你。</p>
+
+<p>下篇文章将会着重介绍 Go 语言的镜像精简策略，其中会花很大的篇幅来讨论 alpine 镜像，因为它实在是太酷了，在使用它之前必须得摸清它的底细。</p>
 
          
 	 
@@ -619,6 +919,12 @@ func main () {
          
 
         
+          <div class="blog-tags">
+            
+              <a href="https://fuckcloudnative.io/tags/docker/"><i class="fa fa-tags"></i>docker</a>&nbsp;
+            
+          </div>
+        
 
         
             <hr/>
@@ -630,19 +936,19 @@ func main () {
     <ul class="share">
       
       <li>
-	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;title=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25&amp;pic=" target="_blank" title="分享到微博">
+	      <a href="//service.weibo.com/share/share.php?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;title=Docker%20%e9%95%9c%e5%83%8f%e6%9e%84%e5%bb%ba%e6%95%99%e7%a8%8b%ef%bc%9a%e5%87%8f%e5%b0%8f%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af&amp;pic=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20200320223347.png" target="_blank" title="分享到微博">
           <i class="fab fa-weibo"></i>
         </a>
       </li>
       
       <li>
-	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;title=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25&amp;source=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25&amp;desc=&amp;pics=&amp;summary=" target="_blank" title="分享到 QQ">
+	      <a href="//connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;title=Docker%20%e9%95%9c%e5%83%8f%e6%9e%84%e5%bb%ba%e6%95%99%e7%a8%8b%ef%bc%9a%e5%87%8f%e5%b0%8f%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af&amp;source=Docker%20%e9%95%9c%e5%83%8f%e6%9e%84%e5%bb%ba%e6%95%99%e7%a8%8b%ef%bc%9a%e5%87%8f%e5%b0%8f%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af&amp;desc=%e6%9c%ac%e6%96%87%e4%b8%bb%e8%a6%81%e4%bb%8b%e7%bb%8d%e4%ba%86%20Docker%20%e9%95%9c%e5%83%8f%e7%9a%84%e5%a4%9a%e9%98%b6%e6%ae%b5%e6%9e%84%e5%bb%ba%ef%bc%8c%e8%a7%a3%e9%87%8a%e4%ba%86%e9%9d%99%e6%80%81%e9%93%be%e6%8e%a5%e5%92%8c%e5%8a%a8%e6%80%81%e9%93%be%e6%8e%a5%e7%9a%84%e5%8c%ba%e5%88%ab%ef%bc%8c%e5%ae%83%e4%bb%ac%e5%af%b9%e9%95%9c%e5%83%8f%e5%b8%a6%e6%9d%a5%e7%9a%84%e5%bd%b1%e5%93%8d%ef%bc%8c%e4%bb%a5%e5%8f%8a%e5%a6%82%e4%bd%95%e9%81%bf%e5%85%8d%e9%82%a3%e4%ba%9b%e4%b8%8d%e5%a5%bd%e7%9a%84%e5%bd%b1%e5%93%8d%e3%80%82&amp;pics=https%3a%2f%2fhugo-picture.oss-cn-beijing.aliyuncs.com%2fimages%2f20200320223347.png&amp;summary=%e6%9c%ac%e6%96%87%e4%b8%bb%e8%a6%81%e4%bb%8b%e7%bb%8d%e4%ba%86%20Docker%20%e9%95%9c%e5%83%8f%e7%9a%84%e5%a4%9a%e9%98%b6%e6%ae%b5%e6%9e%84%e5%bb%ba%ef%bc%8c%e8%a7%a3%e9%87%8a%e4%ba%86%e9%9d%99%e6%80%81%e9%93%be%e6%8e%a5%e5%92%8c%e5%8a%a8%e6%80%81%e9%93%be%e6%8e%a5%e7%9a%84%e5%8c%ba%e5%88%ab%ef%bc%8c%e5%ae%83%e4%bb%ac%e5%af%b9%e9%95%9c%e5%83%8f%e5%b8%a6%e6%9d%a5%e7%9a%84%e5%bd%b1%e5%93%8d%ef%bc%8c%e4%bb%a5%e5%8f%8a%e5%a6%82%e4%bd%95%e9%81%bf%e5%85%8d%e9%82%a3%e4%ba%9b%e4%b8%8d%e5%a5%bd%e7%9a%84%e5%bd%b1%e5%93%8d%e3%80%82" target="_blank" title="分享到 QQ">
           <i class="fab fa-qq"></i>
         </a>
       </li>
       
       <li>
-        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;text=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
+        <a href="//twitter.com/share?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;text=Docker%20%e9%95%9c%e5%83%8f%e6%9e%84%e5%bb%ba%e6%95%99%e7%a8%8b%ef%bc%9a%e5%87%8f%e5%b0%8f%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af&amp;via=RyangYang1" target="_blank" title="分享到 Twitter">
           <i class="fab fa-twitter"></i>
         </a>
       </li>
@@ -656,7 +962,7 @@ func main () {
   
       
       <li>
-	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;title=%e4%b8%a4%e4%b8%aa%e5%a5%87%e6%8a%80%e6%b7%ab%e5%b7%a7%ef%bc%8c%e5%b0%86%20Docker%20%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af%e5%87%8f%e5%b0%8f%2099%25" target="_blank" title="分享到 LinkedIn">
+	      <a href="//www.linkedin.com/shareArticle?url=https%3a%2f%2ffuckcloudnative.io%2fposts%2fdocker-images-part1-reducing-image-size%2f&amp;title=Docker%20%e9%95%9c%e5%83%8f%e6%9e%84%e5%bb%ba%e6%95%99%e7%a8%8b%ef%bc%9a%e5%87%8f%e5%b0%8f%e9%95%9c%e5%83%8f%e4%bd%93%e7%a7%af" target="_blank" title="分享到 LinkedIn">
           <i class="fab fa-linkedin"></i>
         </a>
       </li>
@@ -670,6 +976,25 @@ func main () {
 
         
           
+            
+          
+
+          
+                  <h4 class="see-also">相关推荐</h4>
+                  <ul>
+                
+                
+                    <li><a href="/posts/multiarch-docker-with-buildx/">使用 buildx 构建多平台 Docker 镜像</a></li>
+                
+                    <li><a href="/posts/intro-guide-to-dockerfile-best-practices/">你确定你会写 Dockerfile 吗？</a></li>
+                
+                    <li><a href="/posts/envoy-docker-shim/">使用 envoy-docker-shim 替代 docker-proxy</a></li>
+                
+                    <li><a href="/posts/cri-o/">CRI-O 简介</a></li>
+                
+                    <li><a href="/posts/container-runtime/">Kubernetes 中的容器运行时</a></li>
+                
+              </ul>
 
           
         

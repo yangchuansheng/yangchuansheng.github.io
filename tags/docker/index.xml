@@ -8,10 +8,19 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Sun, 17 Nov 2019 13:54:43 -0500</lastBuildDate>
+    <lastBuildDate>Thu, 19 Mar 2020 23:25:39 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/tags/docker/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Docker 镜像构建教程：减小镜像体积</title>
+      <link>https://fuckcloudnative.io/posts/docker-images-part1-reducing-image-size/</link>
+      <pubDate>Thu, 19 Mar 2020 23:25:39 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/docker-images-part1-reducing-image-size/</guid>
+      <description>原文链接：Docker Images : Part I - Reducing Image Size 对于刚接触容器的人来说，他们很容易被自己构建的 Docker 镜像体积吓到，我只需要一个几 MB 的可执行文件而已，为何镜</description>
+    </item>
     
     <item>
       <title>使用 buildx 构建多平台 Docker 镜像</title>
