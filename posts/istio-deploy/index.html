@@ -63,7 +63,7 @@
   "headline": "Istio 1.5 部署指南",
   "description" : "本文将会告诉你如何使用 Operator 部署 istio 1.5，并开启 istio CNI 插件。",
   "inLanguage" : "zh",
-  "wordCount":  2727 ,
+  "wordCount":  3051 ,
   "datePublished" : "2019-12-15T00:14:06",
   "dateModified" : "2019-12-15T00:14:06",
   "image" : "https:\/\/hugo-picture.oss-cn-beijing.aliyuncs.com\/blog\/2019-08-26-WechatIMG12268.jpeg",
@@ -442,10 +442,10 @@ autocomplete('#aa-search-input',
   <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 12 月 15 日
   
   
-    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;分钟
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;7&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2727&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3051&nbsp;个字
   
   
     
@@ -484,10 +484,10 @@ autocomplete('#aa-search-input',
   <i class="fas fa-calendar"></i>&nbsp;发表于 2019 年 12 月 15 日
   
   
-    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;分钟
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;7&nbsp;分钟
   
   
-    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;2727&nbsp;个字
+    &nbsp;|&nbsp;<i class="fas fa-book"></i>&nbsp;3051&nbsp;个字
   
   
     
@@ -583,9 +583,10 @@ autocomplete('#aa-search-input',
 <ul>
 <li><a href="#istio-cni-plugin">Istio CNI Plugin</a></li>
 <li><a href="#kubernetes-关键插件-critical-add-on-pods">Kubernetes 关键插件（Critical Add-On Pods）</a></li>
+<li><a href="#hostnetwork">HostNetwork</a></li>
+<li><a href="#只暴露必要端口">只暴露必要端口</a></li>
 </ul></li>
 <li><a href="#span-id-inline-toc-4-span-暴露-dashboard"><span id="inline-toc">4.</span> 暴露 Dashboard</a></li>
-<li><a href="#span-id-inline-toc-5-span-暴露-gateway"><span id="inline-toc">5.</span> 暴露 Gateway</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -909,6 +910,30 @@ spec:
             maxSurge: 0%
         nodeSelector:
           kubernetes.io/hostname: sealos02
+        overlays:
+        - apiVersion: apps/v1
+          kind: Deployment
+          name: istio-ingressgateway
+          patches:
+          - path: spec.template.spec
+            value:
+              hostNetwork: true
+              dnsPolicy: ClusterFirstWithHostNet
+        - apiVersion: v1
+          kind: Service
+          name: istio-ingressgateway
+          patches:
+          - path: spec.ports
+            value:
+            - name: status-port
+              port: 15020
+              targetPort: 15020
+            - name: http2
+              port: 80
+              targetPort: 80
+            - name: https
+              port: 443
+              targetPort: 443
   values:
     cni:
       excludeNamespaces:
@@ -927,6 +952,55 @@ EOF
 <li>将 istio-ingressgateway 调度到指定节点。</li>
 <li>默认情况下除了 <code>istio-system</code> namespace 之外，istio cni 插件会监视其他所有 namespace 中的 Pod，然而这并不能满足我们的需求，更严谨的做法是让 istio CNI 插件至少忽略 <code>kube-system</code>、<code>istio-system</code> 这两个 namespace，如果你还有其他的特殊的 namespace，也应该加上，例如 <code>monitoring</code>。</li>
 </ul>
+
+<p>下面着重解释 <code>overlays</code> 列表中的字段：</p>
+
+<h3 id="hostnetwork">HostNetwork</h3>
+
+<p>为了暴露 Ingress Gateway，我们可以使用 <code>hostport</code> 暴露端口，并将其调度到某个固定节点。如果你的 CNI 插件不支持 <code>hostport</code>，可以使用 <code>HostNetwork</code> 模式运行，但你会发现无法启动 ingressgateway 的 Pod，因为如果 Pod 设置了 <code>HostNetwork=true</code>，则 dnsPolicy 就会从 <code>ClusterFirst</code> 被强制转换成 <code>Default</code>。而 Ingress Gateway 启动过程中需要通过 DNS 域名连接 <code>pilot</code> 等其他组件，所以无法启动。</p>
+
+<p>我们可以通过强制将 <code>dnsPolicy</code> 的值设置为 <code>ClusterFirstWithHostNet</code> 来解决这个问题，详情参考：<a href="https://fuckcloudnative.io/posts/kubernetes-dns/" target="_blank">Kubernetes DNS 高阶指南</a>。</p>
+
+<p>当然你可以部署完成之后再修改 Ingress Gateway 的 <code>Deployment</code>，但这种方式还是不太优雅。经过我对  <a href="https://istio.io/docs/reference/config/istio.operator.v1alpha1/" target="_blank"><code>IstioOperator</code> API 文档</a> 的研究，发现了一个更为优雅的方法，那就是直接修改资源对象 <code>IstioOperator</code> 的内容，在 <code>components.ingressGateways</code> 下面加上么一段：</p>
+
+<pre><code class="language-yaml">        overlays:
+        - apiVersion: apps/v1
+          kind: Deployment
+          name: istio-ingressgateway
+          patches:
+          - path: spec.template.spec
+            value:
+              hostNetwork: true
+              dnsPolicy: ClusterFirstWithHostNet
+</code></pre>
+
+<p>具体含义我就不解释了，请看上篇文章。这里只对 IstioOperator 的语法做简单说明：</p>
+
+<ul>
+<li><code>overlays</code> 列表用来修改对应组件的各个资源对象的 manifest，这里修改的是组件 Ingress Gateway 的  <code>Deployment</code>。</li>
+<li><code>patches</code> 列表里是实际要修改或添加的字段，我就不解释了，应该很好理解。</li>
+</ul>
+
+<h3 id="只暴露必要端口">只暴露必要端口</h3>
+
+<p>从安全的角度来考虑，我们不应该暴露那些不必要的端口，对于 Ingress Gateway 来说，只需要暴露 HTTP、HTTPS 和 metrics 端口就够了。方法和上面一样，直接在 <code>components.ingressGateways</code> 的 <code>overlays</code> 列表下面加上这么一段：</p>
+
+<pre><code class="language-yaml">        - apiVersion: v1
+          kind: Service
+          name: istio-ingressgateway
+          patches:
+          - path: spec.ports
+            value:
+            - name: status-port
+              port: 15020
+              targetPort: 15020
+            - name: http2
+              port: 80
+              targetPort: 80
+            - name: https
+              port: 443
+              targetPort: 443
+</code></pre>
 
 <p>部署完成后，查看各组件状态：</p>
 
@@ -1013,43 +1087,6 @@ http://localhost:36813
 </code></pre>
 
 <p>咋一看可能觉得这个功能很鸡肋，我的集群又不是部署在本地，而且这个命令又不能指定监听的 IP，在本地用浏览器根本打不开呀！其实不然，你可以在本地安装 kubectl 和 istioctl 二进制文件，然后通过 kubeconfig 连接到集群，最后再在本地执行上面的命令，就可以打开页面啦，开发人员用来测试是不是很方便？Windows 用户当我没说。。。</p>
-
-<h2 id="span-id-inline-toc-5-span-暴露-gateway"><span id="inline-toc">5.</span> 暴露 Gateway</h2>
-
-<p>为了暴露 Ingress Gateway，我们可以使用 <code>hostport</code> 暴露端口，并将其调度到某个固定节点，上面的部署方法就是这么做的。如果你的 CNI 插件不支持 <code>hostport</code>，可以使用 <code>HostNetwork</code> 模式运行，但你会发现无法启动 ingressgateway 的 Pod，因为如果 Pod 设置了 <code>HostNetwork=true</code>，则 dnsPolicy 就会从 <code>ClusterFirst</code> 被强制转换成 <code>Default</code>。而 Ingress Gateway 启动过程中需要通过 DNS 域名连接 <code>pilot</code> 等其他组件，所以无法启动。</p>
-
-<p>我们可以通过强制将 <code>dnsPolicy</code> 的值设置为 <code>ClusterFirstWithHostNet</code> 来解决这个问题，详情参考：<a href="https://fuckcloudnative.io/posts/kubernetes-dns/" target="_blank">Kubernetes DNS 高阶指南</a>。</p>
-
-<p>修改后的 ingressgateway deployment 配置文件如下：</p>
-
-<pre><code class="language-yaml">apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: istio-ingressgateway
-  namespace: istio-system
-  ...
-spec:
-  ...
-  template:
-    metadata:
-    ...
-    spec:
-      affinity:
-        nodeAffinity:
-          ...
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                - sealos02   # 假设你想调度到这台主机上
-      ...
-      dnsPolicy: ClusterFirstWithHostNet
-      hostNetwork: true
-      restartPolicy: Always
-      ...
-</code></pre>
 
 <p>接下来我们就可以在浏览器中通过 Gateway 的 URL 来访问服务网格中的服务了。后面我会开启一系列实验教程，本文的所有步骤都是为后面做准备，如果想跟着我做后面的实验，请务必做好本文所述的准备工作。</p>
 
@@ -1193,7 +1230,7 @@ spec:
       
 
       
-	    <link rel="stylesheet" href="https://fuckcloudnative.io/css/iDisqus.min.css" />
+        <link rel="stylesheet" href="https://fuckcloudnative.io/css/iDisqus.min.css" />
 <div id="comment"></div>
 <script src="https://fuckcloudnative.io/js/iDisqus.min.js"></script>
 <script>
