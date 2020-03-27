@@ -8,7 +8,7 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Thu, 19 Mar 2020 23:25:39 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 07 Sep 2018 18:10:36 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/index.xml" rel="self" type="application/rss+xml" />
     
@@ -1063,7 +1063,7 @@
       <pubDate>Sun, 21 Jan 2018 09:28:41 +0000</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/posts/devicemapper-theory/</guid>
-      <description>1. Device Mapper 简介 注意 Device Mapper 是 linux 的内核用来将块设备映射到虚拟块设备的 framework，它支持许多高级卷管理技术。docker 的 devicemapper 存储驱动程序利用此框</description>
+      <description>1. Device Mapper 简介 .notice{padding:18px;line-height:24px;margin-bottom:24px;margin-top:30px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice-title:before{margin-right:8px;font-family:&#34;Font Awesome 5 Free&#34;,FontAwesome;font-weight:600}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning .notice-title:before{content:&#39;\f071&#39;}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info .notice-title:before{content:&#39;\f05a&#39;}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note .notice-title:before{content:&#39;\f06a&#39;}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip .notice-title:before{content:&#39;\f058&#39;}.notice.ti</description>
     </item>
     
     <item>
@@ -1080,7 +1080,7 @@
 &lt;div class=&#34;gallery caption-position-bottom caption-effect-fade hover-effect-zoom hover-transition&#34; itemscope itemtype=&#34;http://schema.org/ImageGallery&#34;&gt;
 	  
   
-
+&lt;link rel=&#34;stylesheet&#34; href=&#34;https://fuckcloudnative.io/css/hugo-easy-gallery.css&#34; /&gt;
 &lt;div class=&#34;box&#34; &gt;
   &lt;figure  itemprop=&#34;associatedMedia&#34; itemscope itemtype=&#34;http://schema.org/ImageObject&#34;&gt;
     &lt;div class=&#34;img&#34; style=&#34;background-image: url(&#39;https://fuckcloudnative.io/img/hexagon-thumb.jpg&#39;);&#34;&gt;
@@ -1240,16 +1240,6 @@ Association football, more commonly known as football or soccer,[2] is a sport p
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/post/2015-01-04-first-post/</guid>
       <description>This is my first post, how exciting!</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>https://fuckcloudnative.io/posts/ocp-4-%E9%83%A8%E7%BD%B2/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
-      <guid>https://fuckcloudnative.io/posts/ocp-4-%E9%83%A8%E7%BD%B2/</guid>
-      <description>登录 CoreOS：
-$ ssh -i ~/.ssh/id_rsa core@192.168.57.61  </description>
     </item>
     
     <item>
