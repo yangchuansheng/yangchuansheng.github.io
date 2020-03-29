@@ -8,10 +8,28 @@
     <language>en-us</language>
     <managingEditor>yangchuansheng33@gmail.com (米开朗基杨)</managingEditor>
     <webMaster>yangchuansheng33@gmail.com (米开朗基杨)</webMaster>
-    <lastBuildDate>Thu, 19 Mar 2020 23:25:39 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 28 Mar 2020 11:40:35 +0800</lastBuildDate>
     
 	<atom:link href="https://fuckcloudnative.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>cgroup</title>
+      <link>https://fuckcloudnative.io/tags/cgroup/</link>
+      <pubDate>Sat, 28 Mar 2020 11:40:35 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/tags/cgroup/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>linux</title>
+      <link>https://fuckcloudnative.io/tags/linux/</link>
+      <pubDate>Sat, 28 Mar 2020 11:40:35 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/tags/linux/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>docker</title>
@@ -73,15 +91,6 @@
       <pubDate>Mon, 10 Feb 2020 23:22:34 +0800</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/tags/tcpdump/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>linux</title>
-      <link>https://fuckcloudnative.io/tags/linux/</link>
-      <pubDate>Fri, 17 Jan 2020 21:35:19 +0800</pubDate>
-      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
-      <guid>https://fuckcloudnative.io/tags/linux/</guid>
       <description></description>
     </item>
     
@@ -253,15 +262,6 @@
       <pubDate>Tue, 30 Jul 2019 17:00:49 +0800</pubDate>
       <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
       <guid>https://fuckcloudnative.io/tags/calico/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>cgroup</title>
-      <link>https://fuckcloudnative.io/tags/cgroup/</link>
-      <pubDate>Thu, 25 Jul 2019 22:41:11 +0800</pubDate>
-      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
-      <guid>https://fuckcloudnative.io/tags/cgroup/</guid>
       <description></description>
     </item>
     

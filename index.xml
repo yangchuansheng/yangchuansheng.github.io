@@ -41,6 +41,15 @@
     </item>
     
     <item>
+      <title>Linux Cgroup 入门教程：cpuset</title>
+      <link>https://fuckcloudnative.io/posts/understanding-cgroups-part-4-cpuset/</link>
+      <pubDate>Sat, 28 Mar 2020 11:40:35 +0800</pubDate>
+      <author>yangchuansheng33@gmail.com (米开朗基杨)</author>
+      <guid>https://fuckcloudnative.io/posts/understanding-cgroups-part-4-cpuset/</guid>
+      <description>这是 Cgroup 系列的第四篇，往期回顾： Linux Cgroup 入门教程：基本概念 Linux Cgroup 入门教程：CPU Linux Cgroup 入门教程：内存 通过上篇文章的学习，我们学会了如何查看当前 cgroup 的信息</description>
+    </item>
+    
+    <item>
       <title>Docker 镜像构建教程：减小镜像体积</title>
       <link>https://fuckcloudnative.io/posts/docker-images-part1-reducing-image-size/</link>
       <pubDate>Thu, 19 Mar 2020 23:25:39 +0800</pubDate>
